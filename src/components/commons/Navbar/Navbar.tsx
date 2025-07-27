@@ -7,7 +7,6 @@ import {
   NavbarItem,
   Link,
   Button,
-  Image,
   Input,
   Dropdown,
   DropdownTrigger,
@@ -18,6 +17,7 @@ import {
   NavbarMenuItem,
   NavbarMenuToggle,
 } from "@heroui/react";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
@@ -39,7 +39,7 @@ export default function Navbar() {
         />
         <NavbarBrand className="mr-4">
           <Image
-            src={"/images/logo-full.png"}
+            src="/images/logo-full.png"
             alt="brand logo"
             height={34}
             width={128}

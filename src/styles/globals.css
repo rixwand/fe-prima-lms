@@ -6,7 +6,7 @@
 
 @layer utilities {
   .bg-img {
-    @apply bg-[url('/image-auth.png')] bg-cover;
+    @apply bg-[url('/images/image-auth.png')] bg-cover;
   }
   svg.star-svg {
     display: inline;

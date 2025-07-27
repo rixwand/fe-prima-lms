@@ -2,7 +2,6 @@ import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { Avatar, Button, Card, CardBody, CardFooter } from "@heroui/react";
 import Image from "next/image";
-import { FaChevronCircleRight } from "react-icons/fa";
 import { FaChevronRight } from "react-icons/fa6";
 import { Rating } from "react-simple-star-rating";
 

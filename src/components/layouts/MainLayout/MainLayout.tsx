@@ -1,3 +1,4 @@
+import Footer from "@/components/commons/Footer";
 import PageHead from "@/components/commons/PageHead";
 import { ReactNode } from "react";
 
@@ -10,7 +11,8 @@ const MainLayout = ({ title, children }: Props) => {
   return (
     <>
       <PageHead {...{ title }} />
-      <section>{children}</section>
+      <main>{children}</main>
+      <Footer />
     </>
   );
 };

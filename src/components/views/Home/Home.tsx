@@ -1,4 +1,5 @@
 import CourseSection from "./CourseSection";
+import FaqSection from "./FaqSection";
 import FeatureSection from "./FeatureSection";
 import HeroSection from "./HeroSection";
 import PartnerSection from "./PartnerSection";
@@ -12,6 +13,7 @@ export default function Home() {
       <PartnerSection />
       <CourseSection />
       <ReviewSection />
+      <FaqSection />
     </>
   );
 }

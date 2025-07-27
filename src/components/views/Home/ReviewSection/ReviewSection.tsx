@@ -3,7 +3,7 @@ import cn from "@/libs/utils/cn";
 import { Card } from "@heroui/react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { FaChevronLeft, FaChevronRight, FaStar } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { Rating } from "react-simple-star-rating";
 
 type TReview = {
@@ -102,13 +102,13 @@ export default function ReviewSection() {
         {/* Arrow Buttons (absolute sides) */}
         <button
           onClick={prev}
-          className="absolute left-4 xl:left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-indigo-500 text-indigo-500 rounded-full shadow hover:bg-indigo-100 disabled:opacity-30"
+          className="absolute left-4 md:left-8 xl:left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-indigo-500 text-indigo-500 rounded-full shadow hover:bg-indigo-100 disabled:opacity-30"
           disabled={currentIndex === 0}>
           <FaChevronLeft />
         </button>
         <button
           onClick={next}
-          className="absolute xl:hidden flex right-4 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-indigo-500 text-indigo-500 rounded-full shadow hover:bg-indigo-100 disabled:opacity-30"
+          className="absolute xl:hidden md:right-8 flex right-4 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-indigo-500 text-indigo-500 rounded-full shadow hover:bg-indigo-100 disabled:opacity-30"
           disabled={currentIndex + 1 >= reviews.length}>
           <FaChevronRight />
         </button>
