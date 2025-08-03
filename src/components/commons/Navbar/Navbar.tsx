@@ -25,7 +25,11 @@ export default function Navbar() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
 
-  const menuItems = ["Kursus", "Ulasan", "Tentang"];
+  const menuItems = [
+    { title: "Kursus", link: "/course" },
+    { title: "Ulasan", link: "#review" },
+    { title: "Tentang", link: "#review" },
+  ];
   return (
     <Nav
       className={cn([inter.className, "sm:h-[81px]"])}
@@ -46,10 +50,10 @@ export default function Navbar() {
           />
         </NavbarBrand>
         <NavbarContent className="hidden lg:flex gap-10 mr-4">
-          {menuItems.map((val, i) => (
-            <NavbarItem key={val}>
-              <Link color="foreground" href="#" className="text-lg">
-                {val}
+          {menuItems.map((val) => (
+            <NavbarItem key={val.title}>
+              <Link color="foreground" href={val.link} className="text-lg">
+                {val.title}
               </Link>
             </NavbarItem>
           ))}
@@ -117,7 +121,7 @@ export default function Navbar() {
       </NavbarContent>
       <NavbarMenu>
         {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
+          <NavbarMenuItem key={item.title}>
             <Link
               className="w-full"
               color={
@@ -127,9 +131,9 @@ export default function Navbar() {
                   ? "danger"
                   : "foreground"
               }
-              href="#"
+              href={item.link}
               size="lg">
-              {item}
+              {item.title}
             </Link>
           </NavbarMenuItem>
         ))}

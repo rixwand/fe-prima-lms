@@ -3,7 +3,6 @@ import cn from "@/libs/utils/cn";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  FaChevronUp,
   FaFacebook,
   FaInstagram,
   FaLinkedin,
@@ -17,8 +16,8 @@ import { SlLocationPin } from "react-icons/sl";
 export default function Footer() {
   return (
     <footer className={cn([poppins.className, "bg-[#1E40AF]"])}>
-      <div className="container items-center flex px-6 justify-between flex-row md:px-0 py-9 mx-auto">
-        <div className="relative lg:hidden w-52 lg:w-56 aspect-[17/5] h-fit">
+      <div className="container items-center flex px-6 justify-between flex-row lg:px-0 py-9 mx-auto">
+        <div className="relative lg:hidden w-52  aspect-[17/5] h-fit">
           <Image
             src={"/images/logo-full.png"}
             alt="logo prima"
@@ -27,7 +26,7 @@ export default function Footer() {
           />
         </div>
       </div>
-      <div className="flex sm:flex-row flex-wrap flex-col gap-y-12 container px-6 md:px-0 justify-between gap-x-15 lg:justify-between mx-auto pb-16">
+      <div className="flex sm:flex-row flex-wrap flex-col gap-y-12 container px-6 lg:px-0 justify-between gap-x-15 lg:justify-between mx-auto pb-16">
         <div className="relative lg:flex hidden w-52 lg:w-56 aspect-[17/5] h-fit">
           <Image
             src={"/images/logo-full.png"}

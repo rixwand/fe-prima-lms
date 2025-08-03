@@ -1,4 +1,4 @@
-import { Poppins, Inter } from "next/font/google";
+import { Poppins, Inter, Quicksand } from "next/font/google";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -10,4 +10,9 @@ const inter = Inter({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
-export { poppins, inter };
+const quicksand = Quicksand({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+export { poppins, inter, quicksand };
