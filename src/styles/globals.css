@@ -11,9 +11,14 @@
   svg.star-svg {
     display: inline;
   }
+
+  button {
+    @apply active:scale-95 transition-transform duration-150;
+  }
 }
 
 @theme {
   --color-main: #f0f2f8;
-  --color-prime: #00218e;
+  --color-prime: #1e40af;
+  --color-abu: #e4e4e7;
 }

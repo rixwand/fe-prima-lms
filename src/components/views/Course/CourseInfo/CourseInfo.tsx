@@ -12,17 +12,23 @@ import {
   Tabs,
 } from "@heroui/react";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { IoMdTime } from "react-icons/io";
 import { LuUsers } from "react-icons/lu";
 import { PiInfoBold } from "react-icons/pi";
 import { Rating } from "react-simple-star-rating";
 
 export default function CourseInfo() {
+  const route = useRouter();
   return (
-    <section className={cn([inter.className, "container px-12 mx-auto my-12"])}>
-      <div className="flex gap-x-8">
-        <div className="flex-1">
-          <div className="flex gap-x-8">
+    <section
+      className={cn([
+        inter.className,
+        "container px-6 lg:px-12 mx-auto my-12",
+      ])}>
+      <div className="flex flex-wrap gap-8">
+        <div className="lg:flex-1">
+          <div className="flex gap-8 flex-wrap">
             <div className="w-[23rem] h-fit aspect-video rounded-lg overflow-hidden relative bg-red-50">
               <Image
                 src={"/images/course-img.png"}
@@ -54,7 +60,7 @@ export default function CourseInfo() {
               </span>
             </div>
           </div>
-          <div className={"mt-12"}>
+          <div className={"lg:mt-12 mt-6"}>
             <Tabs size="lg" aria-label="Tabs variants" variant={"underlined"}>
               <Tab key="desc" title="Deskripsi">
                 <DescTab />
@@ -68,7 +74,7 @@ export default function CourseInfo() {
             </Tabs>
           </div>
         </div>
-        <Card className="px-6 h-fit py-5 ml-auto shadow-md border space-y-3 border-[#E4E4E7] bg-white w-[25rem]">
+        <Card className="px-6 h-fit py-5 mx-auto lg:ml-auto shadow-md border space-y-3 border-[#E4E4E7] bg-white w-[25rem]">
           <span className="w-full flex items-center justify-between">
             <p className="font-bold">Harga Kursus</p>
             <p className="text-xl font-semibold text-[#aaa] line-through">
@@ -92,7 +98,6 @@ export default function CourseInfo() {
               placeholder="Masukkan kode promo"
               radius="sm"
               variant="bordered"
-              color="success"
             />
             <Button className="bg-[#1E40AF] text-white font-semibold rounded-lg px-6">
               Terapkan
@@ -106,7 +111,9 @@ export default function CourseInfo() {
             <p className="font-bold">Jumlah Tagihan</p>
             <p className="text-xl font-semibold">Rp440.000</p>
           </span>
-          <Button className="mt-2 bg-[#1E40AF] py-5.5 text-white font-semibold rounded-lg text-lg px-6">
+          <Button
+            onPress={() => route.push("/checkout/test")}
+            className="mt-2 bg-[#1E40AF] py-5.5 text-white font-semibold rounded-lg text-lg px-6">
             Checkout
           </Button>
         </Card>
@@ -117,7 +124,7 @@ export default function CourseInfo() {
 
 const PreviewTab = () => {
   return (
-    <div className="mt-3 w-4/5 text-gray-500 text-lg">
+    <div className="mt-3 lg:w-4/5 text-gray-500 text-lg">
       <iframe
         width="560"
         height="315"
@@ -206,13 +213,13 @@ const SyllabusTab = () => {
   ];
 
   return (
-    <div className="space-y-3 w-4/5 text-gray-500 text-lg">
-      <h3 className="w-full ml-3 font-semibold text-lg">
+    <div className="space-y-3 w-full lg:w-4/5 text-gray-500 lg:text-lg">
+      <h3 className="w-full lg:ml-3 font-semibold lg:text-lg">
         Materi yang akan dipelajari pada kursus ini :
       </h3>
       <Accordion
         itemClasses={{
-          base: ["shadow-none border-1 border-gray-300 mt-0.5"],
+          base: ["shadow-none border-1 border-gray-300 mt-0.5 lg:ml-0 -ml-2"],
           title: ["text-gray-500", "font-semibold"],
         }}
         variant="splitted">
@@ -237,8 +244,8 @@ const SyllabusTab = () => {
 
 const DescTab = () => {
   return (
-    <div className="mx-2 space-y-3 text-gray-500 text-lg">
-      <p className="w-4/5">
+    <div className="lg:mx-2 space-y-3 text-gray-500 lg:text-lg">
+      <p className="lg:w-4/5">
         Kursus ini dirancang khusus untuk membantu Anda menguasai Microsoft Word
         dari dasar hingga fitur-fitur lanjutan.
         <br />
