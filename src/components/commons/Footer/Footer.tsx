@@ -16,7 +16,7 @@ import { SlLocationPin } from "react-icons/sl";
 export default function Footer() {
   return (
     <footer className={cn([poppins.className, "bg-[#1E40AF]"])}>
-      <div className="container items-center flex px-6 justify-between flex-row lg:px-0 py-9 mx-auto">
+      <div className="container items-center flex px-6 justify-between flex-row xl:px-0 py-9 mx-auto">
         <div className="relative lg:hidden w-52  aspect-[17/5] h-fit">
           <Image
             src={"/images/logo-full.png"}

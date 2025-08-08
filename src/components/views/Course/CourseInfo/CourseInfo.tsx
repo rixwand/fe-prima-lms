@@ -24,12 +24,12 @@ export default function CourseInfo() {
     <section
       className={cn([
         inter.className,
-        "container px-6 lg:px-12 mx-auto my-12",
+        "container px-6 2xl:px-12 mx-auto my-12",
       ])}>
       <div className="flex flex-wrap gap-8">
         <div className="lg:flex-1">
-          <div className="flex gap-8 flex-wrap">
-            <div className="w-[23rem] h-fit aspect-video rounded-lg overflow-hidden relative bg-red-50">
+          <div className="flex gap-8 flex-wrap xl:flex-nowrap">
+            <div className="max-w-[23rem] w-full h-fit aspect-video rounded-lg overflow-hidden relative bg-red-50">
               <Image
                 src={"/images/course-img.png"}
                 alt="course image"
@@ -244,7 +244,7 @@ const SyllabusTab = () => {
 
 const DescTab = () => {
   return (
-    <div className="lg:mx-2 space-y-3 text-gray-500 lg:text-lg">
+    <div className="lg:mx-2 space-y-3 text-gray-500">
       <p className="lg:w-4/5">
         Kursus ini dirancang khusus untuk membantu Anda menguasai Microsoft Word
         dari dasar hingga fitur-fitur lanjutan.

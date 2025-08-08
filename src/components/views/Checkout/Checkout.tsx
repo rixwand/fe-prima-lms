@@ -13,8 +13,8 @@ import { PiInfoBold } from "react-icons/pi";
 
 export default function Checkout() {
   return (
-    <div className="w-full min-h-screen items-center flex flex-col justify-center relative">
-      <h1 className="mb-6 text-center text-2xl font-semibold text-gray-600">
+    <div className="w-full items-center my-6 flex flex-col justify-center relative">
+      <h1 className="mb-6 px-4 text-center text-2xl font-semibold text-gray-600">
         Pembayaran untuk Kursus Microsoft Office Word
       </h1>
       <Card
