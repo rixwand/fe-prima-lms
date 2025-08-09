@@ -10,7 +10,7 @@ export default function CourseSection() {
       <div className="py-16 flex flex-col items-center container mx-auto lg:px-16">
         <h2 className="font-bold text-2xl text-white">Pilihan Kursus</h2>
         <p className="text-white pt-2">Pilih Kursus yang kamu inginkan</p>
-        <div className="flex lg:gap-y-12 gap-5 lg:justify-evenly lg:w-full justify-center mt-12 flex-wrap">
+        <div className="mt-6 lg:mt-9 px-2 grid grid-cols-2 lg:gap-6 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
           <CourseCard />
           <CourseCard />
           <CourseCard />

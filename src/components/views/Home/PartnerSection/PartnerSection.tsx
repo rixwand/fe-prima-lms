@@ -28,7 +28,8 @@ export default function PartnerSection() {
   return (
     <section className="flex flex-col my-20 items-center lg:px-14">
       <h2 className="font-bold text-2xl">Dipercaya Oleh</h2>
-      <div className="flex container gap-9 xl:px-9 flex-wrap justify-center mt-9 ">
+      <div className="flex container gap-6 lg:gap-9 xl:px-9 flex-wrap justify-center mt-9 ">
+        {/* <div className="mt-6 lg:mt-9 px-2 grid grid-cols-2 md:gap-9 gap-6 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5"> */}
         {companyLogos.map((logo, i) => (
           <CardLogo key={i} logo={logo} />
         ))}

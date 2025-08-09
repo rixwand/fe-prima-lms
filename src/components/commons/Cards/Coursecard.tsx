@@ -7,28 +7,30 @@ const CourseCard = ({ link = "/course/test" }: { link?: string }) => {
   return (
     <Link href={link}>
       <Card
-        className="rounded-xl w-[12rem] h-[16.5rem] lg:w-[16rem] lg:h-[20.5rem] "
+        // className="rounded-xl w-[12rem] h-[16.5rem] lg:w-[16rem] lg:h-[20.5rem] "
+        className="rounded-xl w-full"
         isPressable>
-        <CardBody>
+        <div className="max-w-72 relative w-full mt-auto h-fit bg-red-50 aspect-video">
           <Image
             fill
+            objectFit="contain"
             className="object-cover rounded-t-md"
             src={"/images/course-img.png"}
             alt="Course Image"
           />
-        </CardBody>
-        <CardFooter className="flex-col gap-y-0.5 lg:gap-y-2 items-start p-4 overflow-hidden">
-          <h3 className="line-clamp-1 font-bold lg:text-sm text-[12px] text-start">
+        </div>
+        <CardFooter className="relative flex-col gap-y-0.5 lg:gap-y-2 items-start p-4 overflow-hidden">
+          <h3 className="line-clamp-2 font-bold md:text-sm text-[12px] text-start">
             Menjadi Admin Profesional : Microsoft Office Word
           </h3>
-          <div className="flex gap-x-3 lg:mt-1">
-            <Avatar
+          <div className="flex gap-x-3 mt-1">
+            {/* <Avatar
               src="/images/lecturer's-photo.jpg"
-              className="hidden lg:flex"
+              className="hidden md:flex"
               size="sm"
-            />
-            <div className="">
-              <p className="text-xs font-semibold text-default-500">
+            /> */}
+            <div className="items-start">
+              <p className="text-xs text-start font-semibold text-default-500">
                 Muhammad Fuad Abdullah
               </p>
               <p className="text-xs text-start text-default-400">

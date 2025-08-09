@@ -4,11 +4,15 @@ import {
   Button,
   Card,
   CardBody,
+  CardFooter,
   CardHeader,
   Divider,
   Progress,
   Skeleton,
+  Tab,
+  Tabs,
 } from "@heroui/react";
+import Image from "next/image";
 import { BsBook } from "react-icons/bs";
 import { FaBook, FaClipboardCheck, FaLightbulb, FaPlay } from "react-icons/fa6";
 import { TbChecklist, TbClipboardCheck, TbNotebook } from "react-icons/tb";
@@ -105,8 +109,36 @@ export default function Dashboard() {
             />
           </div>
         </div>
+        <div className="mt-6">
+          <h3 className="mb-3 ml-2 text-2xl font-semibold text-gray-500">
+            Kursus
+          </h3>
+          <Tabs
+            className="w-full -mt-12 pr-2 flex justify-end"
+            aria-label="Options"
+            color="primary"
+            classNames={{
+              cursor: ["bg-prime"],
+            }}
+            radius="sm"
+            size="lg"
+            variant="solid">
+            <Tab key="ongoing" title="Berjalan">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <CourseCard />
+                <CourseCard />
+                <CourseCard />
+              </div>
+            </Tab>
+            <Tab key="complete" title="Selesai">
+              <div className="grid text-gray-500 place-items-center w-full min-h-48">
+                <p>Belum ada kursus selesai</p>
+              </div>
+            </Tab>
+          </Tabs>
+        </div>
       </div>
-      <Card className="md:flex-1 flex-auto border border-abu px-2 py-1 shadow-md">
+      <Card className="md:flex-1 h-fit flex-auto border border-abu px-2 py-1 shadow-md">
         <CardHeader>
           <h3 className="text-xl font-semibold text-gray-500">Segera Hadir</h3>
         </CardHeader>
@@ -135,3 +167,28 @@ export default function Dashboard() {
     </section>
   );
 }
+
+const CourseCard = () => {
+  return (
+    <Card className="p-3">
+      <CardBody className="rounded-lg relative aspect-video">
+        <Image
+          src={"/images/course-img.png"}
+          fill
+          alt="course-image"
+          objectFit="contain"
+        />
+      </CardBody>
+      <CardFooter className="flex-col space-y-2 text-gray-500">
+        <p className="font-semibold">
+          Menjadi Admin Profesional : Microsoft Office Word
+        </p>
+        <span className="flex justify-between mt-2 w-full">
+          <p>Progress</p>
+          <p>30%</p>
+        </span>
+        <Progress aria-label="Progress" size="sm" value={30} />
+      </CardFooter>
+    </Card>
+  );
+};
