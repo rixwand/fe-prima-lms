@@ -58,7 +58,7 @@ export default function Course() {
           ))}
         </div>
       </aside>
-      <div className="bg-white px-3 w-full lg:px-8 mt-8 mb-24 lg:mx-0 md:mx-8 @container">
+      <div className="bg-white px-3 w-full 2xl:px-8 mt-8 mb-24 lg:mx-0 md:mx-8 @container">
         <div className="flex items-center sm:px-4 w-full justify-between mb-5">
           <h2 className="font-semibold text-xl">{selectedValue}</h2>
           <span className="lg:hidden flex">
@@ -82,7 +82,7 @@ export default function Course() {
             </Dropdown>
           </span>
         </div>
-        <div className="grid grid-cols-2 @md:gap-6 @md:mx-4  @2xl:gap-x-5 gap-3 @lg:gap-y-7 @xl:grid-cols-3 @4xl:grid-cols-4 @5xl:grid-cols-5">
+        <div className="grid grid-cols-2 @md:gap-6 @md:mx-4 @2xl:gap-x-5 gap-3 @lg:gap-y-7 @xl:grid-cols-3 @4xl:grid-cols-4 @5xl:grid-cols-5">
           <CourseCard />
           <CourseCard />
           <CourseCard />

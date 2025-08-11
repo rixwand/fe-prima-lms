@@ -30,6 +30,7 @@ export default function CourseSection() {
         <CourseCard />
         <CourseCard />
         <CourseCard />
+        <CourseCard />
       </div>
     </section>
   );

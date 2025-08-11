@@ -29,7 +29,7 @@ export default function UpcomingList({ tag, title, ...ds }: TProps & TPropsDs) {
 
 const DateRelease = ({ day, month }: TPropsDs) => {
   return (
-    <div className="flex text-gray-500 items-center flex-col justify-center w-14 h-14 text-sm bg-abu rounded-xl">
+    <div className="flex text-gray-500 items-center flex-col justify-center 2xl:w-14 w-12 h-12 2xl:h-14 text-xs bg-abu rounded-xl">
       {!day && !month ? (
         <p className="font-bold">?</p>
       ) : (

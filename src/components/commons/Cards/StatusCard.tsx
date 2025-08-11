@@ -35,17 +35,17 @@ export default function StatusCard({
           ])}>
           <Icon />
         </div>
-        <h4 className="font-bold text-xl xl:text-2xl mt-1.5">{complete}</h4>
-        <p className="xl:text-lg font-semibold">{title}</p>
-        <p className="xl:text-sm text-xs italic">dari {total} selesai</p>
+        <h4 className="font-bold text-xl 2xl:text-2xl mt-1.5">{complete}</h4>
+        <p className="2xl:text-lg font-semibold">{title}</p>
+        <p className="2xl:text-sm text-xs italic">dari {total} selesai</p>
       </span>
       <CircularProgress
         className="ml-auto @3xs:mr-2"
         classNames={{
-          svg: "xl:w-32 xl:h-32 w-28 h-28 drop-shadow-md",
+          svg: "2xl:w-32 2xl:h-32 w-28 h-28 drop-shadow-md",
           indicator: cn([strokeColor]),
           track: "stroke-white/50",
-          value: "xl:text-xl text-lg font-semibold text-white",
+          value: "2xl:text-xl text-lg font-semibold text-white",
         }}
         showValueLabel={true}
         strokeWidth={4}

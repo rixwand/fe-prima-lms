@@ -35,7 +35,7 @@ const courses = [
 
 export default function Dashboard() {
   return (
-    <section className="flex flex-wrap gap-4 2xl:gap-6 @container text-sm xl:text-base pb-3">
+    <section className="flex flex-wrap gap-4 2xl:gap-6 @container text-sm 2xl:text-base pb-3">
       <div className="@6xl:max-w-8/12 w-full">
         <Card className="text-gray-500 flex @lg:flex-nowrap flex-row flex-wrap gap-4 p-4 items-center">
           {/* <div className="flex gap-4 max-w-full"> */}
@@ -72,7 +72,7 @@ export default function Dashboard() {
           </Button>
         </Card>
         <div className="@2xl:px-6 @xl:pb-6 pb-3 pt-3 mt-6 shadow-md border border-abu rounded-xl bg-white">
-          <h3 className="mb-3 @2xl:px-0 px-5 text-xl xl:text-2xl font-semibold text-gray-500">
+          <h3 className="mb-3 @2xl:px-0 px-5 text-xl 2xl:text-2xl font-semibold text-gray-500">
             Status
           </h3>
           <div className="flex px-3 @sm:pb-2 @sm:px-5 @2xl:px-0 mt-3 gap-3 @2xl:mt-0 @4xl:justify-between @4xl:flex-nowrap flex-wrap">
@@ -109,7 +109,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="mt-6">
-          <h3 className="mb-3 ml-2 text-xl xl:text-2xl font-semibold text-gray-500">
+          <h3 className="mb-3 ml-2 text-xl 2xl:text-2xl font-semibold text-gray-500">
             Kursus
           </h3>
           <Tabs
@@ -139,7 +139,7 @@ export default function Dashboard() {
       </div>
       <Card className="@xl:flex-1 h-fit flex-auto border border-abu px-2 py-1 shadow-md">
         <CardHeader>
-          <h3 className="xl:text-xl text-lg font-semibold text-gray-500">
+          <h3 className="2xl:text-xl text-lg font-semibold text-gray-500">
             Segera Hadir
           </h3>
         </CardHeader>
@@ -155,7 +155,7 @@ export default function Dashboard() {
             ))}
             <li>
               <div className="flex gap-4 w-full items-center">
-                <Skeleton className="flex rounded-xl w-14 h-14" />
+                <Skeleton className="flex rounded-xl h-12 w-12 2xl:w-14 2xl:h-14" />
                 <div className="flex space-y-3 mb-1 flex-col">
                   <Skeleton className="h-3 w-56 rounded-lg" />
                   <Skeleton className="h-3 w-24 rounded-lg" />

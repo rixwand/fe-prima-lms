@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function CourseCard() {
   return (
-    <Card className="p-3" radius="md" isPressable>
+    <Card className="p-3 text-sm 2xl:text-base" radius="md" isPressable>
       <CardBody className="rounded-lg relative aspect-video">
         <Image
           src={"/images/course-img.png"}

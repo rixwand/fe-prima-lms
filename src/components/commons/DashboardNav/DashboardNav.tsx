@@ -65,7 +65,7 @@ export default function DashboardNav({ foldSidebar, setFoldSidebar }: TProps) {
   return (
     <>
       <Navbar
-        className={cn([inter.className, "xl:h-[81px]"])}
+        className={cn([inter.className, "2xl:h-[81px]"])}
         maxWidth="full"
         isBlurred={false}
         isBordered
@@ -79,7 +79,7 @@ export default function DashboardNav({ foldSidebar, setFoldSidebar }: TProps) {
           <NavbarContent
             justify={"start"}
             className={cn([
-              !foldSidebar ? "xl:ml-72 md:ml-56" : "md:ml-20",
+              !foldSidebar ? "2xl:ml-72 md:ml-56" : "md:ml-20",
               "transition-all duration-400",
             ])}>
             <h1 className="font-semibold text-xl text-gray-500">
@@ -138,15 +138,17 @@ export default function DashboardNav({ foldSidebar, setFoldSidebar }: TProps) {
       <div
         className={cn([
           inter.className,
-          `${foldSidebar ? "md:w-[79.5px]" : "xl:w-72 md:w-56 xl:py-7 xl:px-6"} 
+          `${
+            foldSidebar ? "md:w-[79.5px]" : "2xl:w-72 md:w-56 2xl:py-7 2xl:px-6"
+          } 
             ${
               !isSidebarOpen ? "md:translate-0 -translate-x-[14rem]" : ""
             } top-0 px-3.5 w-[13rem] items-start md:flex md:bg-white bg-white/50 md:backdrop-blur-none backdrop-blur-lg border-gray-300 border min-h-screen fixed z-50 transition-transform md:transition-width duration-400`,
         ])}>
-        <span className="bg-white border-l border-gray-300 p-1.5 xl:p-2 absolute hidden md:block -right-4 xl:-right-[25px] top-6/12 rounded-full">
+        <span className="bg-white border-l border-gray-300 p-1.5 xl:p-2 absolute hidden md:block -right-4 2xl:-right-[25px] top-6/12 rounded-full">
           <button
             onClick={() => setFoldSidebar((foldSidebar) => !foldSidebar)}
-            className="p-1 xl:text-2xl rounded-full text-white bg-prime">
+            className="p-1 2xl:text-2xl rounded-full text-white bg-prime">
             {foldSidebar ? <LuChevronRight /> : <LuChevronLeft />}
           </button>
         </span>
@@ -155,11 +157,11 @@ export default function DashboardNav({ foldSidebar, setFoldSidebar }: TProps) {
           className="bg-white border border-gray-300 p-1.5 text-gray-500 absolute md:hidden block -right-[18px] top-4 rounded-full">
           <RiMenuUnfold4Line size={20} />
         </button>
-        <ul className="flex flex-col w-full text-sm xl:text-lg items-center gap-3 md:gap-5 font-sourceSans">
+        <ul className="flex flex-col w-full text-sm 2xl:text-lg items-center gap-3 2xl:gap-5 font-sourceSans">
           {!foldSidebar || isSidebarOpen ? (
             <Image
               src="/images/logo-full.png"
-              className="mt-6 mb-3 xl:mt-0"
+              className="mt-6 mb-3 2xl:mt-0"
               alt="brand logo"
               height={34}
               width={128}
@@ -184,7 +186,7 @@ export default function DashboardNav({ foldSidebar, setFoldSidebar }: TProps) {
                     ? "bg-prime text-white font-semibold shadow-sm"
                     : "hover:bg-gray-300/50 text-gray-500"
                 } ${
-                  foldSidebar ? "px-3 py-2.5 " : "xl:py-3 xl:pl-4 pl-3 py-2"
+                  foldSidebar ? "px-3 py-2.5 " : "2xl:py-3 2xl:pl-4 pl-3 py-2"
                 }  cursor-pointer w-full rounded-xl flex gap-4 items-center`}
                 href={"/dashboard/" + (link == "/" ? "" : link)}>
                 <span className="inline-block pt-[2px]">
