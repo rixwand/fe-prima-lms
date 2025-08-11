@@ -18,14 +18,8 @@ export default function FaqSection() {
         aria-expanded
         defaultExpandedKeys={["1"]}
         itemClasses={{
-          title: ["lg:text-xl", "text-lg", "font-semibold"],
-          content: [
-            "mb-4",
-            "lg:text-lg",
-            "text-base",
-            "text-[#4B5563]",
-            "leading-[28px]",
-          ],
+          title: ["text-lg", "font-semibold"],
+          content: ["mb-4", "text-[#4B5563]", "leading-[28px]"],
           startContent: "",
         }}>
         <AccordionItem

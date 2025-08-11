@@ -1,4 +1,4 @@
-import CourseCard from "@/components/commons/Cards/Coursecard";
+import CourseCard from "@/components/commons/Cards/CourseCard";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { Button } from "@heroui/react";
@@ -10,7 +10,7 @@ export default function CourseSection() {
       <div className="py-16 flex flex-col items-center container mx-auto lg:px-16">
         <h2 className="font-bold text-2xl text-white">Pilihan Kursus</h2>
         <p className="text-white pt-2">Pilih Kursus yang kamu inginkan</p>
-        <div className="mt-6 lg:mt-9 px-2 grid grid-cols-2 lg:gap-6 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+        <div className="mt-6 lg:mt-9 px-2 grid grid-cols-2 xl:gap-6 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
           <CourseCard />
           <CourseCard />
           <CourseCard />

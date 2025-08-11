@@ -8,7 +8,7 @@ export default function HeroSection() {
     <div
       className={cn([
         inter.className,
-        "w-full bg-[#1E40AF] relative overflow-hidden",
+        "w-full bg-[#1E40AF] relative overflow-hidden px-4",
       ])}>
       <div className="absolute flex-row -top-52 -bottom-24 -start-24 -end-52 justify-start flex">
         <Image

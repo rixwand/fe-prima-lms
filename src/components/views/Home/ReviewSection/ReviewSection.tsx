@@ -102,7 +102,7 @@ export default function ReviewSection() {
         {/* Arrow Buttons (absolute sides) */}
         <button
           onClick={prev}
-          className="absolute left-4 md:left-8 xl:left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-indigo-500 text-indigo-500 rounded-full shadow hover:bg-indigo-100 disabled:opacity-30"
+          className="absolute left-4 md:left-8 xl:left-4 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-indigo-500 text-indigo-500 rounded-full shadow hover:bg-indigo-100 disabled:opacity-30"
           disabled={currentIndex === 0}>
           <FaChevronLeft />
         </button>
@@ -115,7 +115,7 @@ export default function ReviewSection() {
 
         <button
           onClick={nextLg}
-          className="absolute hidden xl:flex right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-indigo-500 text-indigo-500 rounded-full shadow hover:bg-indigo-100 disabled:opacity-30"
+          className="absolute hidden xl:flex right-4 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-indigo-500 text-indigo-500 rounded-full shadow hover:bg-indigo-100 disabled:opacity-30"
           disabled={currentIndex + visibleCards >= reviews.length}>
           <FaChevronRight />
         </button>
@@ -151,11 +151,7 @@ const ReviewCard = ({ review }: { review: TReview }) => {
   return (
     <div className="xl:w-1/3 w-full px-4 box-border py-5 flex-shrink-0 ">
       <Card className="h-full p-6 bg-white shadow-sm border border-prime">
-        <p
-          className={cn([
-            poppins.className,
-            "text-[#6B7280] text-lg leading-8 mb-4",
-          ])}>
+        <p className={cn([poppins.className, "text-[#6B7280] leading-8 mb-4"])}>
           {review.review}
         </p>
         <div className="flex items-center gap-3 mt-auto pt-4">

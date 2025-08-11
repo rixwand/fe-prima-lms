@@ -12,7 +12,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <main
         className={cn([
           inter.className,
-          !foldSidebar ? "md:ml-72 " : "md:ml-20",
+          !foldSidebar ? "xl:ml-72 md:ml-56 " : "md:ml-20",
           " transition-all duration-400 px-6 pt-6",
         ])}>
         {children}

@@ -1,4 +1,4 @@
-import CourseCard from "@/components/commons/Cards/Coursecard";
+import CourseCard from "@/components/commons/Cards/CourseCard";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { fromSlug, toSlug } from "@/libs/utils/string";
@@ -29,8 +29,8 @@ export default function Course() {
   const selectedValue = useMemo(() => fromSlug(selectedKeys), [selectedKeys]);
   return (
     <section className={cn([inter.className, "flex"])}>
-      <div className="hidden max-w-2/12 min-w-fit w-full pl-6 text-lg xl:flex justify-end pr-7 pt-12 bg-[#1E40AF]">
-        <div className="space-y-3 flex-col flex w-3/4 max-w-52 min-w-40">
+      {/* <div className="hidden w-2/12 relative 2xl:text-lg min-w-fit pl-6 lg:flex justify-end pr-7 pt-12 bg-[#1E40AF]">
+        <div className="space-y-3 sticky top-20 ml-7 flex-col flex w-3/4 max-w-52 min-w-40">
           <h2 className="text-2xl font-bold text-white">Kursus</h2>
           <Divider className="border-2 bg-white w-full" />
           {categories.map((category, i) => (
@@ -42,11 +42,26 @@ export default function Course() {
             </Link>
           ))}
         </div>
-      </div>
-      <div className="bg-white px-3 lg:w-full lg:px-8 mt-8 mb-24">
-        <div className="flex items-center px-2 w-full justify-between mb-5">
-          <h2 className="font-semibold text-2xl">{selectedValue}</h2>
-          <span className="xl:hidden flex">
+      </div> */}
+      <aside className="hidden 2xl:text-lg lg:block min-w-fit w-2/12 justify-end shrink-0 bg-[#1E40AF] pl-6 pr-7 pt-12">
+        <div className="space-y-3 sticky top-20 ml-7 2xl:ml-auto mr-2 flex-col flex w-3/4 max-w-52 min-w-40">
+          {/* <div className="sticky top-20 self-start space-y-3 w-full max-w-52 min-w-40"> */}
+          <h2 className="text-2xl font-bold text-white">Kursus</h2>
+          <Divider className="border-2 bg-white w-full" />
+          {categories.map((category, i) => (
+            <Link
+              className={cn([i === 0 && "font-bold", "text-white"])}
+              href="#"
+              key={i}>
+              {category}
+            </Link>
+          ))}
+        </div>
+      </aside>
+      <div className="bg-white px-3 w-full lg:px-8 mt-8 mb-24 lg:mx-0 md:mx-8 @container">
+        <div className="flex items-center sm:px-4 w-full justify-between mb-5">
+          <h2 className="font-semibold text-xl">{selectedValue}</h2>
+          <span className="lg:hidden flex">
             <Dropdown>
               <DropdownTrigger>
                 <button className="bg-transparent">
@@ -67,7 +82,7 @@ export default function Course() {
             </Dropdown>
           </span>
         </div>
-        <div className="grid grid-cols-2 md:gap-x-5 gap-3 md:gap-y-7 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+        <div className="grid grid-cols-2 @md:gap-6 @md:mx-4  @2xl:gap-x-5 gap-3 @lg:gap-y-7 @xl:grid-cols-3 @4xl:grid-cols-4 @5xl:grid-cols-5">
           <CourseCard />
           <CourseCard />
           <CourseCard />

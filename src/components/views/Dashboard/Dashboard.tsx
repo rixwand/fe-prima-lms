@@ -1,10 +1,10 @@
+import CourseCard from "@/components/commons/Cards/CourseCard2";
 import StatusCard from "@/components/commons/Cards/StatusCard";
 import UpcomingList from "@/components/commons/List/UpcomingList";
 import {
   Button,
   Card,
   CardBody,
-  CardFooter,
   CardHeader,
   Divider,
   Progress,
@@ -12,7 +12,6 @@ import {
   Tab,
   Tabs,
 } from "@heroui/react";
-import Image from "next/image";
 import { BsBook } from "react-icons/bs";
 import { FaBook, FaClipboardCheck, FaLightbulb, FaPlay } from "react-icons/fa6";
 import { TbChecklist, TbClipboardCheck, TbNotebook } from "react-icons/tb";
@@ -36,21 +35,21 @@ const courses = [
 
 export default function Dashboard() {
   return (
-    <section className="flex flex-wrap gap-6">
-      <div className="2xl:max-w-8/12 w-full">
-        <Card className="text-gray-500 flex sm:flex-nowrap flex-row flex-wrap gap-4 p-4 items-center">
+    <section className="flex flex-wrap gap-4 2xl:gap-6 @container text-sm xl:text-base pb-3">
+      <div className="@6xl:max-w-8/12 w-full">
+        <Card className="text-gray-500 flex @lg:flex-nowrap flex-row flex-wrap gap-4 p-4 items-center">
           {/* <div className="flex gap-4 max-w-full"> */}
-          <span className="bg-prime hidden sm:flex text-white px-2 py-1.5 rounded-lg ">
+          <span className="bg-prime hidden @lg:flex text-white px-2 py-1.5 rounded-lg ">
             <BsBook size={24} />
           </span>
-          <span className="sm:w-3/12 lg:w-5/12 w-full space-y-2">
+          <span className="@lg:w-[30%] @2xl:w-5/12 w-full space-y-2">
             <p className="line-clamp-1">
               Menjadi Admin Profesional : Microsoft Office Word
             </p>
             <Progress aria-label="Progress" size="sm" value={30} />
           </span>
           {/* </div> */}
-          <Divider orientation="vertical" className="hidden sm:block h-10" />
+          <Divider orientation="vertical" className="hidden @lg:block h-10" />
           <div className="flex items-center gap-3">
             <span className="flex items-center text-warning gap-0.5">
               <TbNotebook size={24} />
@@ -72,11 +71,11 @@ export default function Dashboard() {
             <p>Lanjutkan</p>
           </Button>
         </Card>
-        <div className="md:px-6 md:pb-6 pb-3 pt-3 mt-6 shadow-md border border-abu rounded-xl bg-white">
-          <h3 className="mb-3 md:px-0 px-5 text-2xl font-semibold text-gray-500">
+        <div className="@2xl:px-6 @xl:pb-6 pb-3 pt-3 mt-6 shadow-md border border-abu rounded-xl bg-white">
+          <h3 className="mb-3 @2xl:px-0 px-5 text-xl xl:text-2xl font-semibold text-gray-500">
             Status
           </h3>
-          <div className="flex px-3 md:px-0 mt-3 gap-3 md:mt-0 lg:justify-between lg:flex-nowrap flex-wrap">
+          <div className="flex px-3 @sm:pb-2 @sm:px-5 @2xl:px-0 mt-3 gap-3 @2xl:mt-0 @4xl:justify-between @4xl:flex-nowrap flex-wrap">
             <StatusCard
               title="Kelas"
               key={"kelas"}
@@ -110,7 +109,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="mt-6">
-          <h3 className="mb-3 ml-2 text-2xl font-semibold text-gray-500">
+          <h3 className="mb-3 ml-2 text-xl xl:text-2xl font-semibold text-gray-500">
             Kursus
           </h3>
           <Tabs
@@ -121,10 +120,10 @@ export default function Dashboard() {
               cursor: ["bg-prime"],
             }}
             radius="sm"
-            size="lg"
+            size="md"
             variant="solid">
             <Tab key="ongoing" title="Berjalan">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 @xl:grid-cols-2 @4xl:grid-cols-3">
                 <CourseCard />
                 <CourseCard />
                 <CourseCard />
@@ -138,9 +137,11 @@ export default function Dashboard() {
           </Tabs>
         </div>
       </div>
-      <Card className="md:flex-1 h-fit flex-auto border border-abu px-2 py-1 shadow-md">
+      <Card className="@xl:flex-1 h-fit flex-auto border border-abu px-2 py-1 shadow-md">
         <CardHeader>
-          <h3 className="text-xl font-semibold text-gray-500">Segera Hadir</h3>
+          <h3 className="xl:text-xl text-lg font-semibold text-gray-500">
+            Segera Hadir
+          </h3>
         </CardHeader>
         <CardBody>
           <ul className="pl-2 space-y-4 mb-3">
@@ -167,28 +168,3 @@ export default function Dashboard() {
     </section>
   );
 }
-
-const CourseCard = () => {
-  return (
-    <Card className="p-3">
-      <CardBody className="rounded-lg relative aspect-video">
-        <Image
-          src={"/images/course-img.png"}
-          fill
-          alt="course-image"
-          objectFit="contain"
-        />
-      </CardBody>
-      <CardFooter className="flex-col space-y-2 text-gray-500">
-        <p className="font-semibold">
-          Menjadi Admin Profesional : Microsoft Office Word
-        </p>
-        <span className="flex justify-between mt-2 w-full">
-          <p>Progress</p>
-          <p>30%</p>
-        </span>
-        <Progress aria-label="Progress" size="sm" value={30} />
-      </CardFooter>
-    </Card>
-  );
-};

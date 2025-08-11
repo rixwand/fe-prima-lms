@@ -1,5 +1,5 @@
 import Checkout from "@/components/views/Checkout";
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
+import { Navbar, NavbarContent, NavbarItem } from "@heroui/react";
 import Image from "next/image";
 import Link from "next/link";
 import { IoReturnDownBack } from "react-icons/io5";

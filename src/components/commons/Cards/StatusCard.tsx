@@ -1,7 +1,6 @@
 import cn from "@/libs/utils/cn";
 import { Card, CircularProgress } from "@heroui/react";
 import { IconType } from "react-icons";
-import { FaBook } from "react-icons/fa";
 
 type TProps = {
   Icon: IconType;
@@ -26,23 +25,27 @@ export default function StatusCard({
     <Card
       className={cn([
         bg,
-        "flex p-3 lg:w-[32%] w-full justify-center flex-row",
+        "flex p-3 lg:w-[32%] w-full justify-center flex-row @container",
       ])}>
-      <span className="p-1 pl-3 text-white">
-        <div className={cn([bgIcon, ` w-fit p-3 text-white rounded-full`])}>
-          <Icon size={24} />
+      <span className="p-1.5 @3xs:pl-3 text-white">
+        <div
+          className={cn([
+            bgIcon,
+            `xl:text-2xl text-xl w-fit p-3 text-white rounded-full`,
+          ])}>
+          <Icon />
         </div>
-        <h4 className="font-bold text-2xl mt-1.5">{complete}</h4>
-        <p className="text-lg font-semibold">{title}</p>
-        <p className="text-sm italic">dari {total} selesai</p>
+        <h4 className="font-bold text-xl xl:text-2xl mt-1.5">{complete}</h4>
+        <p className="xl:text-lg font-semibold">{title}</p>
+        <p className="xl:text-sm text-xs italic">dari {total} selesai</p>
       </span>
       <CircularProgress
-        className="ml-auto mr-2"
+        className="ml-auto @3xs:mr-2"
         classNames={{
-          svg: "w-32 h-32 drop-shadow-md",
+          svg: "xl:w-32 xl:h-32 w-28 h-28 drop-shadow-md",
           indicator: cn([strokeColor]),
           track: "stroke-white/50",
-          value: "text-xl font-semibold text-white",
+          value: "xl:text-xl text-lg font-semibold text-white",
         }}
         showValueLabel={true}
         strokeWidth={4}

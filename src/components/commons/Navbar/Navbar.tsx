@@ -1,5 +1,3 @@
-import { inter } from "@/libs/fonts";
-import cn from "@/libs/utils/cn";
 import {
   Navbar as Nav,
   NavbarBrand,
@@ -8,11 +6,6 @@ import {
   Link,
   Button,
   Input,
-  Dropdown,
-  DropdownTrigger,
-  Avatar,
-  DropdownMenu,
-  DropdownItem,
   NavbarMenu,
   NavbarMenuItem,
   NavbarMenuToggle,
@@ -31,11 +24,7 @@ export default function Navbar() {
     { title: "Tentang", link: "#review" },
   ];
   return (
-    <Nav
-      className={cn([inter.className, "sm:h-[81px]"])}
-      maxWidth="2xl"
-      isBordered
-      onMenuOpenChange={setMenuOpen}>
+    <Nav maxWidth="2xl" isBordered onMenuOpenChange={setMenuOpen}>
       <NavbarContent justify="start">
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -52,7 +41,7 @@ export default function Navbar() {
         <NavbarContent className="hidden lg:flex gap-10 mr-4">
           {menuItems.map((val) => (
             <NavbarItem key={val.title}>
-              <Link color="foreground" href={val.link} className="text-lg">
+              <Link color="foreground" href={val.link}>
                 {val.title}
               </Link>
             </NavbarItem>
@@ -66,12 +55,9 @@ export default function Navbar() {
           radius="sm"
           classNames={{
             base: "max-w-full sm:max-w-[35rem]",
-            mainWrapper: "h-14",
-            input: "text-lg",
             inputWrapper: "h-full text-default-500 px-4",
           }}
           placeholder="Apa yang ingin anda pelajari?"
-          size="lg"
           startContent={<FaSearch size={18} />}
           type="search"
         />
@@ -79,12 +65,12 @@ export default function Navbar() {
           onPress={() => {
             router.push("/auth/login");
           }}
-          className="hidden lg:flex text-medium lg:text-lg rounded-lg py-5.5 px-6.5 font-semibold"
+          className="hidden lg:flex text-medium rounded-lg py-4.5 px-6 font-semibold"
           variant="bordered">
           Masuk
         </Button>
         <Button
-          className="bg-prime text-white text-medium sm:text-lg sm:rounded-lg sm:py-6 sm:px-7 px-6 py-5.5 font-semibold"
+          className="bg-prime text-white text-medium sm:rounded-lg px-6 py-4.5 font-semibold"
           onPress={() => {
             router.push("/auth/register");
           }}>
