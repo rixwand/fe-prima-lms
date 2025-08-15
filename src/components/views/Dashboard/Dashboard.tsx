@@ -75,7 +75,7 @@ export default function Dashboard() {
           <h3 className="mb-3 @2xl:px-0 px-5 text-xl 2xl:text-2xl font-semibold text-gray-500">
             Status
           </h3>
-          <div className="flex px-3 @sm:pb-2 @sm:px-5 @2xl:px-0 mt-3 gap-3 @2xl:mt-0 @4xl:justify-between @4xl:flex-nowrap flex-wrap">
+          <div className="flex px-4 @sm:pb-2 @sm:px-5 @2xl:px-0 mt-3 gap-3 @2xl:mt-0 @4xl:justify-between @4xl:flex-nowrap flex-wrap">
             <StatusCard
               title="Kelas"
               key={"kelas"}

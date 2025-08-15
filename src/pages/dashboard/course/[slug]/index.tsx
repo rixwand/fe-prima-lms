@@ -16,6 +16,7 @@ import { GoDotFill } from "react-icons/go";
 import { RiMenuFold4Line, RiMenuUnfold4Line } from "react-icons/ri";
 import {
   Avatar,
+  Button,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -514,10 +515,15 @@ export default function SidebarModules() {
 
           {/* Materi Pembelajaran */}
           <section className="space-y-5">
-            <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
-              <LuBookOpen className="h-6 w-6 text-[#1e40af]" />
-              Materi Pembelajaran
-            </h2>
+            <span className="flex justify-between">
+              <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+                <LuBookOpen className="h-6 w-6 text-[#1e40af]" />
+                Materi Pembelajaran
+              </h2>
+              <Button className="bg-prime text-white font-semibold" radius="sm">
+                Mulai Belajar
+              </Button>
+            </span>
 
             {/* Materi Bacaan */}
             <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm p-5">
