@@ -13,7 +13,7 @@
   }
 
   button {
-    @apply active:scale-95 transition-transform duration-150;
+    @apply enabled:active:scale-95 transition-transform duration-150;
   }
 }
 
