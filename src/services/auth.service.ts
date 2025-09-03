@@ -11,4 +11,5 @@ export const authService = {
       },
     }),
   login: (payload: ILogin) => api.post(`${endpoint.AUTH}/login`, payload),
+  logout: () => api.delete(`${endpoint.AUTH}/logout`),
 };

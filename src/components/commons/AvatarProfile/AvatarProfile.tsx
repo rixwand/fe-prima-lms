@@ -1,9 +1,16 @@
+import { authService } from "@/services/auth.service";
 import { Avatar, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 export default function AvatarProfile() {
   const { data } = useSession();
   const getPfp = (pict?: string | null) => (!pict || pict == "user.jpg" ? `/images/${pict}` : pict);
+  const logoutHandler = async () => {
+    await authService.logout();
+    await signOut({
+      callbackUrl: "/",
+    });
+  };
   return (
     <Dropdown placement="bottom-end">
       <DropdownTrigger>
@@ -29,7 +36,7 @@ export default function AvatarProfile() {
         <DropdownItem key="system">System</DropdownItem>
         <DropdownItem key="configurations">Configurations</DropdownItem>
         <DropdownItem key="help_and_feedback">Help & Feedback</DropdownItem>
-        <DropdownItem key="logout" color="danger">
+        <DropdownItem onPress={logoutHandler} key="logout" color="danger">
           Log Out
         </DropdownItem>
       </DropdownMenu>
