@@ -5,7 +5,7 @@ export const authService = {
   register: (payload: IRegister) => api.post(`${endpoint.AUTH}/register`, payload),
   activation: (payload: { code: string }) => api.post(`${endpoint.AUTH}/activation`, payload),
   getProfileWithToken: (token: string) =>
-    api.get(`${endpoint.AUTH}/me`, {
+    api.get(`${endpoint.USER}/me`, {
       headers: {
         Authorization: "Bearer " + token,
       },

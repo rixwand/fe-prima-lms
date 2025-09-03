@@ -1,8 +1,8 @@
 import { getErrorMessage } from "@/libs/axios/error";
 import { authService } from "@/services/auth.service";
+import { AppAxiosError } from "@/types/axios";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
@@ -23,9 +23,10 @@ export default function useLogin() {
     try {
       const res = await authService.login(payload);
       const data: { accessToken: string } = res.data.data;
-      await signIn("token", { accessToken: data.accessToken, redirect: false, callbackUrl });
+      const signStatus = await signIn("token", { accessToken: data.accessToken, redirect: false, callbackUrl });
+      if (signStatus?.error) throw new Error("Couldn't initiate session ");
     } catch (error) {
-      const err = error as AxiosError;
+      const err = error as AppAxiosError;
       const message = getErrorMessage(err);
       console.log("failed signIn: ", message);
       throw new Error(message);
@@ -39,7 +40,6 @@ export default function useLogin() {
       setError("root", { message: error.message });
     },
     onSuccess: data => {
-      console.log(data);
       router.push(callbackUrl);
     },
   });

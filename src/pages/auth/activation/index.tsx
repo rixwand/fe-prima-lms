@@ -3,7 +3,7 @@ import ActivationFailed from "@/components/views/Auth/Activation/Failed";
 import ActivationSuccess from "@/components/views/Auth/Activation/Success";
 import { getErrorMessage } from "@/libs/axios/error";
 import { authService } from "@/services/auth.service";
-import { AxiosError } from "axios";
+import { AppAxiosError } from "@/types/axios";
 import { GetServerSideProps } from "next";
 
 type PropsType =
@@ -38,7 +38,7 @@ export const getServerSideProps: GetServerSideProps<PropsType, { code: string }>
       };
     }
   } catch (error) {
-    const err = error as AxiosError;
+    const err = error as AppAxiosError;
     const message = getErrorMessage(err);
     return {
       props: { success: false, message },

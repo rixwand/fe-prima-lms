@@ -1,16 +1,7 @@
-import "axios";
-/* eslint-disable @typescript-eslint/no-explicit-any */
-declare module "axios" {
-  export interface AxiosErrorResponse {
-    error: string;
-  }
+import { AxiosError } from "axios";
 
-  export interface AxiosError<T = AxiosErrorResponse, D = any> extends Error {
-    config: AxiosRequestConfig<D>;
-    code?: string;
-    request?: any;
-    response?: AxiosResponse<T, D>;
-    isAxiosError: boolean;
-    toJSON: () => object;
-  }
+export interface AxiosErrorResponse {
+  error: string;
 }
+
+type AppAxiosError = AxiosError<AxiosErrorResponse>;
