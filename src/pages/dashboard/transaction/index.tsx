@@ -3,7 +3,7 @@ import CourseSection from "@/components/views/Dashboard/Course";
 
 export default function CourseSectionPage() {
   return (
-    <DashboardLayout>
+    <DashboardLayout title="Dashboard Course">
       <CourseSection />
     </DashboardLayout>
   );

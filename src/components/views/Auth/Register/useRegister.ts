@@ -1,4 +1,5 @@
 import { authService } from "@/services/auth.service";
+import { addToast } from "@heroui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/router";
@@ -7,28 +8,30 @@ import * as yup from "yup";
 
 const useRegister = () => {
   const router = useRouter();
-  const {
-    control,
-    handleSubmit,
-    setError,
-    formState: { errors },
-  } = useForm<IRegister>({
+  const { control, handleSubmit } = useForm<IRegister>({
     resolver: yupResolver(registerSchema),
   });
   const { mutate, isPending } = useMutation({
     mutationFn: authService.register,
     onError: error => {
       console.log(error);
-      setError("root", { message: error.message });
+      addToast({
+        title: "Pendaftaran gagal",
+        description: error.message,
+        color: "danger",
+      });
     },
-    onSuccess: data => {
-      console.log(data);
+    onSuccess: () => {
+      addToast({
+        title: "Pendaftaran berhasil",
+        color: "success",
+      });
       router.push("/auth/register-success");
     },
   });
   const handleRegister = (data: IRegister) => mutate(data);
 
-  return { control, handleSubmit, errors, isPending, handleRegister };
+  return { control, handleSubmit, isPending, handleRegister };
 };
 
 export default useRegister;

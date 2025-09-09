@@ -1,6 +1,7 @@
 import { getErrorMessage } from "@/libs/axios/error";
 import { authService } from "@/services/auth.service";
 import { AppAxiosError } from "@/types/axios";
+import { addToast } from "@heroui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation } from "@tanstack/react-query";
 import { signIn } from "next-auth/react";
@@ -10,12 +11,7 @@ import * as yup from "yup";
 export default function useLogin() {
   const router = useRouter();
   const callbackUrl: string = (router.query.callbackUrl as string) || "/dashboard";
-  const {
-    control,
-    formState: { errors },
-    handleSubmit,
-    setError,
-  } = useForm<ILogin>({
+  const { control, handleSubmit } = useForm<ILogin>({
     resolver: yupResolver(loginSchema),
   });
 
@@ -37,15 +33,23 @@ export default function useLogin() {
     mutationFn: loginService,
     onError: error => {
       console.log(error);
-      setError("root", { message: error.message });
+      addToast({
+        title: "Gagal masuk",
+        description: error.message,
+        color: "danger",
+      });
     },
-    onSuccess: data => {
+    onSuccess: () => {
+      addToast({
+        title: "Berhasil masuk",
+        color: "success",
+      });
       router.push(callbackUrl);
     },
   });
   const handlerLogin = (data: ILogin) => mutate(data);
 
-  return { control, isPending, errors, handleSubmit, handlerLogin };
+  return { control, isPending, handleSubmit, handlerLogin };
 }
 
 const loginSchema = yup.object().shape({

@@ -9,21 +9,20 @@ function PasswordHint() {
 }
 
 export default function Register() {
-  const { control, errors, handleRegister, handleSubmit, isPending } = useRegister();
+  const { control, handleRegister, handleSubmit, isPending } = useRegister();
   return (
     <AuthCard title={"Buat Akun Baru"} subtitle={"Gabung dan mulai tingkatkan skill Anda."}>
-      {errors.root ? <p className="-mt-2 mb-2 text-xs text-rose-600">{errors.root.message}</p> : null}
       <form onSubmit={handleSubmit(handleRegister)} className="grid gap-2">
         <Controller
           name="fullName"
           control={control}
-          render={({ field }) => (
+          render={({ field, fieldState: { error } }) => (
             <TextField
               id="fullName"
               label="Name Lengkap"
               placeholder="Nama lengkap Anda"
               autoComplete="name"
-              error={errors.fullName?.message}
+              error={error?.message}
               field={field}
             />
           )}
@@ -31,13 +30,13 @@ export default function Register() {
         <Controller
           name="username"
           control={control}
-          render={({ field }) => (
+          render={({ field, fieldState: { error } }) => (
             <TextField
               id="username"
               label="Username"
               placeholder="Username Anda"
               autoComplete="username"
-              error={errors.username?.message}
+              error={error?.message}
               field={field}
             />
           )}
@@ -45,7 +44,7 @@ export default function Register() {
         <Controller
           control={control}
           name="email"
-          render={({ field }) => (
+          render={({ field, fieldState: { error } }) => (
             <TextField
               id="email"
               label="Email"
@@ -53,21 +52,21 @@ export default function Register() {
               placeholder="nama@contoh.com"
               autoComplete="email"
               field={field}
-              error={errors.email?.message}
+              error={error?.message}
             />
           )}
         />
         <Controller
           control={control}
           name="password"
-          render={({ field }) => (
+          render={({ field, fieldState: { error } }) => (
             <TextField
               id="password"
               label="Kata Sandi"
               type="password"
               autoComplete="new-password"
               field={field}
-              error={errors.password?.message}
+              error={error?.message}
             />
           )}
         />

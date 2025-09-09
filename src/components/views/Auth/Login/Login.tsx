@@ -5,15 +5,14 @@ import { Controller } from "react-hook-form";
 import useLogin from "./useLogin";
 
 export default function Login() {
-  const { control, errors, handleSubmit, handlerLogin, isPending } = useLogin();
+  const { control, handleSubmit, handlerLogin, isPending } = useLogin();
   return (
     <AuthCard title={"Masuk ke Akun Anda"} subtitle={"Selamat datang kembali!"}>
-      {errors.root ? <p className="-mt-2 mb-2 text-xs text-rose-600">{errors.root.message}</p> : null}
       <form onSubmit={handleSubmit(handlerLogin)} className="grid gap-4">
         <Controller
           control={control}
           name="email"
-          render={({ field }) => (
+          render={({ field, fieldState: { error } }) => (
             <TextField
               id="email"
               label="Email"
@@ -21,21 +20,21 @@ export default function Login() {
               placeholder="nama@contoh.com"
               autoComplete="email"
               field={field}
-              error={errors.email?.message}
+              error={error?.message}
             />
           )}
         />
         <Controller
           control={control}
           name="password"
-          render={({ field }) => (
+          render={({ field, fieldState: { error } }) => (
             <TextField
               id="password"
               label="Kata Sandi"
               type="password"
               autoComplete="new-password"
               field={field}
-              error={errors.password?.message}
+              error={error?.message}
             />
           )}
         />

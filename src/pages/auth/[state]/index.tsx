@@ -31,7 +31,7 @@ export default function AuthPage({ initialMode }: { initialMode: Mode }) {
 
   return (
     <AuthContext.Provider value={{ mode: initialMode, setMode }}>
-      <AuthLayout title={`Prisma | ${initialMode === "login" ? "Masuk" : "Daftar"}`}>
+      <AuthLayout title={`Prima | ${initialMode === "login" ? "Masuk" : "Daftar"}`}>
         <Auth />
       </AuthLayout>
     </AuthContext.Provider>

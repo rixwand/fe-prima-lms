@@ -64,7 +64,7 @@ export default function DashboardNav({ foldSidebar, setFoldSidebar }: TProps) {
   return (
     <>
       <Navbar
-        className={cn([inter.className, "2xl:h-[81px]"])}
+        className={cn([inter.className])}
         maxWidth="full"
         isBlurred={false}
         isBordered
@@ -106,7 +106,7 @@ export default function DashboardNav({ foldSidebar, setFoldSidebar }: TProps) {
           `${foldSidebar ? "md:w-[79.5px]" : "2xl:w-72 md:w-56 2xl:py-7 2xl:px-6"} 
             ${
               !isSidebarOpen ? "md:translate-0 -translate-x-[14rem]" : ""
-            } top-0 px-3.5 w-[13rem] items-start flex flex-col md:bg-white bg-white/50 md:backdrop-blur-none backdrop-blur-lg border-gray-300 border min-h-screen fixed z-50 transition-transform md:transition-width duration-400`,
+            } top-0 px-3.5 w-[13rem] items-start flex flex-col md:bg-white bg-white/50 md:backdrop-blur-none backdrop-blur-lg border-gray-300 border min-h-dvh fixed z-50 transition-transform md:transition-width duration-400`,
         ])}>
         <span className="bg-white border-l border-gray-300 p-1.5 xl:p-2 absolute hidden md:block -right-4 2xl:-right-[25px] top-6/12 rounded-full">
           <button
@@ -137,7 +137,7 @@ export default function DashboardNav({ foldSidebar, setFoldSidebar }: TProps) {
               <Link
                 replace={true}
                 // onClick={() => (!item.active ? setLoading(true) : null)}
-                onClick={() => setActive(title)}
+                onClick={() => setActive(link)}
                 className={`${
                   active ? "bg-prime text-white font-semibold shadow-sm" : "hover:bg-gray-300/50 text-gray-500"
                 } ${
@@ -154,7 +154,7 @@ export default function DashboardNav({ foldSidebar, setFoldSidebar }: TProps) {
         </ul>
         <button
           onClick={handleLogout}
-          className={`mt-auto hover:bg-rose-300/50 hover:text-rose-500 text-gray-500 ${
+          className={`mt-auto mb-5 hover:bg-rose-300/50 hover:text-rose-500 text-gray-500 ${
             foldSidebar ? "px-3 py-2.5 " : "2xl:py-3 2xl:pl-4 pl-3 py-2"
           }  cursor-pointer w-full rounded-xl flex gap-4 items-center`}>
           <span className="inline-block pt-[2px]">

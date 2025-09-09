@@ -1,17 +1,7 @@
 import CourseCard from "@/components/commons/Cards/CourseCard2";
 import StatusCard from "@/components/commons/Cards/StatusCard";
 import UpcomingList from "@/components/commons/List/UpcomingList";
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Divider,
-  Progress,
-  Skeleton,
-  Tab,
-  Tabs,
-} from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Divider, Progress, Skeleton, Tab, Tabs } from "@heroui/react";
 import { BsBook } from "react-icons/bs";
 import { FaBook, FaClipboardCheck, FaLightbulb, FaPlay } from "react-icons/fa6";
 import { TbChecklist, TbClipboardCheck, TbNotebook } from "react-icons/tb";
@@ -43,9 +33,7 @@ export default function Dashboard() {
             <BsBook size={24} />
           </span>
           <span className="@lg:w-[30%] @2xl:w-5/12 w-full space-y-2">
-            <p className="line-clamp-1">
-              Menjadi Admin Profesional : Microsoft Office Word
-            </p>
+            <p className="line-clamp-1">Menjadi Admin Profesional : Microsoft Office Word</p>
             <Progress aria-label="Progress" size="sm" value={30} />
           </span>
           {/* </div> */}
@@ -64,17 +52,13 @@ export default function Dashboard() {
               <p className="text-sm font-semibold">5</p>
             </span>
           </div>
-          <Button
-            className="ml-auto rounded-md text-white bg-prime"
-            radius="none">
+          <Button className="ml-auto h-fit py-2 rounded-lg text-white bg-prime" radius="none">
             <FaPlay />
-            <p>Lanjutkan</p>
+            <p className="font-semibold">Lanjutkan</p>
           </Button>
         </Card>
         <div className="@2xl:px-6 @xl:pb-6 pb-3 pt-3 mt-6 shadow-md border border-abu rounded-xl bg-white">
-          <h3 className="mb-3 @2xl:px-0 px-5 text-xl 2xl:text-2xl font-semibold text-gray-500">
-            Status
-          </h3>
+          <h3 className="mb-3 @2xl:px-0 px-5 text-xl 2xl:text-2xl font-semibold text-gray-500">Status</h3>
           <div className="flex px-4 @sm:pb-2 @sm:px-5 @2xl:px-0 mt-3 gap-3 @2xl:mt-0 @4xl:justify-between @4xl:flex-nowrap flex-wrap">
             <StatusCard
               title="Kelas"
@@ -109,9 +93,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="mt-6">
-          <h3 className="mb-3 ml-2 text-xl 2xl:text-2xl font-semibold text-gray-500">
-            Kursus
-          </h3>
+          <h3 className="mb-3 ml-2 text-xl 2xl:text-2xl font-semibold text-gray-500">Kursus</h3>
           <Tabs
             className="w-full -mt-12 pr-2 flex justify-end"
             aria-label="Options"
@@ -139,9 +121,7 @@ export default function Dashboard() {
       </div>
       <Card className="@xl:flex-1 h-fit flex-auto border border-abu px-2 py-1 shadow-md">
         <CardHeader>
-          <h3 className="2xl:text-xl text-lg font-semibold text-gray-500">
-            Segera Hadir
-          </h3>
+          <h3 className="2xl:text-xl text-lg font-semibold text-gray-500">Segera Hadir</h3>
         </CardHeader>
         <CardBody>
           <ul className="pl-2 space-y-4 mb-3">
