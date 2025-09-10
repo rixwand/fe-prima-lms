@@ -27,7 +27,7 @@ export default function Dashboard() {
   return (
     <section className="flex flex-wrap gap-4 2xl:gap-6 @container text-sm 2xl:text-base pb-3">
       <div className="@6xl:max-w-8/12 w-full">
-        <Card className="text-gray-500 flex @lg:flex-nowrap flex-row flex-wrap gap-4 p-4 items-center">
+        <Card className="text-gray-500 flex shadow-none border border-gray-300 @lg:flex-nowrap flex-row flex-wrap gap-4 p-4 items-center">
           {/* <div className="flex gap-4 max-w-full"> */}
           <span className="bg-prime hidden @lg:flex text-white px-2 py-1.5 rounded-lg ">
             <BsBook size={24} />
@@ -57,7 +57,7 @@ export default function Dashboard() {
             <p className="font-semibold">Lanjutkan</p>
           </Button>
         </Card>
-        <div className="@2xl:px-6 @xl:pb-6 pb-3 pt-3 mt-6 shadow-md border border-abu rounded-xl bg-white">
+        <div className="@2xl:px-6 @xl:pb-6 pb-3 pt-3 mt-6 shadow-none border border-gray-300 rounded-xl bg-white">
           <h3 className="mb-3 @2xl:px-0 px-5 text-xl 2xl:text-2xl font-semibold text-gray-500">Status</h3>
           <div className="flex px-4 @sm:pb-2 @sm:px-5 @2xl:px-0 mt-3 gap-3 @2xl:mt-0 @4xl:justify-between @4xl:flex-nowrap flex-wrap">
             <StatusCard
@@ -95,11 +95,12 @@ export default function Dashboard() {
         <div className="mt-6">
           <h3 className="mb-3 ml-2 text-xl 2xl:text-2xl font-semibold text-gray-500">Kursus</h3>
           <Tabs
-            className="w-full -mt-12 pr-2 flex justify-end"
+            className="w-full border-0 -mt-12 pr-2 flex justify-end"
             aria-label="Options"
-            color="primary"
+            color="default"
             classNames={{
-              cursor: ["bg-prime"],
+              cursor: ["bg-white shadow-none"],
+              tabList: "bg-gray-100 p-1.5 gap-0 shadow-none",
             }}
             radius="sm"
             size="md"
@@ -119,7 +120,7 @@ export default function Dashboard() {
           </Tabs>
         </div>
       </div>
-      <Card className="@xl:flex-1 h-fit flex-auto border border-abu px-2 py-1 shadow-md">
+      <Card className="@xl:flex-1 h-fit flex-auto border border-gray-300 px-2 py-1 shadow-none">
         <CardHeader>
           <h3 className="2xl:text-xl text-lg font-semibold text-gray-500">Segera Hadir</h3>
         </CardHeader>

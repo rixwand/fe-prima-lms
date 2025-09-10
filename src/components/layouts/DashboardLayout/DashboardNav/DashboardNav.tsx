@@ -34,7 +34,7 @@ import { Navbar, NavbarContent } from "@heroui/react";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
 import { RiMenuUnfold3Line, RiMenuUnfold4Line } from "react-icons/ri";
-import AvatarProfile from "../AvatarProfile";
+import AvatarProfile from "../../../commons/AvatarProfile";
 
 type TProps = {
   foldSidebar: boolean;

@@ -23,7 +23,7 @@ export default function Setting() {
     return;
   }
   return (
-    <div className="w-full lg:p-5 text-slate-700">
+    <div className="w-full text-slate-700">
       <div className="mb-5 gap-6">
         <div className="flex-1 space-y-6">
           {/* Profile Settings */}
@@ -126,7 +126,7 @@ export default function Setting() {
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-abu bg-white p-6 shadow-md">
+    <div className="rounded-2xl border border-gray-300 bg-white p-6">
       <h2 className="mb-4 text-lg font-semibold text-slate-800">{title}</h2>
       <div className="lg:space-y-5 space-y-4">{children}</div>
     </div>

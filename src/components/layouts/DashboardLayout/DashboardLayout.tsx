@@ -1,8 +1,8 @@
-import DashboardNav from "@/components/commons/DashboardNav";
 import PageHead from "@/components/commons/PageHead";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { ReactNode, useState } from "react";
+import DashboardNav from "./DashboardNav";
 
 export default function DashboardLayout({ children, title }: { title: string; children: ReactNode }) {
   const [foldSidebar, setFoldSidebar] = useState(false);

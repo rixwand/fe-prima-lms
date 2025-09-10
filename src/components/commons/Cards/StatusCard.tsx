@@ -12,27 +12,11 @@ type TProps = {
   bgIcon: string;
 };
 
-export default function StatusCard({
-  Icon,
-  title,
-  bg,
-  complete,
-  total,
-  strokeColor,
-  bgIcon,
-}: TProps) {
+export default function StatusCard({ Icon, title, bg, complete, total, strokeColor, bgIcon }: TProps) {
   return (
-    <Card
-      className={cn([
-        bg,
-        "flex p-3 lg:w-[32%] w-full justify-center flex-row @container",
-      ])}>
+    <Card className={cn([bg, "flex p-3 lg:w-[32%] w-full justify-center flex-row @container shadow-sm"])}>
       <span className="p-1.5 @2xs:pl-3 text-white">
-        <div
-          className={cn([
-            bgIcon,
-            `@2xs:text-2xl text-xl w-fit p-3 text-white rounded-full`,
-          ])}>
+        <div className={cn([bgIcon, `@2xs:text-2xl text-xl w-fit p-3 text-white rounded-full`])}>
           <Icon />
         </div>
         <h4 className="font-bold text-xl @2xs:text-2xl mt-1.5">{complete}</h4>
