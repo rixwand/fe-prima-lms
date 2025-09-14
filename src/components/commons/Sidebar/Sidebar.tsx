@@ -1,13 +1,13 @@
 import cn from "@/libs/utils/cn";
 import { Divider } from "@heroui/react";
 import Image from "next/image";
-import { Dispatch, Fragment, SetStateAction, useState } from "react";
+import Link from "next/link";
+import { Dispatch, Fragment, SetStateAction } from "react";
 import { IconType } from "react-icons";
 import { GoSidebarCollapse, GoSidebarExpand } from "react-icons/go";
-import { HiMenuAlt2 } from "react-icons/hi";
 import { HiOutlineArrowLeftOnRectangle } from "react-icons/hi2";
 
-export type NavStruct = ReadonlyArray<{ readonly label: string; readonly Icon: IconType }>;
+export type NavStruct = ReadonlyArray<{ readonly label: string; readonly Icon: IconType; readonly link: string }>;
 
 export default function Sidebar<T extends NavStruct>({
   navLinks,
@@ -15,25 +15,19 @@ export default function Sidebar<T extends NavStruct>({
   setCollapsed,
   active,
   subTitle,
+  open,
+  setOpen,
 }: {
   navLinks: T;
   collapsed: boolean;
   setCollapsed: Dispatch<SetStateAction<boolean>>;
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
   active: T[number]["label"];
   subTitle: string;
 }) {
-  const [open, setOpen] = useState(false);
   return (
     <Fragment>
-      <button
-        onClick={() => {
-          setOpen(true);
-          setCollapsed(false);
-        }} // toggle sidebar
-        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-md border border-gray-200"
-        aria-label="Open menu">
-        <HiMenuAlt2 size={24} />
-      </button>
       {open && <div className="md:hidden fixed inset-0 z-40 bg-black/30" onClick={() => setOpen(false)} aria-hidden />}
       <aside
         className={cn([
@@ -70,14 +64,21 @@ export default function Sidebar<T extends NavStruct>({
 
         {/* Primary links */}
         <nav className="mt-3 space-y-2">
-          {navLinks.map(({ Icon, label }) => (
-            <SectionLink key={label} collapsed={collapsed} active={label == active} Icon={Icon} label={label} />
+          {navLinks.map(({ Icon, label, link }) => (
+            <SectionLink
+              key={label}
+              collapsed={collapsed}
+              link={link}
+              active={label == active}
+              Icon={Icon}
+              label={label}
+            />
           ))}
         </nav>
 
         {/* Footer links */}
         <nav className="mt-auto space-y-2 mb-4">
-          <SectionLink collapsed={collapsed} Icon={HiOutlineArrowLeftOnRectangle} label="Logout" />
+          <SectionLink collapsed={collapsed} Icon={HiOutlineArrowLeftOnRectangle} link="/logout" label="Logout" />
         </nav>
       </aside>
     </Fragment>
@@ -91,6 +92,7 @@ function SectionLink({
   active,
   badge,
   tag,
+  link,
 }: {
   collapsed?: boolean;
   Icon?: IconType;
@@ -98,9 +100,11 @@ function SectionLink({
   active?: boolean;
   badge?: string;
   tag?: string;
+  link: string;
 }) {
   return (
-    <button
+    <Link
+      href={link}
       title={label}
       className={`w-full flex items-center relative ${
         collapsed ? "justify-center" : "justify-between"
@@ -120,6 +124,6 @@ function SectionLink({
       {collapsed && badge && (
         <span className="inline-block absolute right-2 bottom-2 size-2 rounded-full bg-gray-300" aria-hidden />
       )}
-    </button>
+    </Link>
   );
 }

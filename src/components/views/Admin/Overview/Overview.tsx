@@ -1,16 +1,22 @@
+import StatCard from "@/components/commons/Cards/StatsCard";
+import { formatRupiah } from "@/libs/utils/currency";
 import { Fragment } from "react";
 import {
+  LuBookOpen,
   LuChevronRight,
   LuCircleCheck,
   LuClipboardCheck,
+  LuClockAlert,
   LuDollarSign,
   LuHistory,
   LuMessageSquareText,
   LuMonitor,
   LuPlus,
   LuUserPlus,
+  LuUsers,
 } from "react-icons/lu";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
+import { PiMoneyWavy } from "react-icons/pi";
 
 export default function Overview() {
   return (
@@ -26,12 +32,11 @@ export default function Overview() {
           <p className="text-sm text-slate-500">Overview courses, enrollments, and payouts</p>
         </div>
       </header>
-      {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KPI label="Total Users" value="1,245" trend="↑ 3.1%" />
-        <KPI label="Courses" value="320" trend="↑ 1.4%" />
-        <KPI label="Revenue (30d)" value="Rp 1.234.567" trend="↑ 7.8%" />
-        <KPI label="Pending Approvals" value="12" trend="• awaiting" />
+        <StatCard icon={<LuUsers className="w-5 h-5" />} label="Total Users" value={(1245).toLocaleString("id-ID")} />
+        <StatCard icon={<LuBookOpen className="w-5 h-5" />} label="Courses" value={(320).toLocaleString("id-ID")} />
+        <StatCard icon={<PiMoneyWavy size={24} />} label="Revenue (30d)" value={formatRupiah(1234567)} />
+        <StatCard icon={<LuClockAlert className="w-5 h-5" />} label="Pending Approvals" value={"12"} />
       </div>
 
       {/* Two-up: Activity + Quick Actions */}

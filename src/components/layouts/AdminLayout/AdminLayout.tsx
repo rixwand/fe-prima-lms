@@ -1,5 +1,6 @@
 import PageHead from "@/components/commons/PageHead";
 import Sidebar from "@/components/commons/Sidebar";
+import { NavStruct } from "@/components/commons/Sidebar/Sidebar";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { Fragment, ReactNode, useState } from "react";
@@ -8,14 +9,16 @@ import { HiOutlineCog6Tooth, HiOutlineDocumentChartBar, HiOutlineSquares2X2 } fr
 import { LuBookOpen } from "react-icons/lu";
 import { VscMortarBoard } from "react-icons/vsc";
 
-const navLinks = [
-  { label: "Overview", Icon: HiOutlineSquares2X2 },
-  { label: "Analytics", Icon: HiOutlineDocumentChartBar },
-  { label: "Courses", Icon: LuBookOpen },
-  { label: "Instructor", Icon: VscMortarBoard },
-  { label: "Customers", Icon: HiOutlineUsers },
-  { label: "Payouts", Icon: HiOutlineCreditCard },
-  { label: "Setting", Icon: HiOutlineCog6Tooth },
+const prefix = "/admin/dashboard";
+
+const navLinks: NavStruct = [
+  { label: "Overview", Icon: HiOutlineSquares2X2, link: prefix },
+  { label: "Analytics", Icon: HiOutlineDocumentChartBar, link: prefix + "/analytic" },
+  { label: "Courses", Icon: LuBookOpen, link: prefix + "/course" },
+  { label: "Instructor", Icon: VscMortarBoard, link: prefix + "/instructor" },
+  { label: "Customers", Icon: HiOutlineUsers, link: prefix + "/customer" },
+  { label: "Payouts", Icon: HiOutlineCreditCard, link: prefix + "/payout" },
+  { label: "Setting", Icon: HiOutlineCog6Tooth, link: prefix + "/setting" },
 ] as const;
 
 export default function AdminLayout({
