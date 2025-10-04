@@ -1,5 +1,5 @@
 import TextField from "@/components/commons/TextField";
-import { Avatar, Button, Spinner } from "@heroui/react";
+import { Avatar, Button, Skeleton, Spinner } from "@heroui/react";
 import { ReactNode } from "react";
 import { Controller } from "react-hook-form";
 import { IoIosSave } from "react-icons/io";
@@ -18,6 +18,7 @@ export default function Setting() {
     passwordHandleSubmit,
     passwordControl,
     isPendingPassword,
+    isLoading,
   } = useSetting();
   if (isError) {
     return;
@@ -32,12 +33,16 @@ export default function Setting() {
               <Row>
                 <p className="lg:w-1/5">Avatar</p>
                 <section className="w-fit h-fit relative">
-                  <Avatar
-                    src={`/images/${user?.profilePict}`}
-                    classNames={{
-                      base: ["w-24 h-24"],
-                    }}
-                  />
+                  {isLoading ? (
+                    <Skeleton className="rounded-full w-24 h-24" />
+                  ) : (
+                    <Avatar
+                      src={`/images/${user?.profilePict}`}
+                      classNames={{
+                        base: ["w-24 h-24"],
+                      }}
+                    />
+                  )}
                   <button
                     type="button"
                     className="p-1 text-white bg-blue-600 absolute -right-1 cursor-pointer -bottom-1 border-2 border-blue-100 rounded-full">
@@ -48,13 +53,13 @@ export default function Setting() {
               <Row>
                 <p className="lg:w-1/5">Username</p>
                 <section className="grow">
-                  <TextField disabled id="username" defaultValue={user?.username} />
+                  <TextField isLoading={isLoading} disabled id="username" defaultValue={user?.username} />
                 </section>
               </Row>
               <Row>
                 <p className="lg:w-1/5">Email</p>
                 <section className="grow">
-                  <TextField id="email" disabled type="email" defaultValue={user?.email} />
+                  <TextField isLoading={isLoading} id="email" disabled type="email" defaultValue={user?.email} />
                 </section>
               </Row>
               <Row>
@@ -64,7 +69,7 @@ export default function Setting() {
                     control={userControl}
                     name="fullName"
                     render={({ field, fieldState: { error } }) => (
-                      <TextField id="fullName" error={error?.message} field={field} />
+                      <TextField id="fullName" isLoading={isLoading} error={error?.message} field={field} />
                     )}
                   />
                 </section>

@@ -19,6 +19,11 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "src/components/views/Instructor/Course/CreateCourse/Forms/BasicForm.tsx.bak"
+  ],
   "exclude": ["node_modules"]
 }

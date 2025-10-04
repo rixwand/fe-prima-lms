@@ -20,7 +20,7 @@ const config: NextAuthOptions = {
         try {
           if (!creds?.accessToken) return null;
           const res = await authService.getProfileWithToken(creds.accessToken);
-          const userRes: IGetUser = res.data.data;
+          const userRes: IGetUser = res.data;
           if (!userRes) return null;
           const user: User = {
             id: userRes.id.toString(),

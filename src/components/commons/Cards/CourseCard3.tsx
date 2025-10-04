@@ -1,46 +1,36 @@
 import cn from "@/libs/utils/cn";
 import { formatRupiah } from "@/libs/utils/currency";
 import { formatDate } from "@/libs/utils/string";
+import { Skeleton } from "@heroui/react";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { LuEye, LuPencilLine, LuStar, LuTrash2, LuUsers } from "react-icons/lu";
 import { PiMoneyWavyLight } from "react-icons/pi";
 
-export type TCourseStatus = "draft" | "published" | "archived";
-export type TCourseCard = {
-  id: string;
-  title: string;
-  cover: string;
-  students: number;
-  rating: number;
-  revenue: number;
-  updatedAt: string;
-  status: TCourseStatus;
-};
 export function CourseCardGrid({
   data,
   onPublish,
   onUnpublish,
   onDelete,
 }: {
-  data: TCourseCard;
-  onPublish: (id: string) => void;
-  onUnpublish: (id: string) => void;
-  onDelete: (id: string) => void;
+  data: ICourseListItem;
+  onPublish: (id: number) => void;
+  onUnpublish: (id: number) => void;
+  onDelete: (id: number) => void;
 }) {
   return (
     <div className="group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
       <div className="relative aspect-[16/9] overflow-hidden">
         <img
-          src={data.cover}
+          src={data.coverImage}
           alt={data.title}
           className="w-full h-full object-cover group-hover:scale-105 transition"
         />
         <span
           className={cn(
             "absolute left-3 top-3 text-xs px-2.5 py-1 rounded-full backdrop-blur",
-            data.status === "published"
+            data.status === "PUBLISHED"
               ? "bg-emerald-600/90 text-white"
-              : data.status === "draft"
+              : data.status === "DRAFT"
               ? "bg-amber-500/90 text-white"
               : "bg-slate-500/90 text-white"
           )}>
@@ -62,18 +52,19 @@ export function CourseCardGrid({
             <LuStar className="w-4 h-4" /> {data.rating}
           </span>
           <span className="inline-flex items-center gap-1">
-            <PiMoneyWavyLight size={20} /> {formatRupiah(data.revenue)}
+            <PiMoneyWavyLight size={20} /> {formatRupiah(data.priceAmount)}
           </span>
         </div>
         <div className="flex items-center text-xs text-slate-500">
-          <span>Updated {formatDate(data.updatedAt)}</span>
+          {/* TODO: change to updated_at */}
+          <span>Updated {formatDate(data.createdAt)}</span>
           <span className="mx-2">•</span>
           <button className="inline-flex items-center gap-1 hover:text-slate-700">
             <LuEye className="w-3.5 h-3.5" /> Preview
           </button>
         </div>
         <div className="flex items-center gap-2 pt-2">
-          {data.status !== "published" ? (
+          {data.status !== "PUBLISHED" ? (
             <button
               onClick={() => onPublish(data.id)}
               className="inline-flex items-center gap-2 px-3 h-9 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
@@ -106,18 +97,19 @@ export function CourseCardList({
   onUnpublish,
   onDelete,
 }: {
-  data: TCourseCard;
-  onPublish: (id: string) => void;
-  onUnpublish: (id: string) => void;
-  onDelete: (id: string) => void;
+  data: ICourseListItem;
+  onPublish: (id: number) => void;
+  onUnpublish: (id: number) => void;
+  onDelete: (id: number) => void;
 }) {
   return (
     <div className="grid grid-cols-12 gap-4 p-4 bg-white">
       <div className="col-span-12 md:col-span-5 flex items-center gap-3">
-        <img src={data.cover} alt={data.title} className="w-24 h-14 rounded-lg object-cover" />
+        <img src={data.coverImage} alt={data.title} className="w-24 h-14 rounded-lg object-cover" />
         <div>
           <p className="font-medium">{data.title}</p>
-          <p className="text-xs text-slate-500">Updated {formatDate(data.updatedAt)}</p>
+          {/* TODO: Change to updated at */}
+          <p className="text-xs text-slate-500">Updated {formatDate(data.createdAt)}</p>
         </div>
       </div>
       <div className="col-span-4 md:col-span-2 flex items-center gap-1 text-slate-600">
@@ -127,10 +119,10 @@ export function CourseCardList({
         <LuStar className="w-4 h-4" /> {data.rating}
       </div>
       <div className="col-span-4 md:col-span-2 flex items-center gap-1 text-slate-600">
-        <PiMoneyWavyLight size={20} /> {formatRupiah(data.revenue)}
+        <PiMoneyWavyLight size={20} /> {formatRupiah(data.priceAmount)}
       </div>
       <div className="col-span-12 md:col-span-1 flex md:justify-end gap-2">
-        {data.status !== "published" ? (
+        {data.status !== "PUBLISHED" ? (
           <button onClick={() => onPublish(data.id)} className="px-3 h-9 rounded-lg bg-blue-600 text-white text-sm">
             Publish
           </button>
@@ -145,6 +137,67 @@ export function CourseCardList({
           className="px-3 h-9 rounded-lg border border-rose-200 text-rose-600 text-sm">
           Delete
         </button>
+      </div>
+    </div>
+  );
+}
+
+export function CourseCardGridSkeleton() {
+  return (
+    <div className="group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+      <div className="relative aspect-[16/9] overflow-hidden">
+        <Skeleton className="w-full h-full" />
+        <span className="absolute left-3 top-3 text-xs px-6 py-2 rounded-full">
+          <Skeleton className="h-4 w-16 rounded-full" />
+        </span>
+      </div>
+      <div className="p-4 space-y-3">
+        <div className="flex items-start gap-2">
+          <Skeleton className="h-5 w-2/3 rounded" />
+          <Skeleton className="h-5 w-6 rounded ml-auto" />
+        </div>
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-4 w-14 rounded" />
+          <Skeleton className="h-4 w-14 rounded" />
+          <Skeleton className="h-4 w-14 rounded" />
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <Skeleton className="h-4 w-28 rounded" />
+          <Skeleton className="h-4 w-12 rounded" />
+        </div>
+        <div className="flex items-center gap-2 pt-2">
+          <Skeleton className="h-9 w-20 rounded-lg" />
+          <Skeleton className="h-9 w-20 rounded-lg" />
+          <Skeleton className="h-9 w-20 rounded-lg ml-auto" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function CourseCardListSkeleton() {
+  return (
+    <div className="grid grid-cols-12 gap-4 p-4 bg-white">
+      <div className="col-span-12 md:col-span-5 flex items-center gap-3">
+        <Skeleton className="w-24 h-14 rounded-lg" />
+        <div className="space-y-2">
+          <Skeleton className="h-5 w-32 rounded" />
+          <Skeleton className="h-3 w-24 rounded" />
+        </div>
+      </div>
+      <div className="col-span-4 md:col-span-2 flex items-center gap-1">
+        <Skeleton className="h-4 w-14 rounded" />
+      </div>
+      <div className="col-span-4 md:col-span-2 flex items-center gap-1">
+        <Skeleton className="h-4 w-14 rounded" />
+      </div>
+      <div className="col-span-4 md:col-span-2 flex items-center gap-1">
+        <Skeleton className="h-4 w-14 rounded" />
+      </div>
+      <div className="col-span-12 md:col-span-1 flex md:justify-end gap-2">
+        <Skeleton className="h-9 w-20 rounded-lg" />
+        <Skeleton className="h-9 w-16 rounded-lg" />
+        <Skeleton className="h-9 w-20 rounded-lg" />
       </div>
     </div>
   );

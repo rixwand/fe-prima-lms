@@ -51,11 +51,15 @@ const useSetting = () => {
   });
 
   useEffect(() => {
-    if (isSuccess) setUser(query.data.data);
+    if (isSuccess) setUser(query.data);
   }, [isSuccess, query]);
 
   useEffect(() => {
-    if (statusUser == "success") setUser(res.data.data);
+    if (isError) addToast({ color: "danger", title: "Error", description: "Something went wrong" });
+  }, [isError]);
+
+  useEffect(() => {
+    if (statusUser == "success") setUser(res.data);
   }, [statusUser, res]);
 
   useEffect(() => {

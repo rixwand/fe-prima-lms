@@ -1,76 +1,84 @@
-import type { TCourseCard, TCourseStatus } from "@/components/commons/Cards/CourseCard3";
-import { CourseCardGrid, CourseCardList } from "@/components/commons/Cards/CourseCard3";
+import {
+  CourseCardGrid,
+  CourseCardGridSkeleton,
+  CourseCardList,
+  CourseCardListSkeleton,
+} from "@/components/commons/Cards/CourseCard3";
 import StatCard from "@/components/commons/Cards/StatsCard";
 import { formatRupiah } from "@/libs/utils/currency";
-import { avgRating } from "@/libs/utils/string";
 import { Select, SelectItem } from "@heroui/react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { LuBookOpen, LuFilter, LuLayoutGrid, LuPlus, LuSearch, LuStar, LuUsers } from "react-icons/lu";
 import { PiMoneyWavy } from "react-icons/pi";
+import useCourse from "./useCourse";
 
-const DEMO_COURSES: TCourseCard[] = [
-  {
-    id: "c_01",
-    title: "Modern React from Zero to Pro",
-    cover: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop",
-    students: 1289,
-    rating: 4.7,
-    revenue: 12990,
-    updatedAt: "2025-08-24T10:15:00Z",
-    status: "published",
-  },
-  {
-    id: "c_02",
-    title: "TypeScript for Busy People",
-    cover: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
-    students: 802,
-    rating: 4.6,
-    revenue: 7890,
-    updatedAt: "2025-07-01T10:15:00Z",
-    status: "published",
-  },
-  {
-    id: "c_03",
-    title: "Node.js API Design – Prisma Edition",
-    cover: "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1200&auto=format&fit=crop",
-    students: 245,
-    rating: 4.4,
-    revenue: 2100,
-    updatedAt: "2025-09-02T08:02:00Z",
-    status: "draft",
-  },
-  {
-    id: "c_04",
-    title: "UI Design Fundamentals for Devs",
-    cover: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1200&auto=format&fit=crop",
-    students: 90,
-    rating: 4.2,
-    revenue: 420,
-    updatedAt: "2025-08-12T12:20:00Z",
-    status: "archived",
-  },
-];
+// const DEMO_COURSES = [
+//   {
+//     id: "c_01",
+//     title: "Modern React from Zero to Pro",
+//     cover: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop",
+//     students: 1289,
+//     rating: 4.7,
+//     revenue: 12990,
+//     updatedAt: "2025-08-24T10:15:00Z",
+//     status: "published",
+//   },
+//   {
+//     id: "c_02",
+//     title: "TypeScript for Busy People",
+//     cover: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
+//     students: 802,
+//     rating: 4.6,
+//     revenue: 7890,
+//     updatedAt: "2025-07-01T10:15:00Z",
+//     status: "published",
+//   },
+//   {
+//     id: "c_03",
+//     title: "Node.js API Design – Prisma Edition",
+//     cover: "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1200&auto=format&fit=crop",
+//     students: 245,
+//     rating: 4.4,
+//     revenue: 2100,
+//     updatedAt: "2025-09-02T08:02:00Z",
+//     status: "draft",
+//   },
+//   {
+//     id: "c_04",
+//     title: "UI Design Fundamentals for Devs",
+//     cover: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1200&auto=format&fit=crop",
+//     students: 90,
+//     rating: 4.2,
+//     revenue: 420,
+//     updatedAt: "2025-08-12T12:20:00Z",
+//     status: "archived",
+//   },
+// ];
 
 export default function InstructorCourse({ onCreate }: { onCreate: () => void }) {
-  const [courses, setCourses] = useState<TCourseCard[]>(DEMO_COURSES);
+  const { courses, isLoading } = useCourse();
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<"all" | TCourseStatus>("all");
+  // const [status, setStatus] = useState<"all" | TCourseStatus>("all");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
 
-  const filtered = useMemo(() => {
-    return courses
-      .filter(c => (status === "all" ? true : c.status === status))
-      .filter(c => c.title.toLowerCase().includes(query.toLowerCase()));
-  }, [courses, status, query]);
+  // const filtered = useMemo(() => {
+  //   return courses
+  //     .filter(c => (status === "all" ? true : c.status === status))
+  //     .filter(c => c.title.toLowerCase().includes(query.toLowerCase()));
+  // }, [courses, status, query]);
 
-  const publish = (id: string) =>
-    setCourses(prev => prev.map(c => (c.id === id ? { ...c, status: "published" as const } : c)));
-  const unpublish = (id: string) =>
-    setCourses(prev => prev.map(c => (c.id === id ? { ...c, status: "draft" as const } : c)));
-  const remove = (id: string) => setCourses(prev => prev.filter(c => c.id !== id));
+  // const publish = (id: string) =>
+  //   setCourses(prev => prev.map(c => (c.id === id ? { ...c, status: "published" as const } : c)));
+  // const unpublish = (id: string) =>
+  //   setCourses(prev => prev.map(c => (c.id === id ? { ...c, status: "draft" as const } : c)));
+  // const remove = (id: string) => setCourses(prev => prev.filter(c => c.id !== id));
 
-  const totalStudents = filtered.reduce((a, b) => a + b.students, 0);
-  const totalRevenue = filtered.reduce((a, b) => a + b.revenue, 0);
+  const publish = (id: number) => {};
+  const unpublish = (id: number) => {};
+  const remove = (id: number) => {};
+
+  const totalStudents = 21000;
+  const totalRevenue = 1_300_000;
 
   return (
     <section className="space-y-6">
@@ -94,9 +102,10 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
           label="Total Students"
           value={totalStudents.toLocaleString("id-ID")}
         />
-        <StatCard icon={<LuStar className="w-5 h-5" />} label="Avg. Rating" value={avgRating(filtered)} />
+        <StatCard icon={<LuStar className="w-5 h-5" />} label="Avg. Rating" value={"4.7"} />
+        {/* <StatCard icon={<LuStar className="w-5 h-5" />} label="Avg. Rating" value={avgRating(filtered)} /> */}
         <StatCard icon={<PiMoneyWavy size={24} />} label="Revenue" value={formatRupiah(totalRevenue)} />
-        <StatCard icon={<LuBookOpen className="w-5 h-5" />} label="Courses" value={filtered.length.toString()} />
+        <StatCard icon={<LuBookOpen className="w-5 h-5" />} label="Courses" value={courses?.length.toString() || "0"} />
       </div>
 
       {/* Toolbar */}
@@ -146,7 +155,37 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
       </div>
 
       {/* Content */}
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        layout === "grid" ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <CourseCardGridSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 overflow-hidden">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <CourseCardListSkeleton key={i} />
+            ))}
+          </div>
+        )
+      ) : courses?.length === 0 ? (
+        <EmptyCourses onCreate={() => {}} />
+      ) : layout === "grid" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {courses?.map(c => (
+            <CourseCardGrid key={c.id} data={c} onPublish={publish} onUnpublish={unpublish} onDelete={remove} />
+          ))}
+        </div>
+      ) : (
+        <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 overflow-hidden">
+          {courses?.map(c => (
+            <CourseCardList key={c.id} data={c} onPublish={publish} onUnpublish={unpublish} onDelete={remove} />
+          ))}
+        </div>
+      )}
+
+      {/* {filtered.length === 0 ? (
         <EmptyCourses onCreate={() => {}} />
       ) : layout === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -160,7 +199,7 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
             <CourseCardList key={c.id} data={c} onPublish={publish} onUnpublish={unpublish} onDelete={remove} />
           ))}
         </div>
-      )}
+      )} */}
     </section>
   );
 }

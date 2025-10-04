@@ -1,12 +1,45 @@
+import { SUPABASE_BUCKET, SUPABASE_URL } from "@/config/env";
+import { storageClient } from "@/libs/supabase/client";
 import cn from "@/libs/utils/cn";
-import { formatRupiah } from "@/libs/utils/currency";
+import { toSlug } from "@/libs/utils/string";
+import { CalendarDate, addToast } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { LuChevronLeft, LuChevronRight, LuCircleCheck, LuEye, LuImage, LuStar, LuUsers } from "react-icons/lu";
-import { PiMoneyWavyLight } from "react-icons/pi";
 import BasicsForm from "./Forms/BasicForm";
 import CurriculumBuilder from "./Forms/CurriculumBuilder";
 import PricingPanel from "./Forms/PricingPanel";
+
+export type CourseForm = {
+  title: string;
+  status: "PUBLISHED" | "DRAFT";
+  coverImage: FileList;
+  previewVideo?: string;
+  shortDescription: string;
+  descriptionJson?: string;
+  priceAmount: number;
+  isFree?: boolean; // default false in Yup, but optional in type
+  tags: string[];
+  sections?: {
+    title: string;
+    lessons?: {
+      id: string;
+      title: string;
+      summary?: string;
+      durationSec?: number;
+      isPreview?: boolean; // default false in Yup
+    }[];
+  }[];
+  discount?: {
+    type: "FIXED" | "PERCENTAGE"; // from DiscountType/DiscountTypes
+    value: number;
+    label?: string;
+    isActive?: boolean; // default true in Yup
+    startAt?: CalendarDate;
+    endAt?: CalendarDate;
+  };
+};
 
 export default function CreateCourse({
   onCancel,
@@ -26,9 +59,40 @@ export default function CreateCourse({
     tags: [],
   });
   const [curriculum, setCurriculum] = useState<CurriculumSection[]>([]);
-  const [pricing, setPricing] = useState<Pricing>({ price: 19.99, visibility: "Public" });
+  // const [pricing, setPricing] = useState<Pricing>({ price: 19.99, visibility: "Public" });
+  const [isLoading, setLoading] = useState(false);
 
-  const canNextBasics = basics.title.trim().length >= 5 && basics.description.trim().length >= 20;
+  const methods = useForm<CourseForm>({
+    defaultValues: {
+      priceAmount: 0,
+      tags: [],
+      discount: { value: 0, isActive: false, label: "", type: "PERCENTAGE" },
+      sections: [],
+    },
+    // resolver: yupResolver(createCourseSchema)
+  });
+
+  const onSubmit = async (value: CourseForm) => {
+    setLoading(true);
+    const fileImage = value.coverImage[0];
+    const ext = fileImage.name.split(".").pop();
+    const path = `courses/${toSlug(value.title)}.${ext}`;
+    const { error, data } = await storageClient.from(SUPABASE_BUCKET).upload(path, fileImage);
+    if (error) {
+      addToast({ color: "danger", title: "Error uploading image", description: error.message });
+      setLoading(false);
+      return;
+    }
+    const urlImg = SUPABASE_URL + "/object/public/" + data.fullPath;
+    const courseData = { ...value, coverImage: urlImg };
+    setLoading(false);
+  };
+
+  const fileList = methods.watch("coverImage");
+  const preview = fileList?.[0] ? URL.createObjectURL(fileList[0]) : null;
+
+  // const canNextBasics = basics.title.trim().length >= 5 && basics.description.trim().length >= 20;
+  const canNextBasics = true;
   const canPublish = canNextBasics && curriculum.some(s => s.lessons.length > 0);
 
   const goNext = () => setStep(s => Math.min(3, s + 1));
@@ -52,43 +116,45 @@ export default function CreateCourse({
         <div className="flex items-center gap-3">
           <StepPill active={step === 1} done={step > 1} label="Basics" />
           <LuChevronRight className="w-4 h-4 text-slate-400" />
-          <StepPill active={step === 2} done={step > 2} label="Curriculum" />
+          <StepPill active={step === 2} done={step > 2} label="Pricing" />
           <LuChevronRight className="w-4 h-4 text-slate-400" />
-          <StepPill active={step === 3} done={false} label="Pricing & Publish" />
+          <StepPill active={step === 3} done={false} label="Curriculum" />
         </div>
 
         {/* Panels */}
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <AnimatePresence mode="wait">
-            {step === 1 && (
-              <motion.div
-                key="step-1"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}>
-                <BasicsForm value={basics} onChange={setBasics} />
-              </motion.div>
-            )}
-            {step === 2 && (
-              <motion.div
-                key="step-2"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}>
-                <CurriculumBuilder value={curriculum} onChange={setCurriculum} />
-              </motion.div>
-            )}
-            {step === 3 && (
-              <motion.div
-                key="step-3"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}>
-                <PricingPanel value={pricing} onChange={setPricing} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        <FormProvider {...methods}>
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+            <AnimatePresence mode="wait">
+              {step === 1 && (
+                <motion.div
+                  key="step-1"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}>
+                  <BasicsForm />
+                </motion.div>
+              )}
+              {step === 2 && (
+                <motion.div
+                  key="step-2"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}>
+                  <PricingPanel />
+                </motion.div>
+              )}
+              {step === 3 && (
+                <motion.div
+                  key="step-3"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}>
+                  <CurriculumBuilder />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </FormProvider>
 
         {/* Navigation */}
         <div className="flex items-center justify-between">
@@ -112,7 +178,12 @@ export default function CreateCourse({
             )}
             {step < 3 ? (
               <button
-                onClick={goNext}
+                // onClick={async () => {
+                //   const isValid = await methods.trigger(["title", "shortDescription", "coverImage", "tags"]);
+                //   if (isValid) goNext();
+                // }}
+                type="button"
+                onClick={methods.handleSubmit(onSubmit)}
                 disabled={step === 1 && !canNextBasics}
                 className={cn(
                   "h-10 px-4 rounded-xl bg-blue-600 text-white font-medium inline-flex items-center gap-2",
@@ -128,7 +199,7 @@ export default function CreateCourse({
                   "h-10 px-4 rounded-xl bg-emerald-600 text-white font-medium",
                   !canPublish && "opacity-50 cursor-not-allowed"
                 )}>
-                Publish Course
+                Go to Lesson Editor
               </button>
             )}
           </div>
@@ -144,8 +215,8 @@ export default function CreateCourse({
           <div className="p-4">
             <div className="rounded-xl overflow-hidden border border-slate-200">
               <div className="relative aspect-video bg-slate-100 grid place-items-center">
-                {basics.thumbnail ? (
-                  <img src={basics.thumbnail} alt="thumb" className="w-full h-full object-cover" />
+                {preview ? (
+                  <img src={preview} alt="thumb" className="w-full h-full object-cover" />
                 ) : (
                   <div className="text-slate-400 text-sm flex flex-col items-center">
                     <LuImage className="w-8 h-8 mb-1" />
@@ -153,7 +224,7 @@ export default function CreateCourse({
                   </div>
                 )}
                 <span className="absolute left-3 top-3 text-xs px-2.5 py-1 rounded-full bg-blue-600 text-white">
-                  {pricing.visibility}
+                  {/* {pricing.visibility} */}
                 </span>
               </div>
               <div className="p-4 space-y-1">
@@ -169,7 +240,7 @@ export default function CreateCourse({
                     <LuUsers className="w-3.5 h-3.5" /> 0
                   </span>
                   <span className="inline-flex items-center gap-1">
-                    <PiMoneyWavyLight size={16} /> {formatRupiah(pricing.price)}
+                    {/* <PiMoneyWavyLight size={16} /> {formatRupiah(pricing.price)} */}
                   </span>
                 </div>
               </div>

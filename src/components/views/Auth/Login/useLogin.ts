@@ -18,7 +18,7 @@ export default function useLogin() {
   const loginService = async (payload: ILogin) => {
     try {
       const res = await authService.login(payload);
-      const data: { accessToken: string } = res.data.data;
+      const data: { accessToken: string } = res.data;
       const signStatus = await signIn("token", { accessToken: data.accessToken, redirect: false, callbackUrl });
       if (signStatus?.error) throw new Error("Couldn't initiate session ");
     } catch (error) {

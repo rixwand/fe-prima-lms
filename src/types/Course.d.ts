@@ -6,13 +6,37 @@ type NewCourseBasics = {
   language: string;
   thumbnail?: string;
   description: string;
+
   tags: string[];
 };
+
+type LessonForm = { id: string; title: string; durationMin?: number; preview?: boolean };
 
 type CurriculumSection = {
   id: string;
   title: string;
-  lessons: { id: string; title: string; kind: "video" | "article"; durationMin?: number; preview?: boolean }[];
+  lessons: LessonForm[];
 };
 
-type Pricing = { price: number; discount?: number; visibility: "Public" | "Unlisted" | "Private" };
+type Pricing = {
+  type: "PERCENTAGE" | "FIXED";
+  value: number;
+  label?: string;
+  isActive?: boolean;
+  startAt?: string | Date;
+  endAt?: string | Date;
+};
+
+type ICourseListItem = {
+  id: number;
+  title: string;
+  slug: string;
+  status: "DRAFT" | "PUBLISHED";
+  students: number;
+  rating: number;
+  coverImage: string;
+  priceAmount: number;
+  priceCurrency: string;
+  isFree: false;
+  createdAt: string;
+};
