@@ -1,24 +1,38 @@
 import cn from "@/libs/utils/cn";
-import { formatRupiah } from "@/libs/utils/currency";
+import { finalPrice, formatRupiah } from "@/libs/utils/currency";
 import { formatDate } from "@/libs/utils/string";
+import courseService from "@/services/course.service";
 import { Skeleton } from "@heroui/react";
+import { useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { LuEye, LuPencilLine, LuStar, LuTrash2, LuUsers } from "react-icons/lu";
 import { PiMoneyWavyLight } from "react-icons/pi";
+import { confirmDialog } from "../Dialong/confirmDialog";
 
 export function CourseCardGrid({
   data,
   onPublish,
   onUnpublish,
   onDelete,
+  isLoading,
 }: {
   data: ICourseListItem;
+  isLoading: boolean;
   onPublish: (id: number) => void;
   onUnpublish: (id: number) => void;
   onDelete: (id: number) => void;
 }) {
+  const qc = useQueryClient();
+  const prefetch = () =>
+    qc.prefetchQuery({ queryKey: ["coursePreview", data.slug], queryFn: () => courseService.PUBLIC.get(data.slug) });
   return (
-    <div className="group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+    <Link
+      onMouseEnter={prefetch}
+      onFocus={prefetch}
+      onClick={prefetch}
+      href={`/instructor/dashboard/course/${data.slug}`}
+      className="group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
       <div className="relative aspect-[16/9] overflow-hidden">
         <img
           src={data.coverImage}
@@ -46,13 +60,21 @@ export function CourseCardGrid({
         </div>
         <div className="flex items-center gap-4 text-sm text-slate-600">
           <span className="inline-flex items-center gap-1">
-            <LuUsers className="w-4 h-4" /> {data.students}
+            <LuUsers className="w-4 h-4" /> {data.students || 0}
           </span>
           <span className="inline-flex items-center gap-1">
-            <LuStar className="w-4 h-4" /> {data.rating}
+            <LuStar className="w-4 h-4" /> {data.rating || "0.0"}
           </span>
           <span className="inline-flex items-center gap-1">
-            <PiMoneyWavyLight size={20} /> {formatRupiah(data.priceAmount)}
+            <PiMoneyWavyLight size={20} />{" "}
+            {(data.discount && data.discount.length > 0
+              ? finalPrice(data.priceAmount, data.discount[0].value, data.discount[0].type)
+              : data.priceAmount
+            ).toLocaleString("id-ID", {
+              style: "currency",
+              currency: "IDR",
+              maximumFractionDigits: 0,
+            })}
           </span>
         </div>
         <div className="flex items-center text-xs text-slate-500">
@@ -81,13 +103,20 @@ export function CourseCardGrid({
             <LuPencilLine className="w-4 h-4" /> Edit
           </button>
           <button
-            onClick={() => onDelete(data.id)}
+            onClick={() =>
+              confirmDialog({
+                title: "Delete Course",
+                desc: `This Action is gonna delete course "${data.title}"`,
+                onConfirmed: () => onDelete(data.id),
+                isLoading,
+              })
+            }
             className="ml-auto inline-flex items-center gap-2 px-3 h-9 rounded-lg border border-rose-200 text-rose-600 text-sm hover:bg-rose-50">
             <LuTrash2 className="w-4 h-4" /> Delete
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -96,14 +125,24 @@ export function CourseCardList({
   onPublish,
   onUnpublish,
   onDelete,
+  isLoading,
 }: {
   data: ICourseListItem;
+  isLoading: boolean;
   onPublish: (id: number) => void;
   onUnpublish: (id: number) => void;
   onDelete: (id: number) => void;
 }) {
+  const qc = useQueryClient();
+  const prefetch = () =>
+    qc.prefetchQuery({ queryKey: ["coursePreview", data.slug], queryFn: () => courseService.PUBLIC.get(data.slug) });
   return (
-    <div className="grid grid-cols-12 gap-4 p-4 bg-white">
+    <Link
+      href={`/instructor/dashboard/course/${data.slug}`}
+      className="grid grid-cols-12 gap-4 p-4 bg-white"
+      onMouseEnter={prefetch}
+      onFocus={prefetch}
+      onClick={prefetch}>
       <div className="col-span-12 md:col-span-5 flex items-center gap-3">
         <img src={data.coverImage} alt={data.title} className="w-24 h-14 rounded-lg object-cover" />
         <div>
@@ -113,10 +152,10 @@ export function CourseCardList({
         </div>
       </div>
       <div className="col-span-4 md:col-span-2 flex items-center gap-1 text-slate-600">
-        <LuUsers className="w-4 h-4" /> {data.students}
+        <LuUsers className="w-4 h-4" /> {data.students || 0}
       </div>
       <div className="col-span-4 md:col-span-2 flex items-center gap-1 text-slate-600">
-        <LuStar className="w-4 h-4" /> {data.rating}
+        <LuStar className="w-4 h-4" /> {data.rating || 0}
       </div>
       <div className="col-span-4 md:col-span-2 flex items-center gap-1 text-slate-600">
         <PiMoneyWavyLight size={20} /> {formatRupiah(data.priceAmount)}
@@ -133,12 +172,19 @@ export function CourseCardList({
         )}
         <button className="px-3 h-9 rounded-lg border border-slate-200 text-sm">Edit</button>
         <button
-          onClick={() => onDelete(data.id)}
+          onClick={() =>
+            confirmDialog({
+              title: "Delete Course",
+              desc: `This Action is gonna delete course "${data.title}"`,
+              onConfirmed: () => onDelete(data.id),
+              isLoading,
+            })
+          }
           className="px-3 h-9 rounded-lg border border-rose-200 text-rose-600 text-sm">
           Delete
         </button>
       </div>
-    </div>
+    </Link>
   );
 }
 

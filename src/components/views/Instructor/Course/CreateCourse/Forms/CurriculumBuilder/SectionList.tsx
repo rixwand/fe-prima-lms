@@ -10,7 +10,7 @@ import {
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Accordion, AccordionItem } from "@heroui/react";
-import { Fragment, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import { GoSidebarCollapse, GoSidebarExpand } from "react-icons/go";
 import {
@@ -50,8 +50,15 @@ export const SectionItem = () => {
     });
 
   const addSection = () => {
-    sectionsAppend({ title: `Section ${sectionFields.length + 1}`, lessons: [] });
+    sectionsAppend({ title: `Section ${sectionFields.length + 1}`, lessons: [] }, { shouldFocus: true });
   };
+
+  useEffect(() => {
+    if (sectionFields && sectionFields.length > 0) {
+      const newSection = sectionFields[sectionFields.length - 1];
+      setIdsOpened(v => new Set([...v, newSection.id]));
+    }
+  }, [sectionsAppend, sectionFields]);
 
   const renameSection = (idx: number, title: string) => setValue(`sections.${idx}.title`, title, { shouldDirty: true });
 
@@ -79,8 +86,6 @@ export const SectionItem = () => {
     for (let i = sectionFields.length - 1; i >= 0; i--) sectionsRemove(i);
     setIdsOpened(new Set());
   };
-
-  console.log(sectionFields.map(section => section.id));
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={onDragStart} onDragEnd={onDragEnd}>
@@ -123,6 +128,7 @@ export const SectionItem = () => {
                 const sectionPath = `sections.${idx}` as const;
                 return (
                   <AccordionItem
+                    textValue={section.title}
                     key={section.id}
                     indicator={() => (
                       <button
@@ -142,20 +148,6 @@ export const SectionItem = () => {
                     }>
                     <div className="p-4 space-y-3 -mt-3 text-sm">
                       <LessonListRHF sectionIndex={idx} sectionId={section.id} />
-                      <div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const lessonId = makeId("l");
-                            const lessons = getValues(`${sectionPath}.lessons`) ?? [];
-                            setValue(`${sectionPath}.lessons`, [...lessons, { id: lessonId, title: "New Lesson" }], {
-                              shouldDirty: true,
-                            });
-                          }}
-                          className="inline-flex items-center gap-2 px-3 h-9 rounded-lg border border-slate-200 hover:bg-slate-50 text-sm">
-                          <LuPlus className="w-4 h-4" /> Add Lesson
-                        </button>
-                      </div>
                     </div>
                   </AccordionItem>
                 );
@@ -209,7 +201,7 @@ function SortableSectionTitle({
       <button
         {...(isEdit ? {} : attributes)}
         {...(isEdit ? {} : listeners)}
-        type="button"
+        // type="button"
         onClick={e => e.stopPropagation()}
         className="cursor-grab"
         aria-label="Drag to reorder">
@@ -272,10 +264,6 @@ function SortableSectionTitle({
 }
 
 export default SectionItem;
-
-function makeId(prefix: string) {
-  return `${prefix}_${Math.random().toString(36).slice(2, 7)}`;
-}
 
 const EmptySection = ({ addSection }: { addSection: () => void }) => (
   <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center">

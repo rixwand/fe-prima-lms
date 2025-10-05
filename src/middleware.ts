@@ -32,6 +32,8 @@ export async function middleware(req: NextRequest) {
 
   if (startsWithAny(pathname, PROTECTED_PREFIX)) {
     if (!isAuthed) return buildLoginRedirect(req);
+    if (role === "lecturer") return NextResponse.redirect(new URL("/instructor/dashboard", req.url));
+    if (role === "admin") return NextResponse.redirect(new URL("/admin/dashboard", req.url));
   }
 
   if (startsWithAny(pathname, INSTRUCTOR_PREFIX)) {

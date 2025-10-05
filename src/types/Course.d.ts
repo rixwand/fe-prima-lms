@@ -27,16 +27,48 @@ type Pricing = {
   endAt?: string | Date;
 };
 
+type CourseDiscount = {
+  id: number;
+  courseId: number;
+  type: "PERCENTAGE" | "FIXED";
+  value: number;
+  startAt: string | null;
+  endAt: string | null;
+  isActive: boolean;
+  label: string;
+};
+
 type ICourseListItem = {
   id: number;
   title: string;
   slug: string;
   status: "DRAFT" | "PUBLISHED";
-  students: number;
-  rating: number;
   coverImage: string;
   priceAmount: number;
-  priceCurrency: string;
   isFree: false;
+  createdAt: string;
+  discount?: CourseDiscount[];
+  students: number;
+  rating: number;
+};
+
+type Course = {
+  id: number;
+  title: string;
+  slug: string;
+  status: "DRAFT" | "PUBLISHED";
+  ownerId: number;
+  coverImage: string;
+  previewVideo?: string;
+  shortDescription: string;
+  descriptionJson?: string;
+  priceAmount: number;
+  isFree: boolean;
+  tags: string[];
+  sections?: {
+    title: string;
+    lessons: string[];
+  }[];
+  discount?: CourseDiscount[];
   createdAt: string;
 };

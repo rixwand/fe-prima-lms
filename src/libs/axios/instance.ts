@@ -1,7 +1,7 @@
 import { endpoint } from "@/config/endpoint";
 import { AppAxiosError } from "@/types/axios";
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import { getSession } from "next-auth/react";
+import { getSession, signOut } from "next-auth/react";
 import { API_URL } from "../../config/env";
 import { getErrorMessage } from "./error";
 import { updateSession } from "./session-updater";
@@ -47,18 +47,17 @@ api.interceptors.response.use(
           withCredentials: true,
         });
         const accessToken = res.data.data.accessToken as string;
-        console.log("refresh access token: ", accessToken);
         if (accessToken) {
           original.headers.Authorization = "Bearer " + accessToken;
           await updateSession({ accessToken });
           return api(original);
         } else {
-          // await signOut({ redirect: true, callbackUrl: "/auth/login" });
+          await signOut({ redirect: true, callbackUrl: "/auth/login" });
           return Promise.reject(error);
         }
       } catch (err) {
         getErrorMessage(err as AppAxiosError);
-        // await signOut({ redirect: true, callbackUrl: "/auth/login" });
+        await signOut({ redirect: true, callbackUrl: "/auth/login" });
         return Promise.reject(error);
       }
     }

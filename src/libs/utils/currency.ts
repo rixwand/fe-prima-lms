@@ -13,3 +13,16 @@ export const formatRupiah = (n: number): string => {
     return `Rp ${n}`;
   }
 };
+
+export function finalPrice(price: number, discount: number = 0, type: "PERCENTAGE" | "FIXED" = "PERCENTAGE") {
+  let p = price;
+
+  if (type === "PERCENTAGE") {
+    const pct = Math.min(Math.max(discount, 0), 100);
+    p = price * (1 - pct / 100);
+  } else {
+    p = Math.max(0, price - discount);
+  }
+
+  return p;
+}

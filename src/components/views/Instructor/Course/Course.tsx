@@ -7,56 +7,14 @@ import {
 import StatCard from "@/components/commons/Cards/StatsCard";
 import { formatRupiah } from "@/libs/utils/currency";
 import { Select, SelectItem } from "@heroui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LuBookOpen, LuFilter, LuLayoutGrid, LuPlus, LuSearch, LuStar, LuUsers } from "react-icons/lu";
 import { PiMoneyWavy } from "react-icons/pi";
 import useCourse from "./useCourse";
 
-// const DEMO_COURSES = [
-//   {
-//     id: "c_01",
-//     title: "Modern React from Zero to Pro",
-//     cover: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop",
-//     students: 1289,
-//     rating: 4.7,
-//     revenue: 12990,
-//     updatedAt: "2025-08-24T10:15:00Z",
-//     status: "published",
-//   },
-//   {
-//     id: "c_02",
-//     title: "TypeScript for Busy People",
-//     cover: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
-//     students: 802,
-//     rating: 4.6,
-//     revenue: 7890,
-//     updatedAt: "2025-07-01T10:15:00Z",
-//     status: "published",
-//   },
-//   {
-//     id: "c_03",
-//     title: "Node.js API Design – Prisma Edition",
-//     cover: "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1200&auto=format&fit=crop",
-//     students: 245,
-//     rating: 4.4,
-//     revenue: 2100,
-//     updatedAt: "2025-09-02T08:02:00Z",
-//     status: "draft",
-//   },
-//   {
-//     id: "c_04",
-//     title: "UI Design Fundamentals for Devs",
-//     cover: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1200&auto=format&fit=crop",
-//     students: 90,
-//     rating: 4.2,
-//     revenue: 420,
-//     updatedAt: "2025-08-12T12:20:00Z",
-//     status: "archived",
-//   },
-// ];
-
 export default function InstructorCourse({ onCreate }: { onCreate: () => void }) {
-  const { courses, isLoading } = useCourse();
+  const { courses, isLoading, pendingDelete, deleteCourse } = useCourse();
+
   const [query, setQuery] = useState("");
   // const [status, setStatus] = useState<"all" | TCourseStatus>("all");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
@@ -75,10 +33,12 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
 
   const publish = (id: number) => {};
   const unpublish = (id: number) => {};
-  const remove = (id: number) => {};
 
   const totalStudents = 21000;
   const totalRevenue = 1_300_000;
+  useEffect(() => {
+    console.log(courses);
+  }, [courses]);
 
   return (
     <section className="space-y-6">
@@ -123,6 +83,7 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
           <div className="w-44 flex items-center gap-2">
             <span className="text-sm text-slate-600">Status:</span>
             <Select
+              aria-label="Select course type"
               classNames={{
                 // helperWrapper: "border border-red-200",
                 trigger: "bg-transparent shadow-none border border-slate-200 hover:bg-slate-50",
@@ -134,12 +95,6 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
               <SelectItem key="published">Published</SelectItem>
               <SelectItem key="archived">Archived</SelectItem>
             </Select>
-            {/* <select
-              value={status}
-              // onChange={(e) => setStatus(e.target.value as any)}
-              className="h-10 rounded-xl border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-              <option value="all">All</option>
-            </select> */}
           </div>
           <button className="inline-flex items-center gap-2 h-10 px-3 rounded-xl border border-slate-200 text-sm hover:bg-slate-50">
             <LuFilter className="w-4 h-4" />
@@ -174,13 +129,27 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
       ) : layout === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {courses?.map(c => (
-            <CourseCardGrid key={c.id} data={c} onPublish={publish} onUnpublish={unpublish} onDelete={remove} />
+            <CourseCardGrid
+              key={c.id}
+              data={c}
+              onPublish={publish}
+              onUnpublish={unpublish}
+              onDelete={deleteCourse}
+              isLoading={pendingDelete}
+            />
           ))}
         </div>
       ) : (
         <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 overflow-hidden">
           {courses?.map(c => (
-            <CourseCardList key={c.id} data={c} onPublish={publish} onUnpublish={unpublish} onDelete={remove} />
+            <CourseCardList
+              key={c.id}
+              data={c}
+              onPublish={publish}
+              onUnpublish={unpublish}
+              onDelete={deleteCourse}
+              isLoading={pendingDelete}
+            />
           ))}
         </div>
       )}

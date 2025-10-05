@@ -10,7 +10,7 @@ export default function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block space-y-1">
+    <label className="flex gap-y-1 flex-col">
       <span className="text-sm font-medium">
         {label} {required && <span className="text-rose-600">*</span>}
       </span>

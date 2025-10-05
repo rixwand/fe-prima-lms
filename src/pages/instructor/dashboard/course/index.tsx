@@ -30,7 +30,10 @@ export default function InstructorDashboard() {
             setPage("course");
             router.replace(router.route);
           }}
-          onFinish={() => {}}
+          onFinish={() => {
+            setPage("course");
+            router.replace(router.route);
+          }}
         />
       )}
     </InstructorLayout>
