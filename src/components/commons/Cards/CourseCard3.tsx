@@ -27,11 +27,10 @@ export function CourseCardGrid({
   const prefetch = () =>
     qc.prefetchQuery({ queryKey: ["coursePreview", data.slug], queryFn: () => courseService.PUBLIC.get(data.slug) });
   return (
-    <Link
+    <section
       onMouseEnter={prefetch}
       onFocus={prefetch}
       onClick={prefetch}
-      href={`/instructor/dashboard/course/${data.slug}`}
       className="group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
       <div className="relative aspect-[16/9] overflow-hidden">
         <img
@@ -87,11 +86,12 @@ export function CourseCardGrid({
         </div>
         <div className="flex items-center gap-2 pt-2">
           {data.status !== "PUBLISHED" ? (
-            <button
-              onClick={() => onPublish(data.id)}
+            <Link
+              href={`/instructor/dashboard/course/${data.slug}`}
+              // onClick={() => onPublish(data.id)}
               className="inline-flex items-center gap-2 px-3 h-9 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
-              Publish
-            </button>
+              Preview
+            </Link>
           ) : (
             <button
               onClick={() => onUnpublish(data.id)}
@@ -116,7 +116,7 @@ export function CourseCardGrid({
           </button>
         </div>
       </div>
-    </Link>
+    </section>
   );
 }
 
@@ -137,8 +137,7 @@ export function CourseCardList({
   const prefetch = () =>
     qc.prefetchQuery({ queryKey: ["coursePreview", data.slug], queryFn: () => courseService.PUBLIC.get(data.slug) });
   return (
-    <Link
-      href={`/instructor/dashboard/course/${data.slug}`}
+    <section
       className="grid grid-cols-12 gap-4 p-4 bg-white"
       onMouseEnter={prefetch}
       onFocus={prefetch}
@@ -166,9 +165,11 @@ export function CourseCardList({
             Publish
           </button>
         ) : (
-          <button onClick={() => onUnpublish(data.id)} className="px-3 h-9 rounded-lg bg-amber-500 text-white text-sm">
-            Unpublish
-          </button>
+          <Link
+            href={`/instructor/dashboard/course/${data.slug}`}
+            className="px-3 h-9 rounded-lg bg-amber-500 text-white text-sm">
+            Preview
+          </Link>
         )}
         <button className="px-3 h-9 rounded-lg border border-slate-200 text-sm">Edit</button>
         <button
@@ -184,7 +185,7 @@ export function CourseCardList({
           Delete
         </button>
       </div>
-    </Link>
+    </section>
   );
 }
 

@@ -24,13 +24,13 @@ export async function getStaticProps({ params }: { params: { slug: string } }) {
 }
 
 export default function CoursePage({ slug }: { slug: string }) {
-  const { data: res } = useQuery({
+  const { data: res, isPending } = useQuery({
     queryKey: ["coursePreview", slug],
     queryFn: () => courseService.PUBLIC.get(slug),
   });
   return (
     <InstructorLayout customNav={<CustomNav />} active="MyCourses">
-      <CourseInfo data={res?.data} />
+      <CourseInfo data={res?.data} isPending={isPending} />
     </InstructorLayout>
   );
 }

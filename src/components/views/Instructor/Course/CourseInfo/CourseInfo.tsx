@@ -3,7 +3,7 @@ import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { finalPrice } from "@/libs/utils/currency";
 import { toSlug } from "@/libs/utils/string";
-import { Accordion, AccordionItem, Button, Card, Chip, Input, Tab, Tabs } from "@heroui/react";
+import { Accordion, AccordionItem, Button, Card, Chip, Input, Spinner, Tab, Tabs } from "@heroui/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { IoMdTime } from "react-icons/io";
@@ -11,9 +11,15 @@ import { LuUsers } from "react-icons/lu";
 import { PiInfoBold } from "react-icons/pi";
 import { Rating } from "react-simple-star-rating";
 
-export default function CourseInfo({ data }: { data: Course }) {
+export default function CourseInfo({ data, isPending }: { data: Course; isPending: boolean }) {
   const route = useRouter();
-  if (!data) return <NotFound />;
+  if (isPending)
+    return (
+      <section className={cn([inter.className, "2xl:container xl:px-12 2xl:mx-auto px-4"])}>
+        <Spinner color="primary" size="lg" />
+      </section>
+    );
+  if (!data && !isPending) return <NotFound />;
   const { descriptionJson, shortDescription, sections, discount } = data;
   return (
     <section className={cn([inter.className, "2xl:container xl:px-12 2xl:mx-auto px-4"])}>

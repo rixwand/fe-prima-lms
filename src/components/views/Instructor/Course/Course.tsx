@@ -125,7 +125,7 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
           </div>
         )
       ) : courses?.length === 0 ? (
-        <EmptyCourses onCreate={() => {}} />
+        <EmptyCourses onCreate={onCreate} />
       ) : layout === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {courses?.map(c => (
