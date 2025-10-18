@@ -38,10 +38,10 @@ export function CourseCardGrid({
       className="group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
       <div className="relative aspect-[16/9] overflow-hidden">
         <Image
-          // src={data.coverImage}
-          src={
-            "https://vcbkvjjzhpzahozzdtap.storage.supabase.co/storage/v1/object/public/public-img-prima/courses/test_course.png"
-          }
+          src={data.coverImage}
+          // src={
+          //   "https://vcbkvjjzhpzahozzdtap.storage.supabase.co/storage/v1/object/public/public-img-prima/courses/test_course.png"
+          // }
           alt={data.title}
           fill
           // objectFit="cover"
