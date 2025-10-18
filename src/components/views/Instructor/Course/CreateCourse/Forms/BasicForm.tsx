@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { IoClose } from "react-icons/io5";
 import { LuImage, LuUpload } from "react-icons/lu";
-import { CourseForm } from "../CreateCourse";
 import Field from "./Field";
 
 export default function BasicsForm() {

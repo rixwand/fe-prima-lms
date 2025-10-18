@@ -4,7 +4,9 @@ import { formatDate } from "@/libs/utils/string";
 import courseService from "@/services/course.service";
 import { Skeleton } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { LuEye, LuPencilLine, LuStar, LuTrash2, LuUsers } from "react-icons/lu";
 import { PiMoneyWavyLight } from "react-icons/pi";
@@ -19,24 +21,31 @@ export function CourseCardGrid({
 }: {
   data: ICourseListItem;
   isLoading: boolean;
-  onPublish: (id: number) => void;
+  onPublish: (id: number) => Promise<void>;
   onUnpublish: (id: number) => void;
   onDelete: (id: number) => void;
 }) {
   const qc = useQueryClient();
   const prefetch = () =>
-    qc.prefetchQuery({ queryKey: ["coursePreview", data.slug], queryFn: () => courseService.PUBLIC.get(data.slug) });
+    qc.prefetchQuery({ queryKey: ["coursePreview", data.id], queryFn: () => courseService.get(data.id) });
+  const router = useRouter();
   return (
-    <section
+    <Link
+      href={`/instructor/dashboard/course/${data.id}`}
       onMouseEnter={prefetch}
       onFocus={prefetch}
       onClick={prefetch}
       className="group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
       <div className="relative aspect-[16/9] overflow-hidden">
-        <img
-          src={data.coverImage}
+        <Image
+          // src={data.coverImage}
+          src={
+            "https://vcbkvjjzhpzahozzdtap.storage.supabase.co/storage/v1/object/public/public-img-prima/courses/test_course.png"
+          }
           alt={data.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition"
+          fill
+          // objectFit="cover"
+          className="group-hover:scale-105 transition object-cover"
         />
         <span
           className={cn(
@@ -53,7 +62,11 @@ export function CourseCardGrid({
       <div className="p-4 space-y-3">
         <div className="flex items-start gap-2">
           <h3 className="font-semibold flex-1 leading-snug">{data.title}</h3>
-          <button className="ml-auto p-1.5 rounded-lg hover:bg-slate-100">
+          <button
+            onClick={e => {
+              e.preventDefault();
+            }}
+            className="ml-auto p-1.5 rounded-lg hover:bg-slate-100">
             <FiMoreHorizontal className="w-5 h-5 text-slate-500" />
           </button>
         </div>
@@ -86,37 +99,48 @@ export function CourseCardGrid({
         </div>
         <div className="flex items-center gap-2 pt-2">
           {data.status !== "PUBLISHED" ? (
-            <Link
-              href={`/instructor/dashboard/course/${data.slug}`}
-              // onClick={() => onPublish(data.id)}
+            <button
+              onClick={async e => {
+                e.preventDefault();
+                await onPublish(data.id);
+              }}
               className="inline-flex items-center gap-2 px-3 h-9 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
-              Preview
-            </Link>
+              Publish
+            </button>
           ) : (
             <button
-              onClick={() => onUnpublish(data.id)}
+              onClick={e => {
+                e.preventDefault();
+                onUnpublish(data.id);
+              }}
               className="inline-flex items-center gap-2 px-3 h-9 rounded-lg bg-amber-500 text-white text-sm font-medium hover:bg-amber-600">
               Unpublish
             </button>
           )}
-          <button className="inline-flex items-center gap-2 px-3 h-9 rounded-lg border border-slate-200 text-sm hover:bg-slate-50">
+          <button
+            onClick={e => {
+              e.preventDefault();
+              router.push(`/instructor/dashboard/edit-course/${data.id}`);
+            }}
+            className="inline-flex items-center gap-2 px-3 h-9 rounded-lg border border-slate-200 text-sm hover:bg-slate-50">
             <LuPencilLine className="w-4 h-4" /> Edit
           </button>
           <button
-            onClick={() =>
+            onClick={e => {
+              e.preventDefault();
               confirmDialog({
                 title: "Delete Course",
                 desc: `This Action is gonna delete course "${data.title}"`,
                 onConfirmed: () => onDelete(data.id),
                 isLoading,
-              })
-            }
+              });
+            }}
             className="ml-auto inline-flex items-center gap-2 px-3 h-9 rounded-lg border border-rose-200 text-rose-600 text-sm hover:bg-rose-50">
             <LuTrash2 className="w-4 h-4" /> Delete
           </button>
         </div>
       </div>
-    </section>
+    </Link>
   );
 }
 
@@ -135,7 +159,7 @@ export function CourseCardList({
 }) {
   const qc = useQueryClient();
   const prefetch = () =>
-    qc.prefetchQuery({ queryKey: ["coursePreview", data.slug], queryFn: () => courseService.PUBLIC.get(data.slug) });
+    qc.prefetchQuery({ queryKey: ["coursePreview", data.id], queryFn: () => courseService.get(data.id) });
   return (
     <section
       className="grid grid-cols-12 gap-4 p-4 bg-white"
@@ -166,7 +190,7 @@ export function CourseCardList({
           </button>
         ) : (
           <Link
-            href={`/instructor/dashboard/course/${data.slug}`}
+            href={`/instructor/dashboard/course/${data.id}`}
             className="px-3 h-9 rounded-lg bg-amber-500 text-white text-sm">
             Preview
           </Link>

@@ -31,7 +31,7 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
   //   setCourses(prev => prev.map(c => (c.id === id ? { ...c, status: "draft" as const } : c)));
   // const remove = (id: string) => setCourses(prev => prev.filter(c => c.id !== id));
 
-  const publish = (id: number) => {};
+  const publish = async (id: number) => {};
   const unpublish = (id: number) => {};
 
   const totalStudents = 21000;

@@ -10,3 +10,10 @@ export function fromSlug(str: string) {
 }
 
 export const formatDate = (iso: string) => new Date(iso).toLocaleDateString();
+
+export function getYouTubeEmbedUrl(url: string) {
+  const videoIdMatch = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return videoIdMatch ? `https://www.youtube.com/embed/${videoIdMatch[1]}` : null;
+}
+
+export const trimEdges = (v: unknown) => (typeof v === "string" ? v.trim() : v);

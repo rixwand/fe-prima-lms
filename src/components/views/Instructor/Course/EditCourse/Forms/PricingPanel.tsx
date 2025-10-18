@@ -1,24 +1,72 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { confirmDialog } from "@/components/commons/Dialong/confirmDialog";
 import TextField from "@/components/commons/TextField";
+import NProgress from "@/libs/loader/nprogress-setup";
 import cn from "@/libs/utils/cn";
 import { finalPrice } from "@/libs/utils/currency";
-import { Button, DatePicker, Select, SelectItem, Switch } from "@heroui/react";
-import { Fragment } from "react";
+import courseService from "@/services/course.service";
+import { Button, DatePicker, Select, SelectItem, Switch, addToast } from "@heroui/react";
+import { QueryObserverResult, useMutation } from "@tanstack/react-query";
+import { Fragment, useEffect, useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { HiSelector } from "react-icons/hi";
-import { LuTrash2 } from "react-icons/lu";
-import Field from "./Field";
+import { LuTrash2, LuUndo2 } from "react-icons/lu";
+import Field from "../../CreateCourse/Forms/Field";
 
-export default function PricingPanel() {
-  const { control, register, watch, setValue } = useFormContext<CourseForm>();
-
-  const dt = (d?: string | Date) => (d ? new Date(d).toISOString().slice(0, 16) : "");
-  const nowLocal = new Date().toISOString().slice(0, 16);
-
+export default function PricingPanel({
+  discountId,
+  courseId,
+  refetch,
+}: {
+  discountId?: number;
+  courseId: number;
+  refetch: () => Promise<QueryObserverResult>;
+}) {
+  const {
+    control,
+    register,
+    watch,
+    setValue,
+    resetField,
+    formState: { dirtyFields },
+  } = useFormContext<EditCourseForm>();
   const [price, free, discount] = watch(["priceAmount", "isFree", "discount"]);
+  const startAt = useRef<HTMLInputElement | null>(null);
+  const reset = () => {
+    resetField("discount");
+    resetField("isFree");
+    resetField("priceAmount");
+  };
+
+  const { mutate, isPending, isSuccess } = useMutation({
+    mutationFn: courseService.deleteDiscount,
+    onError: e => {
+      addToast({ title: "Erorr", description: e.message, color: "danger" });
+    },
+    onSuccess: async () => {
+      addToast({ title: "Success", description: "Success remove discount", color: "success" });
+      await refetch();
+    },
+  });
+
+  useEffect(() => {
+    if (isPending) NProgress.start();
+    else NProgress.done();
+  }, [isPending]);
+
+  const removeDiscount = () => {
+    confirmDialog({
+      title: "Remove Discount?",
+      desc: "This action will remove discount",
+      onConfirmed: () => {
+        if (discountId) mutate({ id: discountId, courseId });
+        if (!discountId || isSuccess) setValue("discount", undefined);
+      },
+    });
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
       {/* <label className="flex gap-x-3 items-center flex-row">
         <span className="font-medium text-sm">Free Course</span>
         <Switch {...register("isFree")} size="sm" />
@@ -48,7 +96,7 @@ export default function PricingPanel() {
             <div className="border space-y-6 p-5 border-slate-300 rounded-xl relative">
               <span className="absolute -top-3 left-3 bg-white px-1 text-sm text-slate-700">Discount</span>
               <button
-                onClick={() => setValue("discount", undefined)}
+                onClick={removeDiscount}
                 className="absolute cursor-pointer -top-3.5 right-3 px-2 py-1 text-sm text-danger bg-white flex gap-x-1 items-center">
                 <LuTrash2 size={16} /> Remove
               </button>
@@ -103,7 +151,7 @@ export default function PricingPanel() {
                   <Switch {...register("discount.isActive")} size="sm" />
                 </label>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 @7xl:grid-cols-3 gap-5">
                 <Controller
                   control={control}
                   name="discount.label"
@@ -121,11 +169,13 @@ export default function PricingPanel() {
                   name="discount.startAt"
                   render={({ field }) => (
                     <DatePicker
+                      inputRef={startAt}
                       key={"startAt"}
                       classNames={{
-                        inputWrapper: ":outline-primary",
+                        inputWrapper:
+                          "focus-within:border-slate-300 hover:border-slate-300 focus-within:hover:border-slate-300 border-1 shadow-none focus-within:outline-blue-100 focus-within:hover:outline-blue-100 outline-2 outline-transparent",
                       }}
-                      className="max-w-md"
+                      className="max-w-full"
                       granularity="second"
                       labelPlacement="outside"
                       label="Start At (optional)"
@@ -141,7 +191,11 @@ export default function PricingPanel() {
                   render={({ field }) => (
                     <DatePicker
                       key={"endAt"}
-                      className="max-w-md"
+                      classNames={{
+                        inputWrapper:
+                          "focus-within:border-slate-300 hover:border-slate-300 focus-within:hover:border-slate-300 border-1 shadow-none focus-within:outline-blue-100 focus-within:hover:outline-blue-100 outline-2 outline-transparent",
+                      }}
+                      className="max-w-full"
                       granularity="second"
                       variant="bordered"
                       labelPlacement="outside"
@@ -208,6 +262,11 @@ export default function PricingPanel() {
             </div>
           ) : null}
         </Fragment>
+      )}
+      {["discount", "priceAmount", "isFree"].some(item => Object.getOwnPropertyNames(dirtyFields).includes(item)) && (
+        <Button color="danger" onPress={reset} className="h-9" variant="flat" radius="sm">
+          <LuUndo2 /> Reset
+        </Button>
       )}
     </div>
   );

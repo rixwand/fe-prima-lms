@@ -5,6 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @layer utilities {
+  #nprogress .bar {
+    height: 3px !important;
+  }
+
   .bg-img {
     @apply bg-[url('/images/image-auth.png')] bg-cover;
   }
@@ -24,6 +28,12 @@
 
   input[type="number"] {
     -moz-appearance: textfield;
+  }
+
+  [contenteditable]:focus {
+    outline: none;
+    border: none; /* only matters if you added a border yourself */
+    box-shadow: none; /* clear framework focus styles */
   }
 }
 

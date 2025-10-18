@@ -1,17 +1,17 @@
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { finalPrice } from "@/libs/utils/currency";
-import { getYouTubeEmbedUrl } from "@/libs/utils/string";
+import { toSlug } from "@/libs/utils/string";
 import { Accordion, AccordionItem, Button, Card, Chip, Input, Tab, Tabs } from "@heroui/react";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { IoMdTime } from "react-icons/io";
 import { LuUsers } from "react-icons/lu";
 import { PiInfoBold } from "react-icons/pi";
 import { Rating } from "react-simple-star-rating";
 
-export default function CourseInfo({ data }: { data: Course }) {
-  console.log(data);
-  const validUrlPreview = data.previewVideo ? getYouTubeEmbedUrl(data.previewVideo) : null;
+export default function CourseInfo({ data }: { data: CoursePreview }) {
+  const route = useRouter();
   const { descriptionJson, shortDescription, sections, discount } = data;
   return (
     <section className={cn([inter.className, "2xl:container xl:px-12 2xl:mx-auto px-4"])}>
@@ -26,8 +26,8 @@ export default function CourseInfo({ data }: { data: Course }) {
               <span className="flex items-center gap-x-2">
                 <p className="text-slate-800">Tags:</p>
                 {data.tags.map(tag => (
-                  <Chip key={tag.tagSlug} variant="bordered" color="primary">
-                    {tag.tagName}
+                  <Chip key={toSlug(tag)} variant="bordered" color="primary">
+                    {tag}
                   </Chip>
                 ))}
               </span>
@@ -53,9 +53,9 @@ export default function CourseInfo({ data }: { data: Course }) {
                   <SyllabusTab sections={sections} />
                 </Tab>
               )}
-              {validUrlPreview && (
+              {data.previewVideo && (
                 <Tab key="preview" title="Preview">
-                  <PreviewTab url={validUrlPreview} />
+                  <PreviewTab url={data.previewVideo} />
                 </Tab>
               )}
             </Tabs>
@@ -130,7 +130,9 @@ export default function CourseInfo({ data }: { data: Course }) {
               })}
             </p>
           </span>
-          <Button className="mt-2 bg-[#1E40AF] py-5.5 text-white font-semibold rounded-lg 2xltext-lg px-6">
+          <Button
+            onPress={() => route.push("/checkout/test")}
+            className="mt-2 bg-[#1E40AF] py-5.5 text-white font-semibold rounded-lg 2xltext-lg px-6">
             Checkout
           </Button>
         </Card>
@@ -154,7 +156,7 @@ const PreviewTab = ({ url }: { url: string }) => {
   );
 };
 
-const SyllabusTab = ({ sections }: { sections: { title: string; lessons?: Lesson[] }[] }) => {
+const SyllabusTab = ({ sections }: { sections: { title: string; lessons?: string[] }[] }) => {
   return (
     <div className="space-y-3 w-full lg:w-4/5 text-gray-500 2xl:text-lg">
       <h3 className="w-full lg:ml-3 font-semibold 2xl:text-lg">Materi yang akan dipelajari pada kursus ini :</h3>
@@ -170,7 +172,7 @@ const SyllabusTab = ({ sections }: { sections: { title: string; lessons?: Lesson
               {item.lessons &&
                 item.lessons.map((list, index) => (
                   <li key={index} className="ml-6">
-                    {list.title}
+                    {list}
                   </li>
                 ))}
             </ul>
@@ -181,13 +183,7 @@ const SyllabusTab = ({ sections }: { sections: { title: string; lessons?: Lesson
   );
 };
 
-const DescTab = ({
-  shortDescription,
-  descriptionJson,
-}: {
-  shortDescription: string;
-  descriptionJson?: string | null;
-}) => {
+const DescTab = ({ shortDescription, descriptionJson }: { shortDescription: string; descriptionJson?: string }) => {
   return (
     <div className="lg:mx-2 space-y-3 text-gray-500">
       <p className="lg:w-4/5">{shortDescription}</p>

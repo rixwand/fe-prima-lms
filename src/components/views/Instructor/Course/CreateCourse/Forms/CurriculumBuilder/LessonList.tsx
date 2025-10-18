@@ -10,7 +10,6 @@ import { Controller, UseFormRegister, UseFormSetValue, useFieldArray, useFormCon
 import { HiOutlineMenuAlt4 } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
 import { LuPlus } from "react-icons/lu";
-import { CourseForm } from "../../CreateCourse";
 
 export default function LessonListRHF({ sectionIndex, sectionId }: { sectionIndex: number; sectionId: string }) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));

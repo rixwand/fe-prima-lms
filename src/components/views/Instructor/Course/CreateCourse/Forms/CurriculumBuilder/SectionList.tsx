@@ -22,7 +22,6 @@ import {
   LuPlus,
   LuTrash2,
 } from "react-icons/lu";
-import { CourseForm } from "../../CreateCourse";
 import LessonListRHF from "./LessonList";
 
 export const SectionItem = () => {

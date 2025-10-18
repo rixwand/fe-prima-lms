@@ -6,6 +6,7 @@ type ConfirmProps = {
   title: string;
   desc: string;
   onConfirmed: () => void | Promise<void>;
+  onCancel?: () => void | Promise<void>;
   isLoading?: boolean;
 };
 
@@ -14,6 +15,7 @@ function ConfirmModal({
   desc,
   onConfirmed,
   close,
+  onCancel,
   isLoading: externalLoading = false,
 }: ConfirmProps & { close: () => void }) {
   const [isOpen, setIsOpen] = useState(true);
@@ -30,10 +32,14 @@ function ConfirmModal({
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (loading) return; // prevent canceling while loading
-    setIsOpen(false);
-    close();
+    try {
+      if (onCancel) await onCancel(); // ✅ invoke optional callback
+    } finally {
+      setIsOpen(false);
+      close();
+    }
   };
 
   return (

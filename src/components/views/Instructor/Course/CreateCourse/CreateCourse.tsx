@@ -4,7 +4,7 @@ import cn from "@/libs/utils/cn";
 import { finalPrice } from "@/libs/utils/currency";
 import { toSlug } from "@/libs/utils/string";
 import courseService from "@/services/course.service";
-import { CalendarDate, Spinner, addToast } from "@heroui/react";
+import { Spinner, addToast } from "@heroui/react";
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { Fragment, useState } from "react";
@@ -14,35 +14,6 @@ import { PiMoneyWavyLight } from "react-icons/pi";
 import BasicsForm from "./Forms/BasicForm";
 import CurriculumBuilder from "./Forms/CurriculumBuilder";
 import PricingPanel from "./Forms/PricingPanel";
-
-export type CourseForm = {
-  title: string;
-  status: "PUBLISHED" | "DRAFT";
-  coverImage: FileList;
-  previewVideo?: string;
-  shortDescription: string;
-  descriptionJson?: string;
-  priceAmount: number;
-  isFree?: boolean;
-  tags: string[];
-  sections?: {
-    title: string;
-    lessons?: {
-      title: string;
-      summary?: string;
-      durationSec?: number;
-      isPreview?: boolean; // default false in Yup
-    }[];
-  }[];
-  discount?: {
-    type: "FIXED" | "PERCENTAGE"; // from DiscountType/DiscountTypes
-    value: number;
-    label?: string;
-    isActive?: boolean; // default true in Yup
-    startAt?: CalendarDate;
-    endAt?: CalendarDate;
-  };
-};
 
 export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => void; onFinish: () => void }) {
   const [step, setStep] = useState(1);
@@ -174,10 +145,10 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
             <button onClick={onCancel} className="h-10 px-4 rounded-xl border border-slate-200 hover:bg-slate-50">
               Cancel
             </button>
-            {step > 1 && (
+            {step == 2 && (
               <button
                 onClick={saveCourse}
-                disabled={isLoading}
+                disabled={isLoading || isPending}
                 className="h-10 flex items-center gap-x-2 disabled:opacity-50 px-4 rounded-xl border border-blue-200 text-blue-700 hover:bg-blue-50">
                 {isLoading || isPending ? (
                   <Fragment>
@@ -210,7 +181,7 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
             ) : (
               <button
                 onClick={saveCourse}
-                disabled={isLoading}
+                disabled={isLoading || isPending}
                 className={cn([
                   "h-10 flex gap-x-2 items-center px-4 rounded-xl bg-emerald-600 text-white font-medium disabled:bg-emerald-600/50",
                 ])}>
