@@ -50,7 +50,6 @@ import { useCursorVisibility } from "@/hooks/use-cursor-visibility";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // --- Components ---
-import { ThemeToggle } from "@/components/tiptap-templates/simple/theme-toggle";
 
 // --- Lib ---
 import { cn, handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
@@ -80,9 +79,9 @@ const MainToolbarContent = ({
 }) => {
   return (
     <>
-      <ToolbarGroup>
+      {/* <ToolbarGroup>
         <ThemeToggle />
-      </ToolbarGroup>
+      </ToolbarGroup> */}
 
       <Spacer size={isMobile ? "0.5rem" : undefined} />
 

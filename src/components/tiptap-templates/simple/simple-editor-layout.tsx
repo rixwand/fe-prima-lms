@@ -3,6 +3,7 @@ import * as React from "react";
 import { IoChevronDown, IoChevronForward, IoClose, IoDocumentTextOutline, IoMenu } from "react-icons/io5";
 
 import { cn } from "@/lib/tiptap-utils";
+import { LuChevronsRight } from "react-icons/lu";
 
 export interface Lesson {
   id: number;
@@ -127,9 +128,9 @@ const CourseSectionItem: React.FC<{
         type="button"
         className={cn(
           "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[var(--tt-theme-text)] transition-colors duration-150",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tt-theme-text-muted)] focus-visible:ring-offset-0",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tt-theme-text-muted)] focus-visible:ring-offset-0 focus-visible:border-none",
           containsActiveLesson
-            ? "bg-[var(--tt-gray-light-a-200)] text-[var(--tt-theme-text)] shadow-sm dark:bg-[var(--tt-gray-dark-a-200)]"
+            ? "text-[var(--tt-theme-text)] shadow-sm dark:bg-[var(--tt-gray-dark-a-200)]"
             : "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)]"
         )}
         onClick={handleToggle}>
@@ -156,22 +157,30 @@ const CourseSectionItem: React.FC<{
                 <button
                   type="button"
                   className={cn(
-                    "flex w-full items-center gap-2 rounded-lg border-l-2 border-transparent px-2 py-1.5 pl-3 text-left text-[var(--tt-theme-text)] transition-colors duration-150",
+                    "flex w-full items-center gap-1 rounded-lg border-l-2 border-transparent px-2 py-1.5 pl-3 text-left text-[var(--tt-theme-text)] transition-colors duration-150",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tt-theme-text-muted)] focus-visible:ring-offset-0",
                     isActiveLesson
-                      ? "border-[var(--tt-brand-color-500)] bg-[var(--tt-brand-color-100)] text-[var(--tt-theme-text)] font-medium dark:border-[var(--tt-brand-color-400)] dark:bg-[rgba(122,82,255,0.15)]"
+                      ? "border-[var(--tt-brand-color-500)] bg-[var(--tt-brand-color-50)] text-blue-600 font-medium dark:border-[var(--tt-brand-color-400)] dark:bg-[rgba(91,126,238,0.2)]"
                       : "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)]"
                   )}
                   onClick={handleSelectLesson}>
-                  <span
-                    className={cn(
-                      "block h-2 w-2 shrink-0 rounded-full",
-                      isActiveLesson
-                        ? "bg-[var(--tt-brand-color-500)] dark:bg-[var(--tt-brand-color-400)]"
-                        : "bg-transparent"
-                    )}
-                  />
-                  <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--tt-theme-text-muted)]">
+                  {isActiveLesson ? (
+                    <span
+                      className={cn(
+                        "text-blue-600 dark:text-blue-400"
+                        // "block h-2 w-2 shrink-0 rounded-full",
+                      )}>
+                      <LuChevronsRight size={16} />
+                    </span>
+                  ) : (
+                    <span
+                      className={cn(
+                        // "text-blue-600 dark:text-blue-400"
+                        "block h-4 w-4 shrink-0 rounded-full"
+                      )}
+                    />
+                  )}
+                  <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--tt-theme-brand-color-600)]">
                     <IoDocumentTextOutline />
                   </span>
                   <span className="flex-1 truncate text-sm text-left">{lesson.title}</span>
@@ -214,14 +223,17 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
     setIsSidebarOpen(false);
   }, []);
 
-  const handleSelect = React.useCallback((section: CourseSection, lesson: Lesson, path: string[]) => {
-    setActiveSection(section);
-    setActiveLesson(lesson);
-    setActivePath(path);
-    if (!isDesktop) {
-      closeSidebar();
-    }
-  }, [closeSidebar, isDesktop]);
+  const handleSelect = React.useCallback(
+    (section: CourseSection, lesson: Lesson, path: string[]) => {
+      setActiveSection(section);
+      setActiveLesson(lesson);
+      setActivePath(path);
+      if (!isDesktop) {
+        closeSidebar();
+      }
+    },
+    [closeSidebar, isDesktop]
+  );
 
   React.useEffect(() => {
     if (activeLesson || structure.length === 0) return;
@@ -360,7 +372,8 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
             isDesktop
               ? "w-[280px] border-b-0 border-r lg:sticky lg:top-0 lg:z-20 lg:h-screen lg:self-start lg:overflow-y-auto lg:overflow-x-hidden"
               : "fixed inset-y-0 left-0 z-50 w-[260px] max-w-[80vw] border-b shadow-lg lg:hidden",
-            !isDesktop && (isSidebarOpen ? "translate-x-0 pointer-events-auto" : "-translate-x-full pointer-events-none")
+            !isDesktop &&
+              (isSidebarOpen ? "translate-x-0 pointer-events-auto" : "-translate-x-full pointer-events-none")
           )}
           id={sidebarId}
           aria-hidden={!isDesktop && !isSidebarOpen}>
@@ -402,7 +415,9 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
                     <IoMenu />
                   </button>
                 ) : null}
-                <h1 className="m-0 flex-1 text-xl font-semibold leading-snug text-[var(--tt-theme-text)]">{courseTitle}</h1>
+                <h1 className="m-0 flex-1 text-xl font-semibold leading-snug text-[var(--tt-theme-text)]">
+                  {courseTitle}
+                </h1>
               </div>
               <div className="text-base font-normal text-[var(--tt-theme-text)]">
                 {activeLesson ? activePath.join(" / ") : "Select a lesson"}
