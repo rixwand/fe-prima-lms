@@ -19,7 +19,7 @@ import { StarterKit } from "@tiptap/starter-kit";
 import { Button } from "@/components/tiptap-ui-primitive/button";
 import { Spacer } from "@/components/tiptap-ui-primitive/spacer";
 import { Toolbar, ToolbarGroup, ToolbarSeparator } from "@/components/tiptap-ui-primitive/toolbar";
-import { useSimpleEditorLayoutContext } from "./simple-editor-layout";
+import { useSimpleEditorLayoutContext } from "../../layouts/SimpleEditorLayout/simple-editor-layout.context";
 
 // --- Tiptap Node ---
 import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";

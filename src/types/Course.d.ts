@@ -44,12 +44,18 @@ type CourseForm = {
   isFree?: boolean;
   tags: string[];
   sections?: {
+    id?: number;
+    sectionId?: number;
     title: string;
+    position?: number;
     lessons?: {
+      id?: number;
+      lessonId?: number;
       title: string;
       summary?: string;
       durationSec?: number;
       isPreview?: boolean; // default false in Yup
+      position?: number;
     }[];
   }[];
   discount?: {
@@ -146,5 +152,20 @@ interface EditCourseForm {
     isActive?: boolean;
     startAt?: CalendarDate | null;
     endAt?: CalendarDate | null;
+  }[];
+  sections?: {
+    id?: number;
+    sectionId?: number;
+    title: string;
+    position?: number;
+    lessons?: {
+      id?: number;
+      lessonId?: number;
+      title: string;
+      summary?: string | null;
+      durationSec?: number | null;
+      isPreview?: boolean;
+      position?: number;
+    }[];
   }[];
 }

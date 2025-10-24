@@ -15,6 +15,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { LuEye, LuImage, LuSave, LuStar, LuUsers, LuX } from "react-icons/lu";
 import { PiMoneyWavyLight } from "react-icons/pi";
 import BasicsForm from "./Forms/BasicForm";
+import CurriculumForm from "./Forms/CurriculumForm";
 import MediaForm from "./Forms/MediaForm";
 import PricingPanel from "./Forms/PricingPanel";
 import TagsForm from "./Forms/TagsForm";
@@ -195,21 +196,25 @@ export default function EditCourse({
             <Tab key="pricing" title="Pricing">
               <PricingPanel discountId={discounts[0]?.id} refetch={refetch} courseId={id} />
             </Tab>
-            <Tab key="curriculum" title="Curriculum" />
+            <Tab key="curriculum" title="Curriculum">
+              <CurriculumForm courseId={id} sections={sections} refetch={refetch} />
+            </Tab>
           </Tabs>
         </FormProvider>
         <div className="@7xl:absolute top-1 right-1 flex gap-x-4">
           <Button size="md" radius="sm" className="text-white bg-danger-500 font-medium flex gap-x-2 h-9">
             <LuX /> Cancel
           </Button>
-          <Button
-            isDisabled={isPending || isPendingTags || loading}
-            onClick={methods.handleSubmit(saveChanges)}
-            size="md"
-            radius="sm"
-            className="text-white bg-success-600 font-medium flex gap-x-2 h-9">
-            <LuSave /> Save
-          </Button>
+          {selectedKey !== "curriculum" && (
+            <Button
+              isDisabled={isPending || isPendingTags || loading}
+              onClick={methods.handleSubmit(saveChanges)}
+              size="md"
+              radius="sm"
+              className="text-white bg-success-600 font-medium flex gap-x-2 h-9">
+              <LuSave /> Save
+            </Button>
+          )}
         </div>
       </div>
       {/* Live Preview / Help */}
