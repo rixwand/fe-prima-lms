@@ -15,5 +15,6 @@ const courseService = {
     api.patch(`${endpoint.MY_COURSE}/${id}/tags`, tags),
   deleteDiscount: ({ courseId, id }: { id: number; courseId: number }) =>
     api.delete(`${endpoint.MY_COURSE}/${courseId}/discounts/${id}`),
+  listCourseSections: (courseId: number) => api.get(`${endpoint.MY_COURSE}/${courseId}/sections`),
 };
 export default courseService;

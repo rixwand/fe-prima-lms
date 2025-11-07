@@ -4,8 +4,6 @@ import { LuChevronsRight } from "react-icons/lu";
 
 import { cn } from "@/lib/tiptap-utils";
 
-import type { CourseSection, Lesson } from "./simple-editor-layout.types";
-
 export type FolderTreeProps = {
   courseSections: CourseSection[];
   activeLessonId?: number | null;

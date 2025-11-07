@@ -1,14 +1,15 @@
 "use client";
 
+import { FolderTree } from "@/components/layouts/SimpleEditorLayout/simple-editor-layout-folder-tree";
 import NProgress from "@/libs/loader/nprogress-setup";
+import cn from "@/libs/utils/cn";
 import courseService from "@/services/course.service";
 import { addToast } from "@heroui/react";
 import { QueryObserverResult, useMutation } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { LuExternalLink, LuLoader, LuRefreshCcw, LuSave } from "react-icons/lu";
-import CurriculumBuilder from "../../CreateCourse/Forms/CurriculumBuilder";
 
 type CurriculumFormProps = {
   courseId: number;
@@ -72,6 +73,14 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
     methods.reset({ sections: defaultSections });
   }, [defaultSections, methods]);
 
+  const sectionsValue = methods.watch("sections");
+  const isLessonEditorDisabled = useMemo(
+    () =>
+      !Array.isArray(sectionsValue) ||
+      !sectionsValue.some(section => Array.isArray(section?.lessons) && section.lessons.length > 0),
+    [sectionsValue]
+  );
+
   const { mutateAsync: updateCurriculum, isPending } = useMutation({
     mutationFn: (payload: { sections: ReturnType<typeof toApiPayload> }) =>
       courseService.update({ id: courseId, data: payload }),
@@ -111,6 +120,12 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
     formState: { isDirty },
   } = methods;
 
+  const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
+
+  const onSelect = (_section: CourseSection, lesson: Lesson, path: string[]) => {
+    setActiveLesson(lesson);
+  };
+
   return (
     <FormProvider {...methods}>
       <form onSubmit={onSubmit} className="space-y-4">
@@ -123,7 +138,12 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
             <div className="flex flex-col gap-3 @4xl:flex-row @4xl:items-center @4xl:justify-end @4xl:gap-4">
               <Link
                 href={`/instructor/dashboard/edit-course/${courseId}/curriculum`}
-                className="inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50">
+                aria-disabled={isLessonEditorDisabled}
+                tabIndex={isLessonEditorDisabled ? -1 : undefined}
+                className={cn(
+                  "inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-slate-200 text-slate-700 transition",
+                  isLessonEditorDisabled ? "pointer-events-none opacity-60 cursor-not-allowed" : "hover:bg-slate-50"
+                )}>
                 <LuExternalLink className="w-4 h-4" />
                 Open Lesson Editor
               </Link>
@@ -146,7 +166,10 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
               </div>
             </div>
           </div>
-          <CurriculumBuilder />
+          {/* <CurriculumBuilder /> */}
+          {sections && (
+            <FolderTree courseSections={sections} onSelect={onSelect} activeLessonId={activeLesson?.id || null} />
+          )}
         </div>
       </form>
     </FormProvider>

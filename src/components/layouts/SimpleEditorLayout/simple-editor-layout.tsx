@@ -5,12 +5,9 @@ import { cn } from "@/lib/tiptap-utils";
 import { StateType } from "@/types/Helper";
 import { SimpleEditorHeader } from "./simple-editor-layout-header";
 import { SimpleEditorSidebar } from "./simple-editor-layout-sidebar";
-import { DEFAULT_COURSE_SECTIONS, DEFAULT_COURSE_TITLE } from "./simple-editor-layout.constants";
 import { SimpleEditorLayoutProvider } from "./simple-editor-layout.context";
-import type { CourseSection } from "./simple-editor-layout.types";
 
 export { useSimpleEditorLayoutContext } from "./simple-editor-layout.context";
-export type { CourseSection };
 
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
 
@@ -30,17 +27,17 @@ const findFirstSelectableLesson = (
 };
 
 type SimpleEditorLayoutProps = React.PropsWithChildren<{
-  structure?: CourseSection[];
+  structure: CourseSection[];
   className?: string;
-  courseTitle?: string;
+  courseTitle: string;
   lessonState: StateType<Lesson | null>;
 }>;
 
 export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
   children,
-  structure = DEFAULT_COURSE_SECTIONS,
+  structure,
   className,
-  courseTitle = DEFAULT_COURSE_TITLE,
+  courseTitle,
   lessonState,
 }) => {
   const sidebarId = React.useId();

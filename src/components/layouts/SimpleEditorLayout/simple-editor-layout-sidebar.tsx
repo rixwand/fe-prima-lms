@@ -3,9 +3,7 @@ import { IoClose } from "react-icons/io5";
 
 import { cn } from "@/lib/tiptap-utils";
 
-import type { CourseSection, Lesson } from "./simple-editor-layout.types";
 import { FolderTree } from "./simple-editor-layout-folder-tree";
-
 type SidebarProps = {
   structure: CourseSection[];
   activeLessonId?: number | null;
