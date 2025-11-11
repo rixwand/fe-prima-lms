@@ -39,6 +39,10 @@
     border: none; /* only matters if you added a border yourself */
     box-shadow: none; /* clear framework focus styles */
   }
+
+  .reset-button {
+    @apply h-fit min-w-fit w-fit;
+  }
 }
 
 @theme {

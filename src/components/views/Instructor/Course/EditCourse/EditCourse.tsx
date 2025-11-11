@@ -2,6 +2,7 @@ import { confirmDialog } from "@/components/commons/Dialong/confirmDialog";
 import { SUPABASE_BUCKET, SUPABASE_URL } from "@/config/env";
 import NProgress from "@/libs/loader/nprogress-setup";
 import { storageClient } from "@/libs/supabase/client";
+import cn from "@/libs/utils/cn";
 import { finalPrice } from "@/libs/utils/currency";
 import { getDirtyData } from "@/libs/utils/rhf";
 import { toSlug } from "@/libs/utils/string";
@@ -167,7 +168,7 @@ export default function EditCourse({
 
   return (
     <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 @container">
-      <div className="lg:col-span-8 space-y-4 relative">
+      <div className={cn(selectedKey == "curriculum" ? "lg:col-span-12" : "lg:col-span-8", "space-y-4 relative")}>
         <FormProvider {...methods}>
           <Tabs
             selectedKey={selectedKey}
@@ -201,11 +202,11 @@ export default function EditCourse({
             </Tab>
           </Tabs>
         </FormProvider>
-        <div className="@7xl:absolute top-1 right-1 flex gap-x-4">
-          <Button size="md" radius="sm" className="text-white bg-danger-500 font-medium flex gap-x-2 h-9">
-            <LuX /> Cancel
-          </Button>
-          {selectedKey !== "curriculum" && (
+        {selectedKey !== "curriculum" && (
+          <div className={cn("@7xl:absolute", " top-1 right-1 flex gap-x-4")}>
+            <Button size="md" radius="sm" className="text-white bg-danger-500 font-medium flex gap-x-2 h-9">
+              <LuX /> Cancel
+            </Button>
             <Button
               isDisabled={isPending || isPendingTags || loading}
               onClick={methods.handleSubmit(saveChanges)}
@@ -214,70 +215,72 @@ export default function EditCourse({
               className="text-white bg-success-600 font-medium flex gap-x-2 h-9">
               <LuSave /> Save
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       {/* Live Preview / Help */}
-      <aside className="lg:col-span-4 space-y-6">
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-slate-200 flex items-center gap-2">
-            <LuEye className="w-4 h-4" /> Live Preview
-          </div>
-          <div className="p-4">
-            <div className="rounded-xl overflow-hidden border border-slate-200">
-              <div className="relative aspect-video bg-slate-100 grid place-items-center">
-                {preview ? (
-                  <div className="w-full h-fit aspect-video rounded-lg overflow-hidden relative">
-                    <Image src={preview} alt="course image" fill objectFit="cover" />
-                  </div>
-                ) : course.coverImage ? (
-                  <div className="w-full h-fit aspect-video rounded-lg overflow-hidden relative">
-                    <Image src={course.coverImage} alt="course image" fill objectFit="cover" />
-                  </div>
-                ) : (
-                  <div className="text-slate-400 text-sm flex flex-col items-center">
-                    <LuImage className="w-8 h-8 mb-1" />
-                    Thumbnail
-                  </div>
-                )}
-                <span className="absolute left-3 top-3 text-xs px-2.5 py-1 rounded-full bg-blue-600 text-white">
-                  {status}
-                </span>
-              </div>
-              <div className="p-4 space-y-1">
-                <p className="font-semibold">{title || "Course title"}</p>
-                <p className="text-sm text-slate-600 line-clamp-2">
-                  {subtitle || "Write a compelling subtitle or description."}
-                </p>
-                <div className="flex items-center gap-3 text-xs text-slate-500 pt-1">
-                  <span className="inline-flex items-center gap-1">
-                    <LuStar className="w-3.5 h-3.5" /> 0.0
+      {selectedKey != "curriculum" && (
+        <aside className="lg:col-span-4 space-y-6">
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-slate-200 flex items-center gap-2">
+              <LuEye className="w-4 h-4" /> Live Preview
+            </div>
+            <div className="p-4">
+              <div className="rounded-xl overflow-hidden border border-slate-200">
+                <div className="relative aspect-video bg-slate-100 grid place-items-center">
+                  {preview ? (
+                    <div className="w-full h-fit aspect-video rounded-lg overflow-hidden relative">
+                      <Image src={preview} alt="course image" fill objectFit="cover" />
+                    </div>
+                  ) : course.coverImage ? (
+                    <div className="w-full h-fit aspect-video rounded-lg overflow-hidden relative">
+                      <Image src={course.coverImage} alt="course image" fill objectFit="cover" />
+                    </div>
+                  ) : (
+                    <div className="text-slate-400 text-sm flex flex-col items-center">
+                      <LuImage className="w-8 h-8 mb-1" />
+                      Thumbnail
+                    </div>
+                  )}
+                  <span className="absolute left-3 top-3 text-xs px-2.5 py-1 rounded-full bg-blue-600 text-white">
+                    {status}
                   </span>
-                  <span className="inline-flex items-center gap-1">
-                    <LuUsers className="w-3.5 h-3.5" /> 0
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <PiMoneyWavyLight size={16} />{" "}
-                    {(discount && discountActive
-                      ? finalPrice(price!, discount, discountType)
-                      : price || 0
-                    ).toLocaleString("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 })}
-                  </span>
+                </div>
+                <div className="p-4 space-y-1">
+                  <p className="font-semibold">{title || "Course title"}</p>
+                  <p className="text-sm text-slate-600 line-clamp-2">
+                    {subtitle || "Write a compelling subtitle or description."}
+                  </p>
+                  <div className="flex items-center gap-3 text-xs text-slate-500 pt-1">
+                    <span className="inline-flex items-center gap-1">
+                      <LuStar className="w-3.5 h-3.5" /> 0.0
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <LuUsers className="w-3.5 h-3.5" /> 0
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <PiMoneyWavyLight size={16} />{" "}
+                      {(discount && discountActive
+                        ? finalPrice(price!, discount, discountType)
+                        : price || 0
+                      ).toLocaleString("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-          <p className="text-sm font-medium mb-2">Tips</p>
-          <ul className="text-sm text-slate-600 list-disc pl-5 space-y-1">
-            <li>Use actionable titles (e.g., “Build a REST API with Express & Prisma”).</li>
-            <li>Each lesson should have a clear outcome in 5–10 minutes.</li>
-            <li>Mark 1–2 lessons as preview to attract learners.</li>
-          </ul>
-        </div>
-      </aside>
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
+            <p className="text-sm font-medium mb-2">Tips</p>
+            <ul className="text-sm text-slate-600 list-disc pl-5 space-y-1">
+              <li>Use actionable titles (e.g., “Build a REST API with Express & Prisma”).</li>
+              <li>Each lesson should have a clear outcome in 5–10 minutes.</li>
+              <li>Mark 1–2 lessons as preview to attract learners.</li>
+            </ul>
+          </div>
+        </aside>
+      )}
     </section>
   );
 }

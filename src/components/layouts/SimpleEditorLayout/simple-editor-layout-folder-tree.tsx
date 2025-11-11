@@ -48,15 +48,19 @@ const CourseSectionItem: React.FC<{
       <button
         type="button"
         className={cn(
-          "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[var(--tt-theme-text)] transition-colors duration-150",
+          "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors duration-150",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tt-theme-text-muted)] focus-visible:ring-offset-0 focus-visible:border-none",
           containsActiveLesson
-            ? "text-[var(--tt-theme-text)] shadow-sm dark:bg-[var(--tt-gray-dark-a-200)]"
-            : "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)]"
+            ? "dark:bg-[var(--tt-gray-dark-a-200)] border border-blue-400 text-blue-500"
+            : "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)] border-abu text-[var(--tt-theme-text)]"
         )}
         onClick={handleToggle}>
-        <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--tt-theme-text-muted)]">
-          {section.lessons.length > 0 ? (isOpen ? <IoChevronDown /> : <IoChevronForward />) : null}
+        <span
+          className={cn(
+            "flex h-4 w-4 shrink-0 items-center justify-center",
+            containsActiveLesson ? "" : "text-[var(--tt-theme-text-muted)]"
+          )}>
+          {isOpen ? <IoChevronDown /> : <IoChevronForward />}
         </span>
         <span className="flex-1 truncate text-sm font-medium text-left">{section.title}</span>
       </button>
@@ -100,6 +104,9 @@ const CourseSectionItem: React.FC<{
               </li>
             );
           })}
+          {section.lessons.length == 0 ? (
+            <p className="text-sm pl-3 text-[var(--tt-theme-text-muted)]">No lesson found</p>
+          ) : null}
         </ul>
       ) : null}
     </li>
