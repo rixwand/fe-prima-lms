@@ -2,16 +2,28 @@
 import FolderTree from "@/components/commons/FolderTree";
 import { TiptapViewer } from "@/components/commons/TiptapViewer/TiptapViewer";
 import content from "@/components/tiptap-templates/simple/data/content.json";
+import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import { FolderTreeContext } from "@/libs/context/FolderTreeContext";
 import NProgress from "@/libs/loader/nprogress-setup";
 import cn from "@/libs/utils/cn";
 import courseService from "@/services/course.service";
-import { Button, addToast } from "@heroui/react";
+import { Button, Checkbox, addToast } from "@heroui/react";
 import { QueryObserverResult, useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { LuChevronsDown, LuChevronsUp, LuExternalLink, LuLoader, LuPencil, LuRefreshCcw, LuSave } from "react-icons/lu";
+import {
+  LuCheck,
+  LuChevronsDown,
+  LuChevronsUp,
+  LuExternalLink,
+  LuLoader,
+  LuPencil,
+  LuPencilOff,
+  LuRefreshCcw,
+  LuSave,
+  LuX,
+} from "react-icons/lu";
 
 type CurriculumFormProps = {
   courseId: number;
@@ -124,14 +136,35 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
 
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const expandSectionsState = useState<null | boolean>(null);
+  const {
+    showCoursePreviewState: [showPreview, setShowCoursePreview],
+  } = useEditCourseContext();
 
   const onSelect = (_section: CourseSection, lesson: Lesson, path: string[]) => {
     setActiveLesson(lesson);
   };
+
+  useEffect(() => {
+    if (activeLesson != null) {
+      setShowCoursePreview(false);
+    } else {
+      setShowCoursePreview(true);
+    }
+  }, [activeLesson, setShowCoursePreview]);
+
+  const handleExpandSections = () => {
+    expandSectionsState[1](true);
+  };
+  const handleFoldSections = () => {
+    expandSectionsState[1](false);
+  };
+
   return (
-    <section className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+    <section
+      className={cn("grid @container gap-5", !showPreview ? "grid-cols-1 @[64.5rem]:grid-cols-12" : "grid-cols-1")}>
       <FormProvider {...methods}>
-        <form onSubmit={onSubmit} className="space-y-4 lg:col-span-6">
+        <form onSubmit={onSubmit} className="space-y-4 @5xl:col-span-7">
           <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 flex flex-col gap-3 @container">
             <div className="flex flex-col gap-4 @xl:flex-row @xl:items-center @xl:justify-between">
               <header className="flex flex-col gap-y-2">
@@ -150,26 +183,61 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
                 Lesson Editor
               </Link>
             </div>
-            <div className="flex -mb-1 pr-5">
-              <Button isIconOnly radius="sm" size="lg" className="reset-button p-1.5" color="primary" variant="light">
-                <LuChevronsDown size={18} />
-              </Button>
-              <Button isIconOnly radius="sm" size="lg" className="reset-button p-1.5" color="primary" variant="light">
-                <LuChevronsUp size={18} />
-              </Button>
+            <div className="flex -mb-1 pr-4">
               <Button
+                onPress={handleExpandSections}
                 isIconOnly
                 radius="sm"
                 size="lg"
-                className="reset-button p-2 ml-auto"
+                className="reset-button p-1.5"
                 color="primary"
                 variant="light">
-                <LuPencil />
+                <LuChevronsDown size={18} />
               </Button>
+              <Button
+                onPress={handleFoldSections}
+                isIconOnly
+                radius="sm"
+                size="lg"
+                className="reset-button p-1.5"
+                color="primary"
+                variant="light">
+                <LuChevronsUp size={18} />
+              </Button>
+              {editMode && <Checkbox radius="sm" size="sm" className="ml-0.5" />}
+              <span className="ml-auto space-x-3">
+                <Button
+                  isIconOnly
+                  onPress={() => {
+                    setEditMode(mode => !mode);
+                  }}
+                  hidden={!editMode}
+                  radius="sm"
+                  size="lg"
+                  className={cn("reset-button p-2 text-white")}
+                  color="primary"
+                  variant={"solid"}>
+                  <LuCheck />
+                </Button>
+                <Button
+                  isIconOnly
+                  onPress={() => {
+                    setEditMode(mode => !mode);
+                  }}
+                  radius="sm"
+                  size="lg"
+                  className={cn("reset-button p-2")}
+                  {...(editMode ? { color: "danger", variant: "solid" } : { color: "primary", variant: "light" })}
+                  // color="primary"
+                  // variant={editMode ? "solid" : "light"}
+                >
+                  {editMode ? <LuPencilOff /> : <LuPencil />}
+                </Button>
+              </span>
             </div>
             {/* <CurriculumBuilder /> */}
             {sections && (
-              <FolderTreeContext.Provider value={{ editMode }}>
+              <FolderTreeContext.Provider value={{ editMode, expandSectionsState }}>
                 <FolderTree courseSections={sections} onSelect={onSelect} activeLessonId={activeLesson?.id || null} />
               </FolderTreeContext.Provider>
             )}
@@ -236,9 +304,30 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
         </form>
       </FormProvider>
       {/* Lesson Preview */}
-      <div className="lg:col-span-6 -mt-20 rounded border border-abu bg-white px-12 overflow-y-scroll max-h-[calc(100vh-110px)]">
-        <TiptapViewer json={content} />
-      </div>
+      {!showPreview && (
+        <div
+          className={cn(
+            "@5xl:col-span-5 @5xl:-mt-20 @5xl:max-h-[calc(100vh-110px)] @5xl:overflow-y-scroll",
+            // "rounded-lg border border-abu bg-white",
+            "rounded-xl border border-slate-200 bg-white shadow-sm",
+            "relative scrollbar-hide"
+          )}>
+          <div className="py-2 flex items-center text-sm font-medium px-5 w-full bg-white z-50 text-slate-700 sticky top-0 truncate shadow-2xs rounded-t-xl">
+            <p>
+              Section 1 / New Lesson 1 <span className="text-slate-400 ml-2 italic">(preview)</span>
+            </p>
+            <Button
+              onPress={() => setActiveLesson(null)}
+              isIconOnly
+              variant="light"
+              radius="sm"
+              className="reset-button text-lg text-slate-600 ml-auto -mr-2 p-1.5">
+              <LuX />
+            </Button>
+          </div>
+          <TiptapViewer json={content} />
+        </div>
+      )}
     </section>
   );
 }

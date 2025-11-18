@@ -1,7 +1,11 @@
+import { StateType } from "@/types/Helper";
 import { createContext, useContext } from "react";
+
+type ToggleExpandSections = boolean | null;
 
 type FolderTreeContextType = {
   editMode: boolean;
+  expandSectionsState: StateType<ToggleExpandSections>;
 };
 
 export const FolderTreeContext = createContext<FolderTreeContextType | null>(null);

@@ -34,11 +34,11 @@ export function TiptapViewer({ json }: { json: JSONContent }) {
         limit: 3,
         upload: async () => "",
       }),
-    ]),
+    ])
   );
 
   return (
-    <div className="simple-editor-content">
+    <div className="simple-editor-content px-3">
       <div className="tiptap ProseMirror simple-editor" dangerouslySetInnerHTML={{ __html: html }} />
     </div>
   );
