@@ -8,14 +8,15 @@ import { finalPrice } from "@/libs/utils/currency";
 import { getDirtyData } from "@/libs/utils/rhf";
 import { toSlug } from "@/libs/utils/string";
 import courseService from "@/services/course.service";
-import { Button, Tab, Tabs, addToast } from "@heroui/react";
+import { Button, Select, SelectItem, Tab, Tabs, addToast } from "@heroui/react";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 import { QueryObserverResult, useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import { Key, useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { LuEye, LuImage, LuSave, LuStar, LuUsers, LuX } from "react-icons/lu";
+import { LuChevronDown, LuEye, LuImage, LuSave, LuStar, LuUsers, LuX } from "react-icons/lu";
 import { PiMoneyWavyLight } from "react-icons/pi";
+import dummy from "../../../../../../dummy-course.json";
 import BasicsForm from "./Forms/BasicForm";
 import CurriculumForm from "./Forms/CurriculumForm";
 import MediaForm from "./Forms/MediaForm";
@@ -181,6 +182,25 @@ export default function EditCourse({
             "space-y-4 relative"
           )}>
           <FormProvider {...methods}>
+            <Select
+              defaultSelectedKeys={[selectedKey]}
+              onChange={e => setSelectedKey(e.target.value)}
+              className="max-w-full @xl:hidden"
+              radius="sm"
+              classNames={{
+                base: "p-1 border-slate-300 border rounded-xl",
+                trigger:
+                  "bg-blue-700 text-white group-data-[focus=true]:bg-blue-600 data-[hover=true]:bg-blue-600 min-h-[2.125rem] h-[2.125rem]",
+                innerWrapper: "px-2",
+                value: "group-data-[has-value=true]:text-white font-semibold",
+              }}
+              selectorIcon={<LuChevronDown />}>
+              <SelectItem key={"basic"}>Basic</SelectItem>
+              <SelectItem key={"tags"}>Tags</SelectItem>
+              <SelectItem key={"media"}>Media</SelectItem>
+              <SelectItem key={"pricing"}>Pricing</SelectItem>
+              <SelectItem key={"curriculum"}>Curriculum</SelectItem>
+            </Select>
             <Tabs
               selectedKey={selectedKey}
               onSelectionChange={handleSelectionChange}
@@ -188,10 +208,11 @@ export default function EditCourse({
               color="primary"
               radius="lg"
               classNames={{
-                tab: "md:w-28 px-4 font-semibold h-[34px]",
+                tab: "w-28 px-4 font-semibold h-[34px] @xl:flex hidden",
                 cursor: "bg-blue-700",
-                tabList: "shadow-none border-slate-300 border",
+                tabList: "shadow-none border-slate-300 border @xl:flex hidden",
                 tabContent: "text-slate-700",
+                base: "@xl:flex hidden",
               }}
               variant="bordered">
               <Tab key="basic" title="Basic">
@@ -209,7 +230,7 @@ export default function EditCourse({
                 <PricingPanel discountId={discounts[0]?.id} refetch={refetch} courseId={id} />
               </Tab>
               <Tab key="curriculum" title="Curriculum">
-                <CurriculumForm courseId={id} sections={sections} refetch={refetch} />
+                <CurriculumForm courseId={id} sections={dummy} refetch={refetch} />
               </Tab>
             </Tabs>
           </FormProvider>

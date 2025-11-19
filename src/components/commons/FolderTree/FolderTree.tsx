@@ -10,7 +10,6 @@ import {
   LuPencil,
   LuPlus,
   LuTrash2,
-  LuX,
 } from "react-icons/lu";
 
 import { cn } from "@/lib/tiptap-utils";
@@ -26,9 +25,7 @@ export type FolderTreeProps = {
 export const FolderTree: React.FC<FolderTreeProps> = ({ courseSections, activeLessonId, onSelect }) => {
   const { editMode } = useFolderTreeContext();
   return (
-    <ul
-      className={cn("m-0 flex list-none flex-col gap-1 ", editMode && "p-2 border rounded-lg border-primary")}
-      role="tree">
+    <ul className={cn("m-0 flex list-none flex-col gap-1 ")} role="tree">
       {courseSections.map(section => (
         <CourseSectionItem key={section.id} section={section} activeLessonId={activeLessonId} onSelect={onSelect} />
       ))}
@@ -174,7 +171,6 @@ const CourseSectionItem: React.FC<{
             return (
               <li key={lesson.id} className="list-none" role="treeitem" aria-selected={isActiveLesson}>
                 <span
-                  onBlur={() => console.log("unselect lesson")}
                   className={cn(
                     "flex w-full items-center gap-1 rounded-lg border-l-2 border-transparent pl-3 text-left text-[var(--tt-theme-text)] transition-colors duration-150",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tt-theme-text-muted)] focus-visible:ring-offset-0 cursor-pointer",
@@ -215,18 +211,18 @@ const CourseSectionItem: React.FC<{
                         <PopoverTrigger>
                           <Button
                             type="button"
-                            // onClick={e => {
-                            //   e.stopPropagation();
-                            // }}
                             variant="light"
                             isIconOnly
                             className="reset-button text-gray-500 text-right text-xs mr-5 italic hover:bg-white px-2 rounded cursor-pointer py-1 data-[hover=true]:bg-white">
                             0 min
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="p-2 flex flex-row items-end max-w-52 gap-x-1">
+                        <PopoverContent
+                          onClick={e => e.stopPropagation()}
+                          className="p-2 flex flex-row items-end max-w-40 gap-x-1">
                           <Input
                             classNames={{
+                              inputWrapper: "min-h-7 h-7",
                               label: "text-slate-800",
                               input: "group-data-[has-value=true]:text-slate-700",
                             }}
@@ -243,11 +239,14 @@ const CourseSectionItem: React.FC<{
                             }
                             type="number"
                           />
-                          <Button isIconOnly className="text-white bg-primary reset-button p-2" size="sm" radius="sm">
+                          <Button
+                            variant="flat"
+                            color="primary"
+                            isIconOnly
+                            className="reset-button p-2"
+                            size="sm"
+                            radius="sm">
                             <LuCheck />
-                          </Button>
-                          <Button isIconOnly className="text-white bg-red-500 reset-button p-2" size="sm" radius="sm">
-                            <LuX />
                           </Button>
                         </PopoverContent>
                       </Popover>

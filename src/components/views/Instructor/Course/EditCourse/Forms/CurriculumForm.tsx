@@ -2,6 +2,7 @@
 import FolderTree from "@/components/commons/FolderTree";
 import { TiptapViewer } from "@/components/commons/TiptapViewer/TiptapViewer";
 import content from "@/components/tiptap-templates/simple/data/content.json";
+import { useStickySentinel } from "@/hooks/use-sticky-shadow";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import { FolderTreeContext } from "@/libs/context/FolderTreeContext";
 import NProgress from "@/libs/loader/nprogress-setup";
@@ -10,18 +11,17 @@ import courseService from "@/services/course.service";
 import { Button, Checkbox, addToast } from "@heroui/react";
 import { QueryObserverResult, useMutation } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import {
   LuCheck,
   LuChevronsDown,
   LuChevronsUp,
   LuExternalLink,
-  LuLoader,
   LuPencil,
   LuPencilOff,
-  LuRefreshCcw,
-  LuSave,
+  LuPlus,
+  LuTrash2,
   LuX,
 } from "react-icons/lu";
 
@@ -136,7 +136,7 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
 
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const expandSectionsState = useState<null | boolean>(null);
+  const expandSectionsState = useState<null | boolean>(true);
   const {
     showCoursePreviewState: [showPreview, setShowCoursePreview],
   } = useEditCourseContext();
@@ -160,106 +160,132 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
     expandSectionsState[1](false);
   };
 
+  const previewParentRef = useRef<HTMLDivElement | null>(null);
+  const parentFormRef = useRef<HTMLDivElement | null>(null);
+
+  const { setSentinelRef: sentinelPreviewRef, stuck: previewStuck } = useStickySentinel(previewParentRef);
+  const { setSentinelRef: sentinelFormRef, stuck: formStuck } = useStickySentinel(parentFormRef);
+
   return (
     <section
       className={cn("grid @container gap-5", !showPreview ? "grid-cols-1 @[64.5rem]:grid-cols-12" : "grid-cols-1")}>
       <FormProvider {...methods}>
         <form onSubmit={onSubmit} className="space-y-4 @5xl:col-span-7">
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 flex flex-col gap-3 @container">
-            <div className="flex flex-col gap-4 @xl:flex-row @xl:items-center @xl:justify-between">
-              <header className="flex flex-col gap-y-2">
-                <h3 className="text-lg font-semibold text-slate-800">Curriculum Builder</h3>
-                <p className="text-sm text-slate-500">Organize sections and lessons for your course.</p>
-              </header>
-              <Link
-                href={`/instructor/dashboard/edit-course/${courseId}/curriculum`}
-                aria-disabled={isLessonEditorDisabled}
-                tabIndex={isLessonEditorDisabled ? -1 : undefined}
-                className={cn(
-                  "inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-slate-200 text-slate-700 transition",
-                  isLessonEditorDisabled ? "pointer-events-none opacity-60 cursor-not-allowed" : "hover:bg-slate-50"
-                )}>
-                <LuExternalLink className="w-4 h-4" />
-                Lesson Editor
-              </Link>
-            </div>
-            <div className="flex -mb-1 pr-4">
-              <Button
-                onPress={handleExpandSections}
-                isIconOnly
-                radius="sm"
-                size="lg"
-                className="reset-button p-1.5"
-                color="primary"
-                variant="light">
-                <LuChevronsDown size={18} />
-              </Button>
-              <Button
-                onPress={handleFoldSections}
-                isIconOnly
-                radius="sm"
-                size="lg"
-                className="reset-button p-1.5"
-                color="primary"
-                variant="light">
-                <LuChevronsUp size={18} />
-              </Button>
-              {editMode && <Checkbox radius="sm" size="sm" className="ml-0.5" />}
-              <span className="ml-auto space-x-3">
+          <div
+            ref={parentFormRef}
+            className={cn(
+              editMode ? "border-blue-400 shadow-blue-300" : "border-slate-200",
+              "rounded-xl border shadow-sm flex flex-col @container max-h-[calc(100vh-190px)] overflow-y-scroll bg-white scrollbar-hide"
+            )}>
+            <div className="w-full h-1" ref={sentinelFormRef} />
+            <div
+              className={cn(
+                "space-y-3 sticky top-0 pt-5 px-6 pb-3 z-50 bg-white",
+                formStuck && `shadow-sm`,
+                editMode && "shadow-blue-100"
+              )}>
+              <div className="flex flex-col gap-4 @xl:flex-row @xl:items-center @xl:justify-between">
+                <header className="flex flex-col gap-y-2">
+                  <h3 className="text-lg font-semibold text-slate-800">Curriculum Builder</h3>
+                  <p className="text-sm text-slate-500">Organize sections and lessons for your course.</p>
+                </header>
+                <Link
+                  href={`/instructor/dashboard/edit-course/${courseId}/curriculum`}
+                  aria-disabled={isLessonEditorDisabled}
+                  tabIndex={isLessonEditorDisabled ? -1 : undefined}
+                  className={cn(
+                    "inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-slate-200 text-slate-700 transition",
+                    isLessonEditorDisabled ? "pointer-events-none opacity-60 cursor-not-allowed" : "hover:bg-slate-50"
+                  )}>
+                  <LuExternalLink className="w-4 h-4" />
+                  Lesson Editor
+                </Link>
+              </div>
+              <div className="flex -mb-1 pr-4">
                 <Button
+                  onPress={handleExpandSections}
                   isIconOnly
-                  onPress={() => {
-                    setEditMode(mode => !mode);
-                  }}
-                  hidden={!editMode}
                   radius="sm"
                   size="lg"
-                  className={cn("reset-button p-2 text-white")}
+                  className="reset-button p-2"
                   color="primary"
-                  variant={"solid"}>
-                  <LuCheck />
+                  variant="light">
+                  <LuChevronsDown size={18} />
                 </Button>
                 <Button
+                  onPress={handleFoldSections}
                   isIconOnly
-                  onPress={() => {
-                    setEditMode(mode => !mode);
-                  }}
                   radius="sm"
                   size="lg"
-                  className={cn("reset-button p-2")}
-                  {...(editMode ? { color: "danger", variant: "solid" } : { color: "primary", variant: "light" })}
-                  // color="primary"
-                  // variant={editMode ? "solid" : "light"}
-                >
-                  {editMode ? <LuPencilOff /> : <LuPencil />}
+                  className="reset-button p-2"
+                  color="primary"
+                  variant="light">
+                  <LuChevronsUp size={18} />
                 </Button>
-              </span>
+                {editMode && <Checkbox radius="sm" size="sm" className="ml-0.5" />}
+                <span className={cn("ml-auto", editMode ? "space-x-3" : "space-x-1")}>
+                  <Button
+                    // onPress={handleFoldSections}
+                    isIconOnly
+                    radius="sm"
+                    size="lg"
+                    className="reset-button p-[7px]"
+                    color="primary"
+                    hidden={editMode}
+                    variant="light">
+                    <LuPlus size={18} />
+                  </Button>
+                  <Button
+                    isIconOnly
+                    onPress={() => {
+                      setEditMode(mode => !mode);
+                    }}
+                    hidden={!editMode}
+                    radius="sm"
+                    size="lg"
+                    className={cn("reset-button p-2")}
+                    color="primary"
+                    variant={"flat"}>
+                    <LuCheck />
+                  </Button>
+                  <Button
+                    isIconOnly
+                    onPress={() => {
+                      // setEditMode(mode => !mode);
+                    }}
+                    hidden={!editMode}
+                    radius="sm"
+                    size="lg"
+                    className={cn("reset-button p-2")}
+                    color="danger"
+                    variant={"flat"}>
+                    <LuTrash2 />
+                  </Button>
+                  <Button
+                    isIconOnly
+                    onPress={() => {
+                      setEditMode(mode => !mode);
+                    }}
+                    radius="sm"
+                    size="lg"
+                    className={cn("reset-button p-2")}
+                    {...(editMode ? { color: "warning", variant: "flat" } : { color: "primary", variant: "light" })}
+                    // color="primary"
+                    // variant={editMode ? "solid" : "light"}
+                  >
+                    {editMode ? <LuPencilOff /> : <LuPencil />}
+                  </Button>
+                </span>
+              </div>
             </div>
             {/* <CurriculumBuilder /> */}
             {sections && (
               <FolderTreeContext.Provider value={{ editMode, expandSectionsState }}>
-                <FolderTree courseSections={sections} onSelect={onSelect} activeLessonId={activeLesson?.id || null} />
+                <div className={"px-6 pb-6"}>
+                  <FolderTree courseSections={sections} onSelect={onSelect} activeLessonId={activeLesson?.id || null} />
+                </div>
               </FolderTreeContext.Provider>
             )}
-            <div className="flex flex-col gap-3 @xl:flex-row @xl:items-center @xl:justify-end @xl:gap-4">
-              <div className="flex flex-col gap-3 @xl:flex-row @xl:items-center @xl:gap-3">
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  disabled={!isDirty || isPending}
-                  className="inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-60">
-                  <LuRefreshCcw className="w-4 h-4" />
-                  Reset
-                </button>
-                <button
-                  type="submit"
-                  disabled={!isDirty || isPending}
-                  className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-blue-600 text-white font-medium disabled:bg-blue-400">
-                  {isPending ? <LuLoader className="w-4 h-4 animate-spin" /> : <LuSave className="w-4 h-4" />}
-                  Save
-                </button>
-              </div>
-            </div>
           </div>
 
           {/* <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 flex flex-col gap-6 @container">
@@ -306,13 +332,18 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
       {/* Lesson Preview */}
       {!showPreview && (
         <div
+          ref={previewParentRef}
           className={cn(
             "@5xl:col-span-5 @5xl:-mt-20 @5xl:max-h-[calc(100vh-110px)] @5xl:overflow-y-scroll",
-            // "rounded-lg border border-abu bg-white",
-            "rounded-xl border border-slate-200 bg-white shadow-sm",
+            "rounded-xl border bg-white border-slate-200 shadow-sm",
             "relative scrollbar-hide"
           )}>
-          <div className="py-2 flex items-center text-sm font-medium px-5 w-full bg-white z-50 text-slate-700 sticky top-0 truncate shadow-2xs rounded-t-xl">
+          <div ref={sentinelPreviewRef} className="h-1 w-full" />
+          <div
+            className={cn(
+              "py-2 flex items-center text-sm font-medium px-5 w-full bg-white z-50 text-slate-700 sticky top-0 truncate rounded-t-xl transition-all duration-300",
+              previewStuck && "shadow-xs"
+            )}>
             <p>
               Section 1 / New Lesson 1 <span className="text-slate-400 ml-2 italic">(preview)</span>
             </p>

@@ -1,0 +1,222 @@
+[
+  {
+    "id": 1,
+    "courseId": 101,
+    "title": "Introduction",
+    "position": 1,
+    "lessons": [
+      {
+        "id": 1,
+        "sectionId": 1,
+        "slug": "welcome",
+        "title": "Welcome to the Course",
+        "summary": "Overview of what you'll learn.",
+        "position": 1,
+        "durationSec": 120,
+        "isPreview": true
+      },
+      {
+        "id": 2,
+        "sectionId": 1,
+        "slug": "platform-guide",
+        "title": "How to Use the Platform",
+        "summary": null,
+        "position": 2,
+        "durationSec": 240,
+        "isPreview": false
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "courseId": 101,
+    "title": "Getting Started",
+    "position": 2,
+    "lessons": [
+      {
+        "id": 3,
+        "sectionId": 2,
+        "slug": "setup",
+        "title": "Setting Up Your Environment",
+        "summary": "Install everything you need.",
+        "position": 1,
+        "durationSec": 300,
+        "isPreview": false
+      },
+      {
+        "id": 4,
+        "sectionId": 2,
+        "slug": "first-run",
+        "title": "Your First Run",
+        "summary": null,
+        "position": 2,
+        "durationSec": 180,
+        "isPreview": false
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "courseId": 101,
+    "title": "Core Concepts",
+    "position": 3,
+    "lessons": [
+      {
+        "id": 5,
+        "sectionId": 3,
+        "slug": "concepts-1",
+        "title": "Understanding Core Concepts",
+        "summary": "Foundational theory.",
+        "position": 1,
+        "durationSec": 600,
+        "isPreview": false
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "courseId": 101,
+    "title": "Deep Dive I",
+    "position": 4,
+    "lessons": [
+      {
+        "id": 6,
+        "sectionId": 4,
+        "slug": "deep-dive-1",
+        "title": "In-Depth Exploration",
+        "summary": null,
+        "position": 1,
+        "durationSec": 720,
+        "isPreview": false
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "courseId": 101,
+    "title": "Deep Dive II",
+    "position": 5,
+    "lessons": [
+      {
+        "id": 7,
+        "sectionId": 5,
+        "slug": "deep-dive-2",
+        "title": "Advanced Exploration",
+        "summary": "More advanced concepts.",
+        "position": 1,
+        "durationSec": 850,
+        "isPreview": false
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "courseId": 101,
+    "title": "Hands-On Examples",
+    "position": 6,
+    "lessons": [
+      {
+        "id": 8,
+        "sectionId": 6,
+        "slug": "examples-1",
+        "title": "Practical Examples",
+        "summary": "Real-world use cases.",
+        "position": 1,
+        "durationSec": 400,
+        "isPreview": false
+      },
+      {
+        "id": 9,
+        "sectionId": 6,
+        "slug": "examples-2",
+        "title": "More Examples",
+        "summary": null,
+        "position": 2,
+        "durationSec": 500,
+        "isPreview": false
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "courseId": 101,
+    "title": "Project I",
+    "position": 7,
+    "lessons": [
+      {
+        "id": 10,
+        "sectionId": 7,
+        "slug": "project-overview",
+        "title": "Project Overview",
+        "summary": "Description and goals.",
+        "position": 1,
+        "durationSec": 200,
+        "isPreview": false
+      },
+      {
+        "id": 11,
+        "sectionId": 7,
+        "slug": "project-build",
+        "title": "Start Building",
+        "summary": "Initial steps.",
+        "position": 2,
+        "durationSec": 900,
+        "isPreview": false
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "courseId": 101,
+    "title": "Project II",
+    "position": 8,
+    "lessons": [
+      {
+        "id": 12,
+        "sectionId": 8,
+        "slug": "project-advanced",
+        "title": "Advanced Project Work",
+        "summary": null,
+        "position": 1,
+        "durationSec": 1000,
+        "isPreview": false
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "courseId": 101,
+    "title": "Optimization",
+    "position": 9,
+    "lessons": [
+      {
+        "id": 13,
+        "sectionId": 9,
+        "slug": "optimize-1",
+        "title": "Performance Optimization",
+        "summary": "Improve speed and efficiency.",
+        "position": 1,
+        "durationSec": 700,
+        "isPreview": false
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "courseId": 101,
+    "title": "Final Section",
+    "position": 10,
+    "lessons": [
+      {
+        "id": 14,
+        "sectionId": 10,
+        "slug": "wrap-up",
+        "title": "Course Wrap-Up",
+        "summary": "Final thoughts.",
+        "position": 1,
+        "durationSec": 150,
+        "isPreview": true
+      }
+    ]
+  }
+]
