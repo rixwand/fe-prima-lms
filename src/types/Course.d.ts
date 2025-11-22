@@ -48,7 +48,7 @@ type CourseForm = {
     sectionId?: number;
     title: string;
     position?: number;
-    lessons?: {
+    lessons: {
       id?: number;
       lessonId?: number;
       title: string;

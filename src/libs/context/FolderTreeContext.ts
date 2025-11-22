@@ -6,6 +6,7 @@ type ToggleExpandSections = boolean | null;
 type FolderTreeContextType = {
   editMode: boolean;
   expandSectionsState: StateType<ToggleExpandSections>;
+  resetSections: () => void;
 };
 
 export const FolderTreeContext = createContext<FolderTreeContextType | null>(null);

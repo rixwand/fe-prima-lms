@@ -10,7 +10,7 @@ import { useRouter } from "next/router";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { LuEye, LuPencilLine, LuStar, LuTrash2, LuUsers } from "react-icons/lu";
 import { PiMoneyWavyLight } from "react-icons/pi";
-import { confirmDialog } from "../Dialong/confirmDialog";
+import { confirmDialog } from "../Dialog/confirmDialog";
 
 export function CourseCardGrid({
   data,

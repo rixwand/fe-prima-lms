@@ -1,18 +1,17 @@
 "use client";
 import FolderTree from "@/components/commons/FolderTree";
+import { CourseSectionForm } from "@/components/commons/FolderTree/FolderTree";
 import { TiptapViewer } from "@/components/commons/TiptapViewer/TiptapViewer";
 import content from "@/components/tiptap-templates/simple/data/content.json";
 import { useStickySentinel } from "@/hooks/use-sticky-shadow";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import { FolderTreeContext } from "@/libs/context/FolderTreeContext";
-import NProgress from "@/libs/loader/nprogress-setup";
 import cn from "@/libs/utils/cn";
-import courseService from "@/services/course.service";
-import { Button, Checkbox, addToast } from "@heroui/react";
-import { QueryObserverResult, useMutation } from "@tanstack/react-query";
+import { Button, Checkbox } from "@heroui/react";
+import { QueryObserverResult } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useFormContext } from "react-hook-form";
 import {
   LuCheck,
   LuChevronsDown,
@@ -21,23 +20,24 @@ import {
   LuPencil,
   LuPencilOff,
   LuPlus,
+  LuRotateCcw,
   LuTrash2,
   LuX,
 } from "react-icons/lu";
 
 type CurriculumFormProps = {
   courseId: number;
-  sections?: CourseSection[];
+  defaultValue: CourseSection[];
   refetch: () => Promise<QueryObserverResult>;
 };
 
 const mapSectionsToForm = (sections?: CourseSection[]): NonNullable<CourseForm["sections"]> =>
   (sections ?? []).map(section => ({
-    sectionId: section.id,
+    id: section.id,
     title: section.title,
     position: section.position,
     lessons: (section.lessons ?? []).map(lesson => ({
-      lessonId: lesson.id,
+      id: lesson.id,
       title: lesson.title,
       summary: lesson.summary ?? undefined,
       durationSec: lesson.durationSec ?? undefined,
@@ -76,16 +76,13 @@ const toApiPayload = (sections: NonNullable<CourseForm["sections"]>) =>
     })),
   }));
 
-export default function CurriculumForm({ courseId, sections, refetch }: CurriculumFormProps) {
-  const defaultSections = useMemo(() => mapSectionsToForm(sections), [sections]);
+export default function CurriculumForm({ courseId, refetch, defaultValue }: CurriculumFormProps) {
+  const defaultSections = useMemo(() => mapSectionsToForm(defaultValue), [defaultValue]);
+  const methods = useFormContext<CourseForm>();
 
-  const methods = useForm<CourseForm>({
-    defaultValues: { sections: defaultSections },
-  });
-
-  useEffect(() => {
-    methods.reset({ sections: defaultSections });
-  }, [defaultSections, methods]);
+  // useEffect(() => {
+  //   methods.reset({ sections: defaultSections });
+  // }, [defaultSections, methods]);
 
   const sectionsValue = methods.watch("sections");
   const isLessonEditorDisabled = useMemo(
@@ -95,54 +92,56 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
     [sectionsValue]
   );
 
-  const { mutateAsync: updateCurriculum, isPending } = useMutation({
-    mutationFn: (payload: { sections: ReturnType<typeof toApiPayload> }) =>
-      courseService.update({ id: courseId, data: payload }),
-    onSuccess: async () => {
-      addToast({ title: "Success", description: "Curriculum updated.", color: "success" });
-      await refetch();
-    },
-    onError: error => {
-      const err = error as Error;
-      addToast({ title: "Error", description: err.message, color: "danger" });
-    },
-  });
+  // const { mutateAsync: updateCurriculum, isPending } = useMutation({
+  //   mutationFn: (payload: { sections: ReturnType<typeof toApiPayload> }) =>
+  //     courseService.update({ id: courseId, data: payload }),
+  //   onSuccess: async () => {
+  //     addToast({ title: "Success", description: "Curriculum updated.", color: "success" });
+  //     await refetch();
+  //   },
+  //   onError: error => {
+  //     const err = error as Error;
+  //     addToast({ title: "Error", description: err.message, color: "danger" });
+  //   },
+  // });
 
-  useEffect(() => {
-    if (isPending) NProgress.start();
-    else NProgress.done();
-  }, [isPending]);
+  // useEffect(() => {
+  //   if (isPending) NProgress.start();
+  //   else NProgress.done();
+  // }, [isPending]);
 
-  const onSubmit = methods.handleSubmit(async values => {
-    if (!values.sections || values.sections.length === 0) {
-      addToast({
-        title: "Curriculum incomplete",
-        description: "Add at least one section before saving.",
-        color: "warning",
-      });
-      return;
-    }
+  // const onSubmit = methods.handleSubmit(async values => {
+  //   if (!values.sections || values.sections.length === 0) {
+  //     addToast({
+  //       title: "Curriculum incomplete",
+  //       description: "Add at least one section before saving.",
+  //       color: "warning",
+  //     });
+  //     return;
+  //   }
 
-    const sanitized = sanitizeFormSections(values.sections);
-    const payload = toApiPayload(sanitized);
-    await updateCurriculum({ sections: payload });
-    methods.reset({ sections: sanitized });
-  });
+  //   const sanitized = sanitizeFormSections(values.sections);
+  //   const payload = toApiPayload(sanitized);
+  //   await updateCurriculum({ sections: payload });
+  //   methods.reset({ sections: sanitized });
+  // });
 
-  const handleReset = () => methods.reset({ sections: defaultSections });
-  const {
-    formState: { isDirty },
-  } = methods;
+  // const handleReset = () => methods.reset({ sections: defaultSections });
+  // const {
+  //   formState: { isDirty },
+  // } = methods;
 
-  const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
+  const [activeLesson, setActiveLesson] = useState<CourseSectionForm["lessons"][number] | null>(null);
+  const [activeLessonPath, setPathActiveLesson] = useState<Array<string> | null>(null);
   const [editMode, setEditMode] = useState(false);
   const expandSectionsState = useState<null | boolean>(true);
   const {
     showCoursePreviewState: [showPreview, setShowCoursePreview],
   } = useEditCourseContext();
 
-  const onSelect = (_section: CourseSection, lesson: Lesson, path: string[]) => {
+  const onSelect = (_section: CourseSectionForm, lesson: CourseSectionForm["lessons"][number], path: string[]) => {
     setActiveLesson(lesson);
+    setPathActiveLesson(path);
   };
 
   useEffect(() => {
@@ -160,17 +159,27 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
     expandSectionsState[1](false);
   };
 
+  useEffect(() => {
+    console.log();
+  }, [methods.reset]);
+
   const previewParentRef = useRef<HTMLDivElement | null>(null);
   const parentFormRef = useRef<HTMLDivElement | null>(null);
 
   const { setSentinelRef: sentinelPreviewRef, stuck: previewStuck } = useStickySentinel(previewParentRef);
   const { setSentinelRef: sentinelFormRef, stuck: formStuck } = useStickySentinel(parentFormRef);
 
+  const reset = () => {
+    methods.reset({ sections: [...defaultSections] });
+  };
+
   return (
     <section
       className={cn("grid @container gap-5", !showPreview ? "grid-cols-1 @[64.5rem]:grid-cols-12" : "grid-cols-1")}>
       <FormProvider {...methods}>
-        <form onSubmit={onSubmit} className="space-y-4 @5xl:col-span-7">
+        <form
+          //  onSubmit={onSubmit}
+          className="space-y-4 @5xl:col-span-7">
           <div
             ref={parentFormRef}
             className={cn(
@@ -201,7 +210,7 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
                   Lesson Editor
                 </Link>
               </div>
-              <div className="flex -mb-1 pr-4">
+              <div className="flex -mb-1 pr-4 relative">
                 <Button
                   onPress={handleExpandSections}
                   isIconOnly
@@ -223,6 +232,17 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
                   <LuChevronsUp size={18} />
                 </Button>
                 {editMode && <Checkbox radius="sm" size="sm" className="ml-0.5" />}
+                <Button
+                  onPress={reset}
+                  isIconOnly
+                  radius="sm"
+                  size="lg"
+                  hidden={!editMode}
+                  className="reset-button p-2 z-10 ml-1.5"
+                  color="primary"
+                  variant="light">
+                  <LuRotateCcw size={18} />
+                </Button>
                 <span className={cn("ml-auto", editMode ? "space-x-3" : "space-x-1")}>
                   <Button
                     // onPress={handleFoldSections}
@@ -279,10 +299,10 @@ export default function CurriculumForm({ courseId, sections, refetch }: Curricul
               </div>
             </div>
             {/* <CurriculumBuilder /> */}
-            {sections && (
-              <FolderTreeContext.Provider value={{ editMode, expandSectionsState }}>
+            {methods.getValues("sections") && (
+              <FolderTreeContext.Provider value={{ editMode, expandSectionsState, resetSections: reset }}>
                 <div className={"px-6 pb-6"}>
-                  <FolderTree courseSections={sections} onSelect={onSelect} activeLessonId={activeLesson?.id || null} />
+                  <FolderTree onSelect={onSelect} activeLessonId={activeLesson?.id || null} />
                 </div>
               </FolderTreeContext.Provider>
             )}
