@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { IoClose } from "react-icons/io5";
 import { LuUndo2 } from "react-icons/lu";
+import { EditCourseForm } from "./form.type";
 export default function TagsForm({ tags: defaultTags }: { tags: Tag[] }) {
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<Omit<Tag, "tagId">[]>(defaultTags.map(({ tagId: _id, ...tag }) => tag));

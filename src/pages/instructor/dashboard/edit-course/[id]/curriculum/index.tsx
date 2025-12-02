@@ -3,7 +3,7 @@ import PageHead from "@/components/commons/PageHead";
 import SimpleEditorLayout from "@/components/layouts/SimpleEditorLayout";
 import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
 import NProgress from "@/libs/loader/nprogress-setup";
-import courseService from "@/services/course.service";
+import courseSectionService from "@/services/course-section.service";
 import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { Fragment, useEffect, useState } from "react";
@@ -25,7 +25,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   await queryClient.prefetchQuery({
     queryKey: ["courseSections", courseId],
-    queryFn: () => courseService.listCourseSections(courseId).then(res => res.data),
+    queryFn: () => courseSectionService.list(courseId).then(res => res.data),
   });
 
   return {
@@ -42,7 +42,7 @@ export default function CurriculumPage({ id }: { id: number }) {
   const { data, isPending } = useQuery<{ courseTitle: string; sections: CourseSection[] }>({
     queryKey: ["courseSections", id],
     queryFn: () =>
-      courseService.listCourseSections(id).then(res => {
+      courseSectionService.list(id).then(res => {
         console.log(res);
         return res.data;
       }),

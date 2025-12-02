@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { FiVideoOff } from "react-icons/fi";
 import { LuImage, LuUndo2, LuUpload } from "react-icons/lu";
+import { EditCourseForm } from "./form.type";
 
 const MediaForm = ({
   defaultValues: { coverImage, previewVideo },

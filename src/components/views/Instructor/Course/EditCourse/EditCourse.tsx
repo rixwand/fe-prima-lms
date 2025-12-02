@@ -31,6 +31,7 @@ import CurriculumForm from "./Forms/CurriculumForm";
 import MediaForm from "./Forms/MediaForm";
 import PricingPanel from "./Forms/PricingPanel";
 import TagsForm from "./Forms/TagsForm";
+import { EditCourseForm } from "./Forms/form.type";
 
 export default function EditCourse({
   data: { previewVideo, ownerId, slug, tags, descriptionJson, id, sections, discount: discounts, ...course },
@@ -98,9 +99,9 @@ export default function EditCourse({
     defaultValues,
   });
 
-  useEffect(() => {
-    methods.reset(defaultValues);
-  }, [data, methods]);
+  // useEffect(() => {
+  //   methods.reset(defaultValues);
+  // }, [data, methods]);
 
   const fileList = methods.watch("fileImage");
   const preview = fileList?.[0] ? URL.createObjectURL(fileList[0]) : null;
@@ -186,7 +187,7 @@ export default function EditCourse({
   }, [showPreviewState, selectedKey]);
 
   return (
-    <EditCourseContext.Provider value={{ showCoursePreviewState: showPreviewState }}>
+    <EditCourseContext.Provider value={{ showCoursePreviewState: showPreviewState, courseId: id, refetch }}>
       <section className="grid grid-cols-1 xl:grid-cols-12 gap-8 @container">
         <div
           className={cn(

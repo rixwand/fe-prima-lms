@@ -17,3 +17,11 @@ export function getYouTubeEmbedUrl(url: string) {
 }
 
 export const trimEdges = (v: unknown) => (typeof v === "string" ? v.trim() : v);
+
+export function toRoundedMinutes(seconds?: number): number {
+  if (!seconds) return 0;
+  const minutes = Math.floor(seconds / 60);
+  const leftover = seconds % 60;
+
+  return minutes + (leftover > 30 ? 1 : 0);
+}

@@ -1,7 +1,9 @@
 import { StateType } from "@/types/Helper";
 import { createContext, useContext } from "react";
 type EditCourseContextType = {
+  courseId: number;
   showCoursePreviewState: StateType<boolean>;
+  refetch: () => void;
 };
 
 export const EditCourseContext = createContext<EditCourseContextType | undefined>(undefined);

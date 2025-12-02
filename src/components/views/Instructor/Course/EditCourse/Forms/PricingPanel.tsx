@@ -12,6 +12,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import { HiSelector } from "react-icons/hi";
 import { LuTrash2, LuUndo2 } from "react-icons/lu";
 import Field from "../../CreateCourse/Forms/Field";
+import { EditCourseForm } from "./form.type";
 
 export default function PricingPanel({
   discountId,

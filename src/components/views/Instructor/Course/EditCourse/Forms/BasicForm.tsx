@@ -3,6 +3,7 @@ import { Button } from "@heroui/react";
 import { Controller, useFormContext } from "react-hook-form";
 import { LuUndo2 } from "react-icons/lu";
 import Field from "../../CreateCourse/Forms/Field";
+import { EditCourseForm } from "./form.type";
 
 export default function BasicsForm({
   defaultValues: { descriptionJson, shortDescription, title },
