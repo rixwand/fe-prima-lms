@@ -2,7 +2,7 @@ type ICourseListItem = {
   id: number;
   title: string;
   slug: string;
-  status: "DRAFT" | "PUBLISHED";
+  status: "PENDING" | "PUBLISHED" | "DRAFT";
   coverImage: string;
   priceAmount: number;
   isFree: boolean;

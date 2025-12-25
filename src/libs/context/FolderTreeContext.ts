@@ -1,8 +1,14 @@
-import { createContext, useContext } from "react";
+import { Dispatch, SetStateAction, createContext, useContext } from "react";
+
+export type LessonPathIds = {
+  ids: { courseId: number; sectionId: number; lessonId: number };
+  path: string[];
+};
 
 type FolderTreeContextType = {
-  activeLessonId?: number | null;
   editMode: boolean;
+  activeLesson: LessonPathIds | null;
+  setActiveLesson: Dispatch<SetStateAction<LessonPathIds | null>>;
 };
 
 export const FolderTreeContext = createContext<FolderTreeContextType | null>(null);

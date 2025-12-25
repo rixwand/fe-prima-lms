@@ -1,19 +1,22 @@
 "use client";
-import AddSectionsDialog from "@/components/commons/Dialog/AddSectionsDialog";
+import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import FolderTree from "@/components/commons/FolderTree";
+import useModalAddSections from "@/components/commons/Forms/AddSectionsForm/useModalAddSections";
+import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
 import { TiptapViewer } from "@/components/commons/TiptapViewer/TiptapViewer";
-import content from "@/components/tiptap-templates/simple/data/content.json";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { useStickySentinel } from "@/hooks/use-sticky-shadow";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
-import { FolderTreeContext } from "@/libs/context/FolderTreeContext";
+import { FolderTreeContext, LessonPathIds } from "@/libs/context/FolderTreeContext";
 import { hasTrue } from "@/libs/utils/boolean";
 import cn from "@/libs/utils/cn";
 import { diffList } from "@/libs/utils/data";
-import { Button, Checkbox } from "@heroui/react";
+import { StateType } from "@/types/Helper";
+import { Button } from "@heroui/react";
+import { Content, JSONContent } from "@tiptap/core";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useForm, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import {
   LuCheck,
   LuChevronsDown,
@@ -27,13 +30,13 @@ import {
   LuTrash2,
   LuX,
 } from "react-icons/lu";
-import { AddSectionsFormRhf, CourseSectionForm, CurriculumFormProps, EditCourseForm } from "../form.type";
-import AddSectionsForm from "./AddSectionsForm";
-import useEditCurriculum from "./useEditCurriculum";
+import { useQueryBlocks } from "../../LessonEditor/useLessonEditor";
+import { CourseSectionForm, CurriculumFormProps, EditCourseForm } from "../form.type";
+import useEditSection from "./useEditSection";
 
+type SelectState = StateType<Set<number>>;
 export default function CurriculumForm({ courseId, refetch, defaultValue }: CurriculumFormProps) {
-  // const defaultSections = useMemo(() => mapSectionsToForm(defaultValue), [defaultValue]);
-  const { getFieldState, watch, getValues, reset } = useFormContext<EditCourseForm>();
+  const { watch, getValues, reset } = useFormContext<EditCourseForm>();
 
   const sectionsValue = watch("sections");
   const isLessonEditorDisabled = useMemo(
@@ -43,61 +46,24 @@ export default function CurriculumForm({ courseId, refetch, defaultValue }: Curr
     [sectionsValue]
   );
 
-  // const { mutateAsync: updateCurriculum, isPending } = useMutation({
-  //   mutationFn: (payload: { sections: ReturnType<typeof toApiPayload> }) =>
-  //     courseService.update({ id: courseId, data: payload }),
-  //   onSuccess: async () => {
-  //     addToast({ title: "Success", description: "Curriculum updated.", color: "success" });
-  //     await refetch();
-  //   },
-  //   onError: error => {
-  //     const err = error as Error;
-  //     addToast({ title: "Error", description: err.message, color: "danger" });
-  //   },
-  // });
-
-  // useEffect(() => {
-  //   if (isPending) NProgress.start();
-  //   else NProgress.done();
-  // }, [isPending]);
-
-  // const onSubmit = methods.handleSubmit(async values => {
-  //   if (!values.sections || values.sections.length === 0) {
-  //     addToast({
-  //       title: "Curriculum incomplete",
-  //       description: "Add at least one section before saving.",
-  //       color: "warning",
-  //     });
-  //     return;
-  //   }
-
-  //   const sanitized = sanitizeFormSections(values.sections);
-  //   const payload = toApiPayload(sanitized);
-  //   await updateCurriculum({ sections: payload });
-  //   methods.reset({ sections: sanitized });
-  // });
-
-  // const handleReset = () => methods.reset({ sections: defaultSections });
-  // const {
-  //   formState: { isDirty },
-  // } = methods;
-
-  const [activeLesson, setActiveLesson] = useState<NonNullable<CourseSectionForm["lessons"]>[number] | null>(null);
-  const [activeLessonPath, setPathActiveLesson] = useState<Array<string> | null>(null);
+  const [activeLesson, setActiveLesson] = useState<LessonPathIds | null>(null);
+  const [blockPreview, setBlockPreview] = useState<Content | undefined>(undefined);
   const [editMode, setEditMode] = useState(false);
+  const selectState: SelectState = useState(new Set());
   const newSectionState = useState<string | null>(null);
-  const expandSectionsState = useState<null | boolean>(null);
   const {
     showCoursePreviewState: [showPreview, setShowCoursePreview],
   } = useEditCourseContext();
+  const sections = watch("sections");
+  const ids = useMemo(() => sections?.flatMap(s => s.id!), [sections]);
+  const expandedState = useState(new Set(ids));
 
   const onSelect = (
-    _section: CourseSectionForm,
+    section: CourseSectionForm,
     lesson: NonNullable<CourseSectionForm["lessons"]>[number],
     path: string[]
   ) => {
-    setActiveLesson(lesson);
-    setPathActiveLesson(path);
+    setActiveLesson({ path, ids: { sectionId: section.id!, lessonId: lesson.id!, courseId } });
   };
 
   useEffect(() => {
@@ -109,10 +75,10 @@ export default function CurriculumForm({ courseId, refetch, defaultValue }: Curr
   }, [activeLesson, setShowCoursePreview]);
 
   const handleExpandSections = () => {
-    expandSectionsState[1](true);
+    expandedState[1](new Set(ids));
   };
   const handleFoldSections = () => {
-    expandSectionsState[1](false);
+    expandedState[1](new Set());
   };
 
   const previewParentRef = useRef<HTMLDivElement | null>(null);
@@ -121,8 +87,7 @@ export default function CurriculumForm({ courseId, refetch, defaultValue }: Curr
   const { setSentinelRef: sentinelPreviewRef, stuck: previewStuck } = useStickySentinel(previewParentRef);
   const { setSentinelRef: sentinelFormRef, stuck: formStuck } = useStickySentinel(parentFormRef);
 
-  const { querySections, isPending, reorderSection } = useEditCurriculum({
-    courseId,
+  const { querySections, isPending, reorderSection, removeManySections } = useEditSection({
     onReorderSectionSuccess() {
       setEditMode(false);
     },
@@ -132,29 +97,41 @@ export default function CurriculumForm({ courseId, refetch, defaultValue }: Curr
     reset({ sections: querySections ? querySections.sections : defaultValue });
   }, [defaultValue, reset, querySections]);
 
-  const addSectionsMethod = useForm<AddSectionsFormRhf>({ defaultValues: { sections: [] } });
-  const openAddSectionsModal = () => {
-    addSectionsMethod.setValue("sections", [{ title: "New Section" }]);
-    AddSectionsDialog({
-      content: close => <AddSectionsForm rhfMethods={addSectionsMethod} close={close} />,
-      onSubmit: async () => {
-        console.log(addSectionsMethod.getValues("sections"));
-      },
-      title: "Add Sections",
-      formSubscribe: addSectionsMethod.subscribe,
-      fieldName: "sections",
-    });
-  };
-
   const handleSubmitReorder = () => {
+    const sections = getValues("sections");
+    if (!sections) return setEditMode(false);
     const base = querySections ? querySections.sections : defaultValue;
-    const changes = getValues("sections") as CourseSection[];
-    const dirtyValue = diffList(base, changes, { props: ["position"] });
+    const changes = sections.map(({ position: _, ...section }, i) => ({ position: i + 1, ...section }));
+    const dirtyValue = diffList(base, changes as CourseSection[], { props: ["position"] });
     if (dirtyValue.length == 0) return setEditMode(false);
     return reorderSection({ courseId, data: dirtyValue });
   };
 
-  useNProgress(hasTrue(isPending));
+  const handleDeleteSection = () => {
+    if (selectState[0].size == 0) return;
+    return confirmDialog({
+      title: "Remove batch Sections",
+      desc: `This action will permananently delete "${selectState[0].size}" section`,
+      onConfirmed() {
+        return removeManySections({ courseId, sectionIds: [...selectState[0]] });
+      },
+      isLoading: isPending.removeSectionPending,
+    });
+  };
+
+  const { data: blocks, isLoading } = useQueryBlocks(activeLesson?.ids);
+
+  useEffect(() => {
+    if (blocks && blocks.length > 0) {
+      setBlockPreview(blocks[0].textJson);
+    } else {
+      setBlockPreview(undefined);
+    }
+  }, [blocks]);
+
+  const { openAddSectionsModal } = useModalAddSections();
+
+  useNProgress(hasTrue(isPending) || isLoading);
 
   return (
     <section
@@ -190,7 +167,7 @@ export default function CurriculumForm({ courseId, refetch, defaultValue }: Curr
                 Lesson Editor
               </Link>
             </div>
-            <div className="flex -mb-1 pr-4 relative">
+            <div className="flex -mb-1 pr-4 relative items-center">
               <Button
                 onPress={handleExpandSections}
                 isIconOnly
@@ -211,14 +188,27 @@ export default function CurriculumForm({ courseId, refetch, defaultValue }: Curr
                 variant="light">
                 <LuChevronsUp size={18} />
               </Button>
-              {editMode && <Checkbox radius="sm" size="sm" className="ml-0.5" />}
+              {editMode && (
+                <NormalCkbox
+                  className="p-0 px-2"
+                  onValueChange={() => {
+                    selectState[1](prev => {
+                      const next = new Set(prev);
+                      const allChecked = ids!.every(id => next.has(id));
+                      if (allChecked) return new Set();
+                      return new Set(ids);
+                    });
+                  }}
+                  isSelected={ids!.every(id => selectState[0].has(id))}
+                />
+              )}
               <Button
                 onPress={resetSections}
                 isIconOnly
                 radius="sm"
                 size="lg"
                 hidden={!editMode}
-                className="reset-button p-2 z-10 ml-1.5"
+                className="reset-button p-2 z-10 ml-[1px]"
                 color="primary"
                 variant="light">
                 <LuRotateCcw size={18} />
@@ -259,9 +249,7 @@ export default function CurriculumForm({ courseId, refetch, defaultValue }: Curr
                 </Button>
                 <Button
                   isIconOnly
-                  onPress={() => {
-                    // setEditMode(mode => !mode);
-                  }}
+                  onPress={handleDeleteSection}
                   hidden={!editMode}
                   radius="sm"
                   size="lg"
@@ -274,6 +262,7 @@ export default function CurriculumForm({ courseId, refetch, defaultValue }: Curr
                   isIconOnly
                   onPress={() => {
                     setEditMode(mode => !mode);
+                    selectState[1](new Set());
                   }}
                   radius="sm"
                   size="lg"
@@ -289,12 +278,14 @@ export default function CurriculumForm({ courseId, refetch, defaultValue }: Curr
           </div>
           {/* <CurriculumBuilder /> */}
           {getValues("sections") && (
-            <FolderTreeContext.Provider value={{ editMode, activeLessonId: activeLesson?.id }}>
+            <FolderTreeContext.Provider value={{ editMode, activeLesson, setActiveLesson }}>
               <div className={"px-6 pb-6"}>
                 <FolderTree
                   onSelect={onSelect}
-                  activeLessonId={activeLesson?.id || null}
                   newSectionState={newSectionState}
+                  selectState={selectState}
+                  expandedState={expandedState}
+                  defaultValue={defaultValue}
                 />
               </div>
             </FolderTreeContext.Provider>
@@ -302,7 +293,7 @@ export default function CurriculumForm({ courseId, refetch, defaultValue }: Curr
         </div>
       </form>
       {/* Lesson Preview */}
-      {!showPreview && (
+      {!showPreview && activeLesson && (
         <div
           ref={previewParentRef}
           className={cn(
@@ -313,11 +304,11 @@ export default function CurriculumForm({ courseId, refetch, defaultValue }: Curr
           <div ref={sentinelPreviewRef} className="h-1 w-full" />
           <div
             className={cn(
-              "py-2 flex items-center text-sm font-medium px-5 w-full bg-white z-50 text-slate-700 sticky top-0 truncate rounded-t-xl transition-all duration-300",
+              "py-2 flex items-center text-sm font-medium px-5 w-full bg-white z-50 text-slate-700 sticky top-0 rounded-t-xl transition-all duration-300",
               previewStuck && "shadow-xs"
             )}>
-            <p>
-              Section 1 / New Lesson 1 <span className="text-slate-400 ml-2 italic">(preview)</span>
+            <p className="truncate min-w-0">
+              {activeLesson.path.join(" / ")} <span className="text-slate-400 ml-2 italic">(preview)</span>
             </p>
             <Button
               onPress={() => setActiveLesson(null)}
@@ -328,7 +319,7 @@ export default function CurriculumForm({ courseId, refetch, defaultValue }: Curr
               <LuX />
             </Button>
           </div>
-          <TiptapViewer json={content} />
+          <TiptapViewer json={(blockPreview as JSONContent) || { type: "doc", content: [] }} />
         </div>
       )}
     </section>

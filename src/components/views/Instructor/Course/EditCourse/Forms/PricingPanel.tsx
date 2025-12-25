@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import TextField from "@/components/commons/TextField";
 import NProgress from "@/libs/loader/nprogress-setup";

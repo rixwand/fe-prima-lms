@@ -1,10 +1,10 @@
+import StatCard from "@/components/commons/Cards/StatsCard";
 import {
   CourseCardGrid,
   CourseCardGridSkeleton,
   CourseCardList,
   CourseCardListSkeleton,
-} from "@/components/commons/Cards/CourseCard3";
-import StatCard from "@/components/commons/Cards/StatsCard";
+} from "@/components/views/Instructor/Course/CourseCard";
 import { formatRupiah } from "@/libs/utils/currency";
 import { Select, SelectItem } from "@heroui/react";
 import { useEffect, useState } from "react";
@@ -41,7 +41,7 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
   }, [courses]);
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-6 @container">
       {/* Page Title & Actions */}
       <div className="flex flex-col md:flex-row md:items-center gap-4">
         <div className="flex-1">
@@ -127,7 +127,7 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
       ) : courses?.length === 0 ? (
         <EmptyCourses onCreate={onCreate} />
       ) : layout === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 @7xl:grid-cols-4 @4xl:grid-cols-3 gap-4">
           {courses?.map(c => (
             <CourseCardGrid
               key={c.id}
@@ -140,7 +140,7 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
           ))}
         </div>
       ) : (
-        <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 overflow-hidden">
+        <div className="space-y-3">
           {courses?.map(c => (
             <CourseCardList
               key={c.id}

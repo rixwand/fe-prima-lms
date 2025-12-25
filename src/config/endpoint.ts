@@ -3,4 +3,5 @@ export const endpoint = {
   USER: "/user",
   MY_COURSE: "/me/courses",
   COURSE: "/courses",
+  PUBLISH_COURSE: "/courses/publish-requests",
 };

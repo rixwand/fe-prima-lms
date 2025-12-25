@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import useEditCurriculum from "@/components/views/Instructor/Course/EditCourse/Forms/CurriculumForm/useEditCurriculum";
+import useEditSection from "@/components/views/Instructor/Course/EditCourse/Forms/CurriculumForm/useEditSection";
 import { CourseSectionForm, EditCourseForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { cn } from "@/lib/tiptap-utils";
@@ -14,7 +14,6 @@ import {
   DragStartEvent,
   KeyboardSensor,
   PointerSensor,
-  UniqueIdentifier,
   closestCenter,
   useSensor,
   useSensors,
@@ -32,15 +31,19 @@ export type OnSelect = (
   path: string[]
 ) => void;
 export type FolderTreeProps = {
-  activeLessonId?: number | null;
   onSelect: OnSelect;
   newSectionState: StateType<string | null>;
+  selectState: StateType<Set<number>>;
+  expandedState: StateType<Set<number>>;
+  defaultValue: CourseSection[];
 };
-
+type ToggleSelect = (id: number) => void;
 export const FolderTree: React.FC<FolderTreeProps> = ({
-  activeLessonId,
+  expandedState,
   onSelect,
   newSectionState: [newSection, setNewSection],
+  selectState: [selected, setSelected],
+  defaultValue,
 }) => {
   const { control, reset } = useFormContext<EditCourseForm>();
   const { fields, append, remove, move, update } = useFieldArray({ control, name: "sections", keyName: "fieldId" });
@@ -51,12 +54,11 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
     })
   );
   const ids = React.useMemo(() => fields.map(s => s.id!), [fields]);
-  const [activeId, setActiveId] = React.useState<UniqueIdentifier | null>(null);
+  const [activeId, setActiveId] = React.useState<number | null>(null);
   const [dragState, setDragState] = React.useState({ width: 0, height: 0, expanded: false });
-  const expandedState = React.useState(new Set(fields.flatMap(f => f.id!)));
   function handleDragStart({ active }: DragStartEvent) {
     if (!active) return;
-    setActiveId(active.id);
+    setActiveId(active.id as number);
 
     const element = document.querySelector<HTMLElement>(`[data-section-sortable="${active.id}"]`);
 
@@ -85,29 +87,20 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
     const from = fields.findIndex(s => s.id === active.id);
     const to = fields.findIndex(s => s.id === over.id);
     if (from === -1 || to === -1) return;
-    const snapshot = [...fields];
-
-    update(from, { ...snapshot[from], position: to + 1 });
-
-    if (from > to) {
-      for (let i = to; i < from; i++) {
-        const v = snapshot[i];
-        update(i, { ...v, position: (v.position ?? i + 1) + 1 });
-      }
-    } else if (from < to) {
-      for (let i = from + 1; i <= to; i++) {
-        const v = snapshot[i];
-        update(i, { ...v, position: (v.position ?? i + 1) - 1 });
-      }
-    }
-
     move(from, to);
+  };
+  const toggleSelect: ToggleSelect = id => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   const { courseId } = useEditCourseContext();
 
-  const { createSection, querySections, removeSection, isPending } = useEditCurriculum({
-    courseId,
+  const { createSection, querySections, removeSection, isPending } = useEditSection({
     onCreateSectionSuccess() {
       setNewSection(null);
     },
@@ -115,7 +108,7 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
 
   const handleRemoveSection = (id: number, title: string) => {
     return confirmDialog({
-      title: "Remove Sections",
+      title: "Remove Section",
       desc: `This action will permananently delete "${title}" section`,
       onConfirmed() {
         removeSection({ courseId, sectionId: id });
@@ -151,6 +144,13 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
               onSelect={onSelect}
               onRemove={handleRemoveSection}
               expandState={expandedState}
+              onCheck={() => toggleSelect(section.id!)}
+              isChecked={selected.has(section.id!)}
+              defaultLessons={
+                querySections
+                  ? querySections.sections.filter(s => s.id == section.id!)[0]?.lessons
+                  : defaultValue.filter(s => s.id == section.id)[0].lessons
+              }
             />
           ))}
         </SortableContext>
@@ -210,6 +210,12 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
               section={fields.filter(f => f.id == activeId)[0]}
               onSelect={onSelect}
               expandState={expandedState}
+              isChecked={selected.has(activeId)}
+              defaultLessons={
+                querySections
+                  ? querySections.sections.filter(s => s.id == activeId)[0].lessons
+                  : defaultValue.filter(s => s.id == activeId)[0].lessons
+              }
             />
           </div>
         </DragOverlay>

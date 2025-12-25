@@ -1,5 +1,6 @@
 import cn from "@/libs/utils/cn";
 import { Avatar } from "@heroui/react";
+import { useSession } from "next-auth/react";
 import { Fragment } from "react";
 import { GoMortarBoard } from "react-icons/go";
 import {
@@ -57,6 +58,7 @@ const transactions = [
 ];
 
 export default function InstructorOverview() {
+  const { data } = useSession();
   return (
     <Fragment>
       <header className="mb-6 flex items-center gap-3">
@@ -76,7 +78,7 @@ export default function InstructorOverview() {
           <div className="flex items-center">
             <Avatar className="shrink-0" src="/images/user.jpg" classNames={{ base: "w-14 h-14" }} />
             <div className="ml-4">
-              <h1 className="text-lg sm:text-xl font-semibold">Hi, Yoru!</h1>
+              <h1 className="text-lg sm:text-xl font-semibold">Hi, {data?.user.name || "Instructor"}!</h1>
               <p className="text-sm text-slate-500">You have 5 reviews awaiting response and 2 drafts to publish.</p>
             </div>
           </div>

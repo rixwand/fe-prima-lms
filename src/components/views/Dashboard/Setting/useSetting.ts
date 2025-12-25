@@ -3,7 +3,8 @@ import userService from "@/services/user.service";
 import { AppAxiosError } from "@/types/axios";
 import { addToast } from "@heroui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -15,9 +16,11 @@ const useSetting = () => {
     isLoading,
     isError,
     isSuccess,
+    error,
   } = useQuery({
     queryFn: userService.me,
     queryKey: ["user"],
+    placeholderData: keepPreviousData,
   });
 
   const {
@@ -36,12 +39,13 @@ const useSetting = () => {
     status: statusUser,
   } = useMutation({
     mutationFn: userService.update,
-    onError: error =>
+    onError: error => {
       addToast({
         title: "Perubahan gagal tersimpan",
         color: "danger",
-        description: error.message,
-      }),
+        description: getErrorMessage(error as AppAxiosError),
+      });
+    },
     onSuccess: () => {
       addToast({
         color: "success",
@@ -55,8 +59,13 @@ const useSetting = () => {
   }, [isSuccess, query]);
 
   useEffect(() => {
-    if (isError) addToast({ color: "danger", title: "Error", description: "Something went wrong" });
-  }, [isError]);
+    if (isError && error)
+      addToast({
+        color: "danger",
+        title: "Error",
+        description: isAxiosError(error) ? getErrorMessage(error) : error.message,
+      });
+  }, [isError, error]);
 
   useEffect(() => {
     if (statusUser == "success") setUser(res.data);

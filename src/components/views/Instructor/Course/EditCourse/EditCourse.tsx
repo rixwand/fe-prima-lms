@@ -8,6 +8,7 @@ import { finalPrice } from "@/libs/utils/currency";
 import { getDirtyData } from "@/libs/utils/rhf";
 import { toSlug } from "@/libs/utils/string";
 import courseService from "@/services/course.service";
+import { StateType } from "@/types/Helper";
 import {
   Button,
   Listbox,
@@ -33,13 +34,16 @@ import PricingPanel from "./Forms/PricingPanel";
 import TagsForm from "./Forms/TagsForm";
 import { EditCourseForm } from "./Forms/form.type";
 
+export type EditCourseTabsType = "basic" | "tags" | "media" | "pricing" | "curriculum";
+
 export default function EditCourse({
   data: { previewVideo, ownerId, slug, tags, descriptionJson, id, sections, discount: discounts, ...course },
   refetch,
-  data,
+  tabsState: [selectedKey, setSelectedKey],
 }: {
   data: Course;
   refetch: () => Promise<QueryObserverResult>;
+  tabsState: StateType<EditCourseTabsType>;
 }) {
   const defaultValues = {
     ...course,
@@ -63,9 +67,8 @@ export default function EditCourse({
   };
 
   const [loading, setLoading] = useState(false);
-  const [selectedKey, setSelectedKey] = useState("basic");
   const showPreviewState = useState(true);
-  const pendingKeyRef = useRef<string | null>(null);
+  const pendingKeyRef = useRef<EditCourseTabsType | null>(null);
 
   const { mutate, isPending } = useMutation({
     mutationFn: courseService.update,
@@ -153,18 +156,18 @@ export default function EditCourse({
     }
   };
 
-  const actuallySwitch = (key: Key) => {
-    setSelectedKey(key as string);
+  const actuallySwitch = (key: EditCourseTabsType) => {
+    setSelectedKey(key);
     pendingKeyRef.current = null;
   };
 
   const handleSelectionChange = (nextKey: Key) => {
     console.log(methods.formState.dirtyFields);
     if (!Object.hasOwn(methods.formState.dirtyFields, "tags")) {
-      actuallySwitch(nextKey);
+      actuallySwitch(nextKey as EditCourseTabsType);
       return;
     }
-    pendingKeyRef.current = nextKey as string;
+    pendingKeyRef.current = nextKey as EditCourseTabsType;
     confirmDialog({
       title: "Discard changes?",
       desc: "Unsaved changes will be lost if you leave this tab.",
@@ -217,7 +220,7 @@ export default function EditCourse({
                     hideSelectedIcon
                     selectionBehavior="replace"
                     onSelectionChange={keys => {
-                      setSelectedKey([...keys].toString());
+                      setSelectedKey([...keys][0] as EditCourseTabsType);
                       setPopOpen(false);
                     }}
                     itemClasses={{

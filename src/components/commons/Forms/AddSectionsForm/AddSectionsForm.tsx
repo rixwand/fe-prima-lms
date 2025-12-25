@@ -15,26 +15,19 @@ import { Button } from "@heroui/react";
 import { useEffect, useMemo, useState } from "react";
 import { UseFormReturn, useFieldArray } from "react-hook-form";
 import { LuPlus, LuTrash2 } from "react-icons/lu";
-import { AddSectionsFormRhf } from "../../form.type";
+import { AddSectionsFormRhf } from "../../../views/Instructor/Course/EditCourse/Forms/form.type";
 import NewSectionsItem from "./NewSectionsItem";
 
 export type RhfMethods = UseFormReturn<AddSectionsFormRhf>;
 export type SelectState = StateType<Set<UniqueIdentifier>>;
 export type ToggleSelect = (id: UniqueIdentifier) => void;
-export default function AddSectionsForm({
-  rhfMethods: { control },
-  close,
-}: {
-  rhfMethods: RhfMethods;
-  close: () => void;
-}) {
+export default function AddSectionsForm({ rhfMethods: { control } }: { rhfMethods: RhfMethods }) {
   const { fields, move, append, remove: removeFields } = useFieldArray({ control, name: "sections" });
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
   useEffect(() => {
     const el = document.querySelector(`input[data-new-section-id="${fields[0].id}"]`);
     if (el instanceof HTMLInputElement) {
       el.focus();
-      el.select();
     }
   }, []);
   const handleDrag = ({ active, over }: DragEndEvent) => {
@@ -103,12 +96,12 @@ export default function AddSectionsForm({
           </span>
         </div>
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
-          <ul className="flex flex-col gap-y-2 p-2">
+          <ul className="flex flex-col gap-y-2 p-2" role="tree">
             {fields.map(({ id }, idx) => (
               <NewSectionsItem
                 remove={() => removeFields(idx)}
                 key={id}
-                {...{ idx, control, id, selected, toggleSelect }}
+                {...{ idx, control, id, selected, toggleSelect, addSection }}
               />
             ))}
           </ul>

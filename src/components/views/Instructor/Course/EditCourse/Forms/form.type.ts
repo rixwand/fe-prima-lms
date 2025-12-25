@@ -34,12 +34,10 @@ export interface EditCourseForm {
   }[];
   sections?: {
     id?: number;
-    sectionId?: number;
     title: string;
     position?: number;
     lessons?: {
       id?: number;
-      lessonId?: number;
       title: string;
       summary?: string | null;
       durationSec?: number | null;
@@ -59,3 +57,5 @@ export type CurriculumFormProps = {
 export type CourseSectionForm = NonNullable<EditCourseForm["sections"]>[number];
 
 export type AddSectionsFormRhf = { sections: { title: string }[] };
+
+export type AddLessonsFormRhf = { lessons: { title: string }[] };

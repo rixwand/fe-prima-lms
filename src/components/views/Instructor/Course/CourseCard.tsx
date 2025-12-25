@@ -1,16 +1,16 @@
-import cn from "@/libs/utils/cn";
+import { cn } from "@/lib/tiptap-utils";
 import { finalPrice, formatRupiah } from "@/libs/utils/currency";
 import { formatDate } from "@/libs/utils/string";
 import courseService from "@/services/course.service";
-import { Skeleton } from "@heroui/react";
+import { Button, Card, Chip, Skeleton } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FiMoreHorizontal } from "react-icons/fi";
-import { LuEye, LuPencilLine, LuStar, LuTrash2, LuUsers } from "react-icons/lu";
+import { LuEye, LuGlobe, LuPencil, LuStar, LuTrash2, LuUsers } from "react-icons/lu";
 import { PiMoneyWavyLight } from "react-icons/pi";
-import { confirmDialog } from "../Dialog/confirmDialog";
+import { confirmDialog } from "../../../commons/Dialog/confirmDialog";
 
 export function CourseCardGrid({
   data,
@@ -30,12 +30,15 @@ export function CourseCardGrid({
     qc.prefetchQuery({ queryKey: ["coursePreview", data.id], queryFn: () => courseService.get(data.id) });
   const router = useRouter();
   return (
-    <Link
-      href={`/instructor/dashboard/course/${data.id}`}
+    <Card
+      isPressable
+      onPress={e => {
+        router.push(`/instructor/dashboard/course/${data.id}`);
+      }}
       onMouseEnter={prefetch}
       onFocus={prefetch}
       onClick={prefetch}
-      className="group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+      className="group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-lg shadow-slate-100">
       <div className="relative aspect-[16/9] overflow-hidden">
         <Image
           src={data.coverImage}
@@ -58,10 +61,16 @@ export function CourseCardGrid({
           )}>
           {data.status}
         </span>
+        <Chip
+          className="absolute left-3 top-3 text-xs shadow-sm text-white tracking-wider"
+          color="warning"
+          variant="shadow">
+          DRAFT
+        </Chip>
       </div>
       <div className="p-4 space-y-3">
         <div className="flex items-start gap-2">
-          <h3 className="font-semibold flex-1 leading-snug">{data.title}</h3>
+          <h3 className="font-semibold flex-1 leading-snug text-start">{data.title}</h3>
           <button
             onClick={e => {
               e.preventDefault();
@@ -97,16 +106,12 @@ export function CourseCardGrid({
             <LuEye className="w-3.5 h-3.5" /> Preview
           </button>
         </div>
-        <div className="flex items-center gap-2 pt-2">
+        <div className="flex items-center gap-2 pt-2 pb-1">
           {data.status !== "PUBLISHED" ? (
-            <button
-              onClick={async e => {
-                e.preventDefault();
-                await onPublish(data.id);
-              }}
-              className="inline-flex items-center gap-2 px-3 h-9 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
+            <Button variant="flat" color="secondary" radius="sm" isIconOnly className="reset-button px-3 py-2 ">
+              <LuGlobe size={16} className="mr-1" />
               Publish
-            </button>
+            </Button>
           ) : (
             <button
               onClick={e => {
@@ -117,17 +122,20 @@ export function CourseCardGrid({
               Unpublish
             </button>
           )}
-          <button
-            onClick={e => {
-              e.preventDefault();
+          <Button
+            onPress={e => {
               router.push(`/instructor/dashboard/edit-course/${data.id}`);
             }}
-            className="inline-flex items-center gap-2 px-3 h-9 rounded-lg border border-slate-200 text-sm hover:bg-slate-50">
-            <LuPencilLine className="w-4 h-4" /> Edit
-          </button>
-          <button
-            onClick={e => {
-              e.preventDefault();
+            variant="flat"
+            color="primary"
+            radius="sm"
+            isIconOnly
+            className="reset-button px-3 py-2">
+            <LuPencil size={14} className="mr-1" />
+            Edit
+          </Button>
+          <Button
+            onPress={e => {
               confirmDialog({
                 title: "Delete Course",
                 desc: `This Action is gonna delete course "${data.title}"`,
@@ -135,12 +143,17 @@ export function CourseCardGrid({
                 isLoading,
               });
             }}
-            className="ml-auto inline-flex items-center gap-2 px-3 h-9 rounded-lg border border-rose-200 text-rose-600 text-sm hover:bg-rose-50">
-            <LuTrash2 className="w-4 h-4" /> Delete
-          </button>
+            variant="flat"
+            color="danger"
+            radius="sm"
+            isIconOnly
+            className="reset-button px-3 py-2 ml-auto">
+            <LuTrash2 size={16} className="mr-1" />
+            Delete
+          </Button>
         </div>
       </div>
-    </Link>
+    </Card>
   );
 }
 
@@ -162,7 +175,7 @@ export function CourseCardList({
     qc.prefetchQuery({ queryKey: ["coursePreview", data.id], queryFn: () => courseService.get(data.id) });
   return (
     <section
-      className="grid grid-cols-12 gap-4 p-4 bg-white"
+      className="grid grid-cols-12 gap-4 p-4 bg-white items-center border-1 shadow-slate-100 rounded-2xl border-slate-200 shadow-lg"
       onMouseEnter={prefetch}
       onFocus={prefetch}
       onClick={prefetch}>
@@ -177,37 +190,36 @@ export function CourseCardList({
       <div className="col-span-4 md:col-span-2 flex items-center gap-1 text-slate-600">
         <LuUsers className="w-4 h-4" /> {data.students || 0}
       </div>
-      <div className="col-span-4 md:col-span-2 flex items-center gap-1 text-slate-600">
+      <div className="col-span-4 md:col-span-1 flex items-center gap-1 text-slate-600">
         <LuStar className="w-4 h-4" /> {data.rating || 0}
       </div>
       <div className="col-span-4 md:col-span-2 flex items-center gap-1 text-slate-600">
         <PiMoneyWavyLight size={20} /> {formatRupiah(data.priceAmount)}
       </div>
-      <div className="col-span-12 md:col-span-1 flex md:justify-end gap-2">
+      <div className="col-span-12 md:col-span-2 flex md:justify-end gap-3">
         {data.status !== "PUBLISHED" ? (
-          <button onClick={() => onPublish(data.id)} className="px-3 h-9 rounded-lg bg-blue-600 text-white text-sm">
+          <Button variant="flat" color="secondary" radius="sm" isIconOnly className="reset-button px-3 py-2">
+            <LuGlobe size={16} className="mr-1" />
             Publish
-          </button>
+          </Button>
         ) : (
+          // <button onClick={() => onPublish(data.id)} className="px-3 h-9 rounded-lg bg-blue-600 text-white text-sm">
+          //   Publish
+          // </button>
           <Link
             href={`/instructor/dashboard/course/${data.id}`}
             className="px-3 h-9 rounded-lg bg-amber-500 text-white text-sm">
             Preview
           </Link>
         )}
-        <button className="px-3 h-9 rounded-lg border border-slate-200 text-sm">Edit</button>
-        <button
-          onClick={() =>
-            confirmDialog({
-              title: "Delete Course",
-              desc: `This Action is gonna delete course "${data.title}"`,
-              onConfirmed: () => onDelete(data.id),
-              isLoading,
-            })
-          }
-          className="px-3 h-9 rounded-lg border border-rose-200 text-rose-600 text-sm">
+        <Button variant="flat" color="primary" radius="sm" isIconOnly className="reset-button px-3 py-2">
+          <LuPencil size={14} className="mr-1" />
+          Edit
+        </Button>
+        <Button variant="flat" color="danger" radius="sm" isIconOnly className="reset-button px-3 py-2">
+          <LuTrash2 size={16} className="mr-1" />
           Delete
-        </button>
+        </Button>
       </div>
     </section>
   );

@@ -11,6 +11,8 @@ const courseSectionService = {
     api.patch(`${endpoint.MY_COURSE}/${courseId}/sections/reorder`, { reorders: data }),
   rename: ({ courseId, title, sectionId }: { courseId: number; sectionId: number; title: string }) =>
     api.patch(`${endpoint.MY_COURSE}/${courseId}/sections/${sectionId}`, { title }),
+  deleteMany: ({ courseId, sectionIds }: { courseId: number; sectionIds: number[] }) =>
+    api.delete(`${endpoint.MY_COURSE}/${courseId}/sections/delete-many`, { data: { ids: sectionIds } }),
 };
 
 export default courseSectionService;

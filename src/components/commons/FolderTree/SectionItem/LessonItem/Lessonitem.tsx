@@ -1,10 +1,15 @@
+import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
+import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
+import useEditLesson from "@/components/views/Instructor/Course/EditCourse/Forms/CurriculumForm/useEditLesson";
 import { CourseSectionForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
+import { useNProgress } from "@/hooks/use-nProgress";
 import { cn } from "@/lib/tiptap-utils";
 import { useFolderTreeContext } from "@/libs/context/FolderTreeContext";
+import { hasTrue } from "@/libs/utils/boolean";
 import { toRoundedMinutes } from "@/libs/utils/string";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button, Checkbox, Input, Listbox, ListboxItem, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
+import { Button, Input, Listbox, ListboxItem, Popover, PopoverContent, PopoverTrigger, addToast } from "@heroui/react";
 import { CSSProperties, Fragment, useEffect, useRef, useState } from "react";
 import {
   LuCheck,
@@ -22,15 +27,21 @@ const CourseLessonItem = ({
   lesson,
   section,
   onSelect,
+  isChecked,
+  onCheck,
+  editMode,
 }: {
   lesson: NonNullable<CourseSectionForm["lessons"]>[number];
   section: CourseSectionForm;
   onSelect: OnSelect;
+  onCheck: () => void;
+  isChecked: boolean;
+  editMode: boolean;
 }) => {
-  const { editMode, activeLessonId } = useFolderTreeContext();
-  const isActiveLesson = lesson.id === activeLessonId;
+  const { activeLesson } = useFolderTreeContext();
+  const isActiveLesson = lesson.id === activeLesson?.ids.lessonId;
   const path = [section.title, lesson.title];
-  const [editLesson, setEditLesson] = useState<number | null>(null);
+  const [editLesson, setEditLesson] = useState<{ id: number; title: string } | null>(null);
   const [isOpenDuration, setOpenDuration] = useState(false);
   const [isOpenMenu, setOpenMenu] = useState(false);
 
@@ -61,6 +72,31 @@ const CourseLessonItem = ({
     border: 1,
   } as CSSProperties;
 
+  const { removeLesson, isLoading, updateLesson } = useEditLesson({
+    sectionId: section.id!,
+    onUpdateLessonSuccess(variant) {
+      setEditLesson(null);
+    },
+  });
+
+  const handleDeleteLesson = () => {
+    return confirmDialog({
+      title: "Remove lesson ?",
+      desc: `This action will permanently remove "${lesson.title}" lesson`,
+      isLoading: isLoading.removeLessonPending,
+      onConfirmed: () => removeLesson(lesson.id!),
+    });
+  };
+
+  const handleRenameLesson = () => {
+    if (!editLesson) return;
+    if (editLesson.title.length == 0)
+      return addToast({ color: "danger", title: "Error", description: "Lesson title cannot be empty" });
+    return updateLesson({ lessonId: editLesson.id, lesson: { title: editLesson.title } });
+  };
+
+  useNProgress(hasTrue(isLoading));
+
   return (
     <li
       {...(editMode && { ...listeners, ...attributes })}
@@ -70,18 +106,28 @@ const CourseLessonItem = ({
       data-sortable-lesson-section={section.title}
       className="list-none"
       role="treeitem"
-      aria-selected={isActiveLesson}>
+      aria-selected={isActiveLesson}
+      tabIndex={-1}
+      onBlur={e => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setEditLesson(null);
+      }}>
       <span
         className={cn(
           "flex w-full items-center gap-1 rounded-lg pl-3 text-left text-[var(--tt-theme-text)] transition-colors duration-150 cursor-pointer",
           isActiveLesson
             ? "border-[var(--tt-brand-color-500)] bg-[var(--tt-brand-color-50)] text-blue-600 font-medium dark:border-[var(--tt-brand-color-400)] dark:bg-[rgba(91,126,238,0.2)]"
             : "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)]",
-          editLesson != lesson.id ? "py-1.5 px-2" : "pl-2 py-[3px] pr-[3px]"
+          editLesson?.id != lesson.id ? "py-1.5 px-2" : "pl-2 py-[3px] pr-[3px]"
         )}
         onClick={handleSelectLesson}>
         {editMode ? (
-          <Checkbox radius="sm" size="sm" />
+          // <Checkbox radius="sm" size="sm" className="ml-0.5" />
+          <NormalCkbox
+            className="p-0 px-2"
+            onValueChange={onCheck}
+            isSelected={isChecked}
+            onClick={e => e.stopPropagation()}
+          />
         ) : isActiveLesson ? (
           <span className="text-blue-600 dark:text-blue-400">
             <LuChevronsRight size={16} />
@@ -92,19 +138,38 @@ const CourseLessonItem = ({
         <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--tt-theme-brand-color-600)]">
           <LuFileText />
         </span>
-        {editLesson === lesson.id ? (
-          <input
-            type="text"
-            ref={inputLessonRef}
-            className={cn(
-              "w-full border text-sm px-1 py-1 focus:outline-0 text-[var(--tt-theme-text)] rounded-md",
-              isActiveLesson ? "bg-gray-50 border-blue-400" : "bg-gray-100 border-gray-300"
-            )}
-            onClick={e => e.stopPropagation()}
-            defaultValue={lesson.title}
-            onBlur={() => setEditLesson(null)}
-            onFocus={() => inputLessonRef.current?.select()}
-          />
+        {editLesson && editLesson.id === lesson.id ? (
+          <Fragment>
+            <input
+              type="text"
+              ref={inputLessonRef}
+              className={cn(
+                "w-full border text-sm px-1 py-1 focus:outline-0 text-[var(--tt-theme-text)] rounded-md",
+                isActiveLesson ? "bg-gray-50 border-blue-400" : "bg-gray-100 border-gray-300"
+              )}
+              onClick={e => e.stopPropagation()}
+              value={editLesson.title}
+              onChange={e => setEditLesson({ id: lesson.id!, title: e.target.value })}
+              onFocus={() => inputLessonRef.current?.select()}
+              onKeyDown={e => {
+                if (e.key == "Escape") setEditLesson(null);
+                if (e.key == "Enter") {
+                  e.preventDefault();
+                  handleRenameLesson();
+                }
+              }}
+            />
+            <Button
+              onPress={handleRenameLesson}
+              variant="flat"
+              color="primary"
+              isIconOnly
+              className="reset-button p-2 rounded-md"
+              size="sm"
+              radius="none">
+              <LuCheck />
+            </Button>
+          </Fragment>
         ) : (
           <Fragment>
             <span className="flex-1 truncate text-sm text-left">{lesson.title}</span>
@@ -171,10 +236,10 @@ const CourseLessonItem = ({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="p-2 w-36">
-                    <Listbox variant="light" color="primary" aria-label="Actions">
+                    <Listbox variant="light" color="primary" aria-label="Actions" onAction={() => setOpenMenu(false)}>
                       <ListboxItem
                         onPress={() => {
-                          setEditLesson(lesson.id!);
+                          setEditLesson({ id: lesson.id!, title: lesson.title });
                           setOpenMenu(false);
                         }}
                         startContent={<LuPencil />}
@@ -190,7 +255,12 @@ const CourseLessonItem = ({
                         key="duration">
                         Duration
                       </ListboxItem>
-                      <ListboxItem startContent={<LuTrash2 />} key="delete" className="text-danger" color="danger">
+                      <ListboxItem
+                        onPress={handleDeleteLesson}
+                        startContent={<LuTrash2 />}
+                        key="delete"
+                        className="text-danger"
+                        color="danger">
                         Delete
                       </ListboxItem>
                     </Listbox>

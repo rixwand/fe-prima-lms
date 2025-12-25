@@ -7,14 +7,15 @@ import { Button } from "@heroui/react";
 import { CSSProperties } from "react";
 import { Controller } from "react-hook-form";
 import { LuChevronsDownUp, LuX } from "react-icons/lu";
-import { RhfMethods, SelectState, ToggleSelect } from "./AddSectionsForm";
-export default function NewSectionsItem({
+import { RhfMethods, SelectState, ToggleSelect } from "./AddLessonsForm";
+export default function NewLessonItem({
   control,
   idx,
   id,
   selected,
   toggleSelect,
   remove,
+  addLesson,
 }: {
   idx: number;
   control: RhfMethods["control"];
@@ -22,6 +23,7 @@ export default function NewSectionsItem({
   selected: SelectState[0];
   toggleSelect: ToggleSelect;
   remove: () => void;
+  addLesson: () => void;
 }) {
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id });
   const style = {
@@ -34,6 +36,8 @@ export default function NewSectionsItem({
       {...{ ...attributes, ...listeners }}
       ref={setNodeRef}
       style={style}
+      role="treeitem"
+      aria-selected={selected.has(id)}
       className={cn(
         "flex w-full group focus-within:border-blue-500 focus-within:bg-blue-50 focus-within:hover:bg-blue-100 items-center rounded-md text-left transition-colors duration-150 cursor-pointer hover:bg-gray-100 text-[var(--tt-theme-text)] pl-2 bg-white border border-gray-100 relative"
       )}>
@@ -45,13 +49,20 @@ export default function NewSectionsItem({
       </span>
       <Controller
         control={control}
-        name={`sections.${idx}.title`}
+        name={`lessons.${idx}.title`}
         render={({ field }) => (
           <input
             {...field}
-            data-new-section-id={id}
+            data-new-lesson-id={id}
             type="text"
             className="w-full text-medium px-3 py-1.5 focus:outline-0 text-[var(--tt-theme-text)] font-medium rounded-r-md"
+            onKeyDown={e => {
+              if (e.key == "Enter") {
+                e.preventDefault();
+                addLesson();
+              }
+            }}
+            onFocus={e => e.currentTarget.select()}
           />
         )}
       />

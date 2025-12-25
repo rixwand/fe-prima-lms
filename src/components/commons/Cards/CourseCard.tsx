@@ -1,4 +1,4 @@
-import { Avatar, Card, CardBody, CardFooter } from "@heroui/react";
+import { Card, CardFooter } from "@heroui/react";
 import Image from "next/image";
 import Link from "next/link";
 import { Rating } from "react-simple-star-rating";

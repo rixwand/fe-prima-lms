@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client";
 import { FieldValues, Path, UseFormReturn } from "react-hook-form";
 
 type SectionsDialogType = {
-  content: (close: () => void) => ReactNode;
+  content: ReactNode;
   title: string;
   isLoading?: boolean;
   onSubmit: () => Promise<void>;
@@ -44,16 +44,11 @@ const ModalBodySections = ({
     }
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
-    close();
-  };
-
   return (
     <Modal isDismissable={false} onClose={handleCancel} isKeyboardDismissDisabled={true} isOpen={isOpen}>
       <ModalContent className="bg-gradient-to-br from-gray-50 to-white text-slate-900 max-w-xl">
         <ModalHeader className="flex flex-col gap-1">{title}</ModalHeader>
-        <ModalBody className="">{children(handleClose)}</ModalBody>
+        <ModalBody className="">{children}</ModalBody>
         <ModalFooter>
           <Button isDisabled={loading} color="danger" variant="light" onPress={handleCancel}>
             Cancel
@@ -79,7 +74,7 @@ type WithoutSubscribe = SectionsDialogType & {
 
 type Props<T extends FieldValues> = WithSubscribe<T> | WithoutSubscribe;
 
-export default function AddSectionsDialog<T extends FieldValues>({ formSubscribe, fieldName, ...props }: Props<T>) {
+export default function FormWrapperDialog<T extends FieldValues>({ formSubscribe, fieldName, ...props }: Props<T>) {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container, {});
@@ -98,7 +93,6 @@ export default function AddSectionsDialog<T extends FieldValues>({ formSubscribe
         const val = values[fieldName];
         if (Array.isArray(val) && val.length == 0 && isReady) {
           setTimeout(() => close(), 10);
-          // close();
         }
       },
     });

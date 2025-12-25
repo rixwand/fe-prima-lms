@@ -1,6 +1,6 @@
 "use client";
 
-import type { JSONContent } from "@tiptap/core";
+import type { Content, JSONContent } from "@tiptap/core";
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 import * as React from "react";
 
@@ -8,6 +8,7 @@ import * as React from "react";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
+import { Placeholder } from "@tiptap/extension-placeholder";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
 import { TextAlign } from "@tiptap/extension-text-align";
@@ -55,10 +56,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn, handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
 
 // --- Icons (external) ---
+import { addToast } from "@heroui/react";
 import { IoContractOutline, IoExpandOutline, IoSaveOutline } from "react-icons/io5";
 
 // --- Styles ---
-import content from "@/components/tiptap-templates/simple/data/content.json";
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -186,9 +187,10 @@ const MobileToolbarContent = ({ type, onBack }: { type: "highlighter" | "link"; 
 
 type SimpleEditorProps = {
   onSave?: (data: { html: string; json: JSONContent }) => void;
+  content?: Content;
 };
 
-export function SimpleEditor({ onSave }: SimpleEditorProps = {}) {
+export function SimpleEditor({ onSave, content }: SimpleEditorProps) {
   const layoutContext = useSimpleEditorLayoutContext();
   const isCompactBreakpoint = useIsMobile(1024);
   const isCompact = layoutContext ? !layoutContext.isDesktop : isCompactBreakpoint;
@@ -218,6 +220,9 @@ export function SimpleEditor({ onSave }: SimpleEditorProps = {}) {
           enableClickSelection: true,
         },
       }),
+      Placeholder.configure({
+        placeholder: "Type here...",
+      }),
       HorizontalRule,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TaskList,
@@ -234,8 +239,9 @@ export function SimpleEditor({ onSave }: SimpleEditorProps = {}) {
         limit: 3,
         upload: handleImageUpload,
         onError: error => {
-          alert(error.message);
+          // alert(error.message);
           // console.error("Upload failed:", error);
+          addToast({ title: "Error uploadig image", color: "danger", description: error.message });
         },
       }),
     ],
@@ -273,6 +279,20 @@ export function SimpleEditor({ onSave }: SimpleEditorProps = {}) {
     editor,
     overlayHeight: toolbarHeight,
   });
+
+  React.useEffect(() => {
+    if (!editor || !content) {
+      return;
+    }
+
+    const editorJSON = editor.getJSON();
+
+    console.log(editorJSON, " === ", content);
+
+    if (JSON.stringify(editorJSON) !== JSON.stringify(content)) {
+      editor.commands.setContent(content, undefined);
+    }
+  }, [content, editor]);
 
   React.useEffect(() => {
     const updateHeight = () => {

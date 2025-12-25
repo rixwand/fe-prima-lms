@@ -1,7 +1,9 @@
 import { cn } from "@/lib/tiptap-utils";
 import { Checkbox } from "@heroui/react";
+import { MouseEventHandler } from "react";
 
 type Props = {
+  onClick?: MouseEventHandler<HTMLInputElement>;
   isSelected?: boolean;
   onValueChange?: (v: boolean) => void;
   className?: string;
