@@ -1,16 +1,13 @@
 import CustomNav from "@/components/commons/CustomNav";
 import NotFound from "@/components/commons/NotFound";
-import InstructorLayout from "@/components/layouts/InstructorLayout";
+import PageHead from "@/components/commons/PageHead";
 import CourseInfo from "@/components/views/Instructor/Course/CourseInfo";
-import { getErrorMessage } from "@/libs/axios/error";
-import NProgress from "@/libs/loader/nprogress-setup";
+import { useNProgress } from "@/hooks/use-nProgress";
+import { useQueryError } from "@/hooks/use-query-error";
 import courseService from "@/services/course.service";
-import { AppAxiosError } from "@/types/axios";
-import { addToast } from "@heroui/react";
-import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
-import { keepPreviousData } from "@tanstack/react-query";
-import { AxiosResponse, isAxiosError } from "axios";
-import { useEffect } from "react";
+import { dehydrate, keepPreviousData, QueryClient, useQuery } from "@tanstack/react-query";
+import { AxiosResponse } from "axios";
+import { Fragment } from "react";
 
 export async function getStaticPaths() {
   return { paths: [], fallback: "blocking" };
@@ -20,7 +17,7 @@ export async function getStaticProps({ params }: { params: { id: string } }) {
   const qc = new QueryClient();
   await qc.prefetchQuery({
     queryKey: ["coursePreview", params.id],
-    queryFn: () => courseService.PUBLIC.get(params.id).then((res) => res.data),
+    queryFn: () => courseService.get(Number(params.id)).then(res => res.data),
   });
   return {
     props: { dehydratedState: dehydrate(qc), id: params.id },
@@ -29,32 +26,29 @@ export async function getStaticProps({ params }: { params: { id: string } }) {
 }
 
 export default function CoursePage({ id }: { id: number }) {
-  const { data: res, isPending, isError, error } = useQuery<AxiosResponse<Course>>({
+  const {
+    data: res,
+    isPending,
+    isError,
+    error,
+  } = useQuery<AxiosResponse<Course>>({
     queryKey: ["coursePreview", id],
     queryFn: () => courseService.get(id),
     placeholderData: keepPreviousData,
   });
 
-  useEffect(() => {
-    if (isPending) NProgress.start();
-    else NProgress.done();
-  }, [isPending]);
+  useNProgress(isPending);
 
-  useEffect(() => {
-    if (isError && error)
-      addToast({
-        color: "danger",
-        title: "Error",
-        description: isAxiosError(error) ? getErrorMessage(error) : error.message,
-      });
-  }, [isError, error]);
+  useQueryError({ isError, error });
 
   if (!res?.data && !isPending) return <NotFound />;
   if (res && res.data) {
     return (
-      <InstructorLayout customNav={<CustomNav title="Course Preview" />} active="MyCourses">
+      <Fragment>
+        <PageHead title={res.data.title} />
+        <CustomNav title="Course Preview" />
         <CourseInfo data={res.data} />
-      </InstructorLayout>
+      </Fragment>
     );
   }
 }

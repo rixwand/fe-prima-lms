@@ -1,11 +1,21 @@
 type QueryPublishCourse = {
-  createdAt: Date;
-  updatedAt: Date;
   id: number;
-  status: "PENDING" | "PUBLISHED" | "REJECTED";
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  createdAt: string; // ISO date string
   courseId: number;
-  notes: string | null;
-  reviewedById: number | null;
+  course: {
+    title: string;
+    coverImage: string;
+    slug: string;
+    priceAmount: number;
+    isFree: boolean;
+    discount?: Discount[];
+    owner: {
+      username: string;
+      fullName: string;
+      profilePict: string;
+    };
+  };
 };
 
 type PublishCourseListParams = {

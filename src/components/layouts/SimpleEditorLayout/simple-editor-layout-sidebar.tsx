@@ -1,7 +1,7 @@
 import * as React from "react";
 import { IoClose } from "react-icons/io5";
 
-import { cn } from "@/lib/tiptap-utils";
+import { cn } from "@/libs/tiptap/tiptap-utils";
 
 import { FolderTree } from "./simple-editor-layout-folder-tree";
 type SidebarProps = {

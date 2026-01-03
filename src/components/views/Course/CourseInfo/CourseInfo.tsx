@@ -1,15 +1,6 @@
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
-import {
-  Accordion,
-  AccordionItem,
-  Button,
-  Card,
-  Chip,
-  Input,
-  Tab,
-  Tabs,
-} from "@heroui/react";
+import { Accordion, AccordionItem, Button, Card, Chip, Input, Tab, Tabs } from "@heroui/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { IoMdTime } from "react-icons/io";
@@ -20,26 +11,15 @@ import { Rating } from "react-simple-star-rating";
 export default function CourseInfo() {
   const route = useRouter();
   return (
-    <section
-      className={cn([
-        inter.className,
-        "2xl:container px-6 xl:px-12 2xl:mx-auto my-12",
-      ])}>
+    <section className={cn([inter.className, "2xl:container px-6 xl:px-12 2xl:mx-auto my-12"])}>
       <div className="flex relative max-xl:mx-auto max-xl:container flex-col min-xl:flex-row gap-x-4 gap-y-9 items-start">
         <div className="flex-1">
           <div className="flex gap-8 flex-col sm:flex-row">
-            <div className="max-w-96 w-full h-fit aspect-video rounded-lg overflow-hidden relative bg-red-50">
-              <Image
-                src={"/images/course-img.png"}
-                alt="course image"
-                fill
-                objectFit="contain"
-              />
+            <div className="max-w-96 w-full h-fit aspect-video rounded-lg overflow-hidden relative">
+              <Image src={"/images/course-img.png"} alt="course image" fill objectFit="contain" />
             </div>
             <div className="space-y-4">
-              <h1 className="font-bold text-xl xl:text-2xl">
-                Menjadi Admin Profesional: Microsoft Office Word
-              </h1>
+              <h1 className="font-bold text-xl xl:text-2xl">Menjadi Admin Profesional: Microsoft Office Word</h1>
               <span className="flex items-center gap-x-2">
                 <p className="text-slate-800">Tags:</p>
                 <Chip variant="bordered" color="primary">
@@ -50,8 +30,7 @@ export default function CourseInfo() {
                 <IoMdTime size={24} /> <span>20 Jam Belajar</span>
               </p>
               <p className="text-slate-700 flex items-center gap-x-1">
-                <LuUsers size={20} stroke="#3F3F46" />{" "}
-                <span>1.2rb Peserta</span>
+                <LuUsers size={20} stroke="#3F3F46" /> <span>1.2rb Peserta</span>
               </p>
               <span className="flex items-center gap-x-3">
                 <Rating size={24} initialValue={4.5} allowFraction />
@@ -79,9 +58,7 @@ export default function CourseInfo() {
           ])}>
           <span className="w-full flex items-center justify-between">
             <p className="font-bold">Harga Kursus</p>
-            <p className="2xl:text-xl text-lg font-semibold text-[#aaa] line-through">
-              Rp850.000
-            </p>
+            <p className="2xl:text-xl text-lg font-semibold text-[#aaa] line-through">Rp850.000</p>
           </span>
           <span className="w-full flex items-center justify-between">
             <p className=" 2xl:text-lg leading-2">Diskon 15%</p>
@@ -91,9 +68,7 @@ export default function CourseInfo() {
             <p className="font-semibold">Kode Promo</p>
             <PiInfoBold size={22} />
           </span>
-          <p className="text-sm 2xl:text-base">
-            Bayar lebih hemat dengan promo
-          </p>
+          <p className="text-sm 2xl:text-base">Bayar lebih hemat dengan promo</p>
           <span className="mt-2 flex items-center gap-x-4">
             <Input
               classNames={{
@@ -103,17 +78,11 @@ export default function CourseInfo() {
               radius="sm"
               variant="bordered"
             />
-            <Button className="bg-[#1E40AF] text-white font-semibold rounded-lg px-6">
-              Terapkan
-            </Button>
+            <Button className="bg-[#1E40AF] text-white font-semibold rounded-lg px-6">Terapkan</Button>
           </span>
           <span className="flex items-center justify-between">
-            <p className="ml-1 text-[#1E40AF] text-sm 2xl:text-base font-semibold">
-              Diskon 20%
-            </p>
-            <p className="text-[#1E40AF] 2xl:text-lg font-semibold">
-              -Rp110.000
-            </p>
+            <p className="ml-1 text-[#1E40AF] text-sm 2xl:text-base font-semibold">Diskon 20%</p>
+            <p className="text-[#1E40AF] 2xl:text-lg font-semibold">-Rp110.000</p>
           </span>
           <span className="w-full flex items-center justify-between mt-2">
             <p className="font-bold text-sm 2xl:text-base">Jumlah Tagihan</p>
@@ -222,9 +191,7 @@ const SyllabusTab = () => {
 
   return (
     <div className="space-y-3 w-full lg:w-4/5 text-gray-500 2xl:text-lg">
-      <h3 className="w-full lg:ml-3 font-semibold 2xl:text-lg">
-        Materi yang akan dipelajari pada kursus ini :
-      </h3>
+      <h3 className="w-full lg:ml-3 font-semibold 2xl:text-lg">Materi yang akan dipelajari pada kursus ini :</h3>
       <Accordion
         itemClasses={{
           base: ["shadow-none border-1 border-gray-300 mt-0.5 lg:ml-0 -ml-2"],
@@ -232,10 +199,7 @@ const SyllabusTab = () => {
         }}
         variant="splitted">
         {syllabus.map((item, index) => (
-          <AccordionItem
-            key={index}
-            aria-label={`Accordion ${index}`}
-            title={item.title}>
+          <AccordionItem key={index} aria-label={`Accordion ${index}`} title={item.title}>
             <ul className="text-gray-500 mb-4 -mt-2 list-disc space-y-2">
               {item.point.map((list, index) => (
                 <li key={index} className="ml-6">
@@ -254,52 +218,28 @@ const DescTab = () => {
   return (
     <div className="lg:mx-2 space-y-3 text-gray-500">
       <p className="lg:w-4/5">
-        Kursus ini dirancang khusus untuk membantu Anda menguasai Microsoft Word
-        dari dasar hingga fitur-fitur lanjutan.
+        Kursus ini dirancang khusus untuk membantu Anda menguasai Microsoft Word dari dasar hingga fitur-fitur lanjutan.
         <br />
-        Melalui materi yang terstruktur dan mudah dipahami, Anda akan belajar
-        cara membuat dokumen profesional, mengatur layout, menggunakan berbagai
-        fitur otomatisasi seperti mail merge, hingga membuat laporan dengan
-        elemen visual yang menarik. <br /> Kursus ini cocok untuk pelajar,
-        mahasiswa, karyawan, hingga pebisnis yang ingin meningkatkan
-        produktivitas kerja dan kemampuan presentasi dokumen.
+        Melalui materi yang terstruktur dan mudah dipahami, Anda akan belajar cara membuat dokumen profesional, mengatur
+        layout, menggunakan berbagai fitur otomatisasi seperti mail merge, hingga membuat laporan dengan elemen visual
+        yang menarik. <br /> Kursus ini cocok untuk pelajar, mahasiswa, karyawan, hingga pebisnis yang ingin
+        meningkatkan produktivitas kerja dan kemampuan presentasi dokumen.
       </p>
-      <h3 className="font-semibold">
-        Yang akan Anda dapatkan setelah menyelesaikan kursus:
-      </h3>
+      <h3 className="font-semibold">Yang akan Anda dapatkan setelah menyelesaikan kursus:</h3>
       <ul className="list-disc ml-7 space-y-1">
-        <li>
-          Menguasai dasar-dasar Microsoft Word (pengetikan, penyimpanan, dan
-          navigasi dokumen)
-        </li>
-        <li>
-          Mampu mengatur format teks, paragraf, dan halaman secara profesional
-        </li>
+        <li>Menguasai dasar-dasar Microsoft Word (pengetikan, penyimpanan, dan navigasi dokumen)</li>
+        <li>Mampu mengatur format teks, paragraf, dan halaman secara profesional</li>
         <li>Membuat tabel, grafik, dan elemen visual lainnya dalam dokumen</li>
-        <li>
-          Menggunakan fitur mail merge untuk otomatisasi surat atau sertifikat
-        </li>
-        <li>
-          Membuat daftar isi otomatis, daftar gambar, dan penomoran halaman
-        </li>
-        <li>
-          Menyusun dokumen laporan, surat resmi, dan proposal dengan struktur
-          yang benar
-        </li>
-        <li>
-          Meningkatkan kecepatan dan efisiensi kerja dengan shortcut dan tips
-          praktis
-        </li>
+        <li>Menggunakan fitur mail merge untuk otomatisasi surat atau sertifikat</li>
+        <li>Membuat daftar isi otomatis, daftar gambar, dan penomoran halaman</li>
+        <li>Menyusun dokumen laporan, surat resmi, dan proposal dengan struktur yang benar</li>
+        <li>Meningkatkan kecepatan dan efisiensi kerja dengan shortcut dan tips praktis</li>
         <li>Sertifikat penyelesaian sebagai bukti kompetensi Anda</li>
       </ul>
-      <h3 className="font-semibold">
-        Tools yang dibutuhkan untuk mengikuti kursus:
-      </h3>
+      <h3 className="font-semibold">Tools yang dibutuhkan untuk mengikuti kursus:</h3>
       <ul className="list-disc ml-7 space-y-1">
         <li>Laptop/PC dengan sistem operasi Windows atau macOS</li>
-        <li>
-          Microsoft Word (versi 2016 ke atas disarankan, termasuk Microsoft 365)
-        </li>
+        <li>Microsoft Word (versi 2016 ke atas disarankan, termasuk Microsoft 365)</li>
         <li>Koneksi internet stabil untuk mengakses materi kursus</li>
         <li>Headset atau speaker untuk mendengarkan penjelasan video</li>
         <li>Alat catat (digital atau manual) untuk mencatat poin penting</li>

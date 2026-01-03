@@ -7,7 +7,7 @@ type ICourseListItem = {
   priceAmount: number;
   isFree: boolean;
   createdAt: string;
-  discount?: CourseDiscount[];
+  discount?: Discount[];
   students: number;
   rating: number;
 };
@@ -29,7 +29,7 @@ type CoursePreview = {
     title: string;
     lessons: string[];
   }[];
-  discount?: CourseDiscount[];
+  discount?: Discount[];
   createdAt: string;
 };
 

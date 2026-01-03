@@ -2,7 +2,7 @@ import * as React from "react";
 import { IoChevronDown, IoChevronForward, IoDocumentTextOutline } from "react-icons/io5";
 import { LuChevronsRight } from "react-icons/lu";
 
-import { cn } from "@/lib/tiptap-utils";
+import { cn } from "@/libs/tiptap/tiptap-utils";
 
 export type FolderTreeProps = {
   courseSections: CourseSection[];

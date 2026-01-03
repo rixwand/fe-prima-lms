@@ -16,5 +16,6 @@ const courseService = {
     api.patch(`${endpoint.MY_COURSE}/${id}/tags`, tags),
   deleteDiscount: ({ courseId, id }: { id: number; courseId: number }) =>
     api.delete(`${endpoint.MY_COURSE}/${courseId}/discounts/${id}`),
+  publish: ({ notes, id }: { notes: string; id: number }) => api.post(`${endpoint.MY_COURSE}/${id}/publish`, { notes }),
 };
 export default courseService;

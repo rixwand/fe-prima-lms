@@ -3,7 +3,7 @@ import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
 import useEditLesson from "@/components/views/Instructor/Course/EditCourse/Forms/CurriculumForm/useEditLesson";
 import { CourseSectionForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import { useNProgress } from "@/hooks/use-nProgress";
-import { cn } from "@/lib/tiptap-utils";
+import { cn } from "@/libs/tiptap/tiptap-utils";
 import { useFolderTreeContext } from "@/libs/context/FolderTreeContext";
 import { hasTrue } from "@/libs/utils/boolean";
 import { toRoundedMinutes } from "@/libs/utils/string";

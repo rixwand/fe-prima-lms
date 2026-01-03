@@ -3,7 +3,6 @@ import * as React from "react";
 import useEditSection from "@/components/views/Instructor/Course/EditCourse/Forms/CurriculumForm/useEditSection";
 import { CourseSectionForm, EditCourseForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import { useNProgress } from "@/hooks/use-nProgress";
-import { cn } from "@/lib/tiptap-utils";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import { hasTrue } from "@/libs/utils/boolean";
 import { StateType } from "@/types/Helper";
@@ -19,7 +18,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Button } from "@heroui/react";
+import { Button, cn } from "@heroui/react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { LuCheck, LuListPlus } from "react-icons/lu";
 import { confirmDialog } from "../Dialog/confirmDialog";

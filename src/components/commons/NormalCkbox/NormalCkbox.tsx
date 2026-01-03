@@ -1,4 +1,4 @@
-import { cn } from "@/lib/tiptap-utils";
+import { cn } from "@/libs/tiptap/tiptap-utils";
 import { Checkbox } from "@heroui/react";
 import { MouseEventHandler } from "react";
 

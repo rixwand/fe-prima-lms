@@ -2,7 +2,7 @@
 
 import { CloseIcon } from "@/components/tiptap-icons/close-icon";
 import { Button } from "@/components/tiptap-ui-primitive/button";
-import { focusNextNode, isValidPosition } from "@/lib/tiptap-utils";
+import { focusNextNode, isValidPosition } from "@/libs/tiptap/tiptap-utils";
 import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper } from "@tiptap/react";
 import * as React from "react";

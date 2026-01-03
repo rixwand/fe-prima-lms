@@ -8,7 +8,7 @@ import {
 } from "@/components/tiptap-ui-primitive/tooltip"
 
 // --- Lib ---
-import { cn, parseShortcutKeys } from "@/lib/tiptap-utils"
+import { cn, parseShortcutKeys } from "@/libs/tiptap/tiptap-utils"
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {

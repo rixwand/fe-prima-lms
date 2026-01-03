@@ -1,5 +1,5 @@
 import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
-import { cn } from "@/lib/tiptap-utils";
+import { cn } from "@/libs/tiptap/tiptap-utils";
 import { StateType } from "@/types/Helper";
 import {
   DndContext,

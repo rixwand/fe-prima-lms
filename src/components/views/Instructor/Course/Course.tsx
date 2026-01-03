@@ -1,38 +1,15 @@
 import StatCard from "@/components/commons/Cards/StatsCard";
-import {
-  CourseCardGrid,
-  CourseCardGridSkeleton,
-  CourseCardList,
-  CourseCardListSkeleton,
-} from "@/components/views/Instructor/Course/CourseCard";
 import { formatRupiah } from "@/libs/utils/currency";
-import { Select, SelectItem } from "@heroui/react";
+import { Tab, Tabs } from "@heroui/react";
 import { useEffect, useState } from "react";
-import { LuBookOpen, LuFilter, LuLayoutGrid, LuPlus, LuSearch, LuStar, LuUsers } from "react-icons/lu";
+import { LuBookOpen, LuPlus, LuStar, LuUsers } from "react-icons/lu";
 import { PiMoneyWavy } from "react-icons/pi";
+import PendingCoursesTab from "./PendingCoursesTab";
 import useCourse from "./useCourse";
 
 export default function InstructorCourse({ onCreate }: { onCreate: () => void }) {
-  const { courses, isLoading, pendingDelete, deleteCourse } = useCourse();
-
+  const { courses, isLoading, deleteCourse } = useCourse();
   const [query, setQuery] = useState("");
-  // const [status, setStatus] = useState<"all" | TCourseStatus>("all");
-  const [layout, setLayout] = useState<"grid" | "list">("grid");
-
-  // const filtered = useMemo(() => {
-  //   return courses
-  //     .filter(c => (status === "all" ? true : c.status === status))
-  //     .filter(c => c.title.toLowerCase().includes(query.toLowerCase()));
-  // }, [courses, status, query]);
-
-  // const publish = (id: string) =>
-  //   setCourses(prev => prev.map(c => (c.id === id ? { ...c, status: "published" as const } : c)));
-  // const unpublish = (id: string) =>
-  //   setCourses(prev => prev.map(c => (c.id === id ? { ...c, status: "draft" as const } : c)));
-  // const remove = (id: string) => setCourses(prev => prev.filter(c => c.id !== id));
-
-  const publish = async (id: number) => {};
-  const unpublish = (id: number) => {};
 
   const totalStudents = 21000;
   const totalRevenue = 1_300_000;
@@ -69,7 +46,7 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+      {/* <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex-1 relative">
           <LuSearch className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -107,52 +84,18 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
             View
           </button>
         </div>
+      </div> */}
+      <div className="relative">
+        <Tabs variant="underlined" className="flex">
+          <Tab title="Pending" key={"pending"}>
+            <PendingCoursesTab {...{ isLoading: false, onCreate, courses }} />
+          </Tab>
+          <Tab title="Published" key={"published"}></Tab>
+          <Tab title="Draft" key={"draft"}></Tab>
+        </Tabs>
       </div>
 
       {/* Content */}
-      {isLoading ? (
-        layout === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <CourseCardGridSkeleton key={i} />
-            ))}
-          </div>
-        ) : (
-          <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 overflow-hidden">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <CourseCardListSkeleton key={i} />
-            ))}
-          </div>
-        )
-      ) : courses?.length === 0 ? (
-        <EmptyCourses onCreate={onCreate} />
-      ) : layout === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 @7xl:grid-cols-4 @4xl:grid-cols-3 gap-4">
-          {courses?.map(c => (
-            <CourseCardGrid
-              key={c.id}
-              data={c}
-              onPublish={publish}
-              onUnpublish={unpublish}
-              onDelete={deleteCourse}
-              isLoading={pendingDelete}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {courses?.map(c => (
-            <CourseCardList
-              key={c.id}
-              data={c}
-              onPublish={publish}
-              onUnpublish={unpublish}
-              onDelete={deleteCourse}
-              isLoading={pendingDelete}
-            />
-          ))}
-        </div>
-      )}
 
       {/* {filtered.length === 0 ? (
         <EmptyCourses onCreate={() => {}} />
@@ -170,26 +113,5 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
         </div>
       )} */}
     </section>
-  );
-}
-
-function EmptyCourses({ onCreate }: { onCreate: () => void }) {
-  return (
-    <div className="rounded-2xl border border-dashed border-slate-300 p-10 grid place-items-center bg-white text-center">
-      <div className="max-w-md space-y-4">
-        <div className="inline-grid place-items-center w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 mx-auto">
-          <LuBookOpen className="w-8 h-8" />
-        </div>
-        <h3 className="text-lg font-semibold">You have no courses (yet)</h3>
-        <p className="text-slate-600 text-sm">
-          Start by creating your first course. You can save it as a draft and publish later when it’s ready.
-        </p>
-        <button
-          onClick={onCreate}
-          className="inline-flex items-center gap-2 px-4 h-10 rounded-xl bg-blue-600 text-white font-medium shadow-sm hover:bg-blue-700">
-          <LuPlus className="w-4 h-4" /> Create Course
-        </button>
-      </div>
-    </div>
   );
 }

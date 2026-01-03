@@ -1,17 +1,13 @@
 import CustomNav from "@/components/commons/CustomNav";
 import NotFound from "@/components/commons/NotFound";
 import InstructorLayout from "@/components/layouts/InstructorLayout";
-import EditCourse, {
-  EditCourseTabsType,
-} from "@/components/views/Instructor/Course/EditCourse/EditCourse";
+import EditCourse, { EditCourseTabsType } from "@/components/views/Instructor/Course/EditCourse/EditCourse";
+import { useNProgress } from "@/hooks/use-nProgress";
 import { getErrorMessage } from "@/libs/axios/error";
-import NProgress from "@/libs/loader/nprogress-setup";
-import courseService from "@/services/course.service";
-import { AppAxiosError } from "@/types/axios";
+import courseQueries from "@/queries/course-queries";
 import { addToast } from "@heroui/react";
 import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
-import { keepPreviousData } from "@tanstack/react-query";
-import { AxiosResponse, isAxiosError } from "axios";
+import { isAxiosError } from "axios";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -21,10 +17,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }: { params: { id: string } }) {
   const qc = new QueryClient();
-  await qc.prefetchQuery({
-    queryKey: ["coursePreview", params.id],
-    queryFn: () => courseService.PUBLIC.get(params.id).then((res) => res.data),
-  });
+  await qc.prefetchQuery(courseQueries.options.getCourse(Number(params.id)));
   return {
     props: { dehydratedState: dehydrate(qc), id: params.id },
     revalidate: 60, // ISR
@@ -32,17 +25,7 @@ export async function getStaticProps({ params }: { params: { id: string } }) {
 }
 
 export default function EditCoursePage({ id }: { id: number }) {
-  const {
-    data: res,
-    isPending,
-    refetch,
-    isError,
-    error,
-  } = useQuery<AxiosResponse<Course>>({
-    queryKey: ["coursePreview", id],
-    queryFn: () => courseService.get(id),
-    placeholderData: keepPreviousData,
-  });
+  const { data, isPending, refetch, isError, error } = useQuery(courseQueries.options.getCourse(id));
 
   const router = useRouter();
   const tabsState = useState<EditCourseTabsType>("basic");
@@ -64,16 +47,13 @@ export default function EditCoursePage({ id }: { id: number }) {
     }
   }, [router.query.tabs]);
 
-  useEffect(() => {
-    if (isPending) NProgress.start();
-    else NProgress.done();
-  }, [isPending]);
+  useNProgress(isPending);
 
-  if (!res?.data && !isPending) return <NotFound />;
-  if (res && res.data) {
+  if (!data && !isPending) return <NotFound />;
+  if (data) {
     return (
       <InstructorLayout customNav={<CustomNav title="Edit Course" />} active="MyCourses">
-        <EditCourse data={res.data} refetch={refetch} tabsState={tabsState} />
+        <EditCourse data={data} refetch={refetch} tabsState={tabsState} />
       </InstructorLayout>
     );
   }

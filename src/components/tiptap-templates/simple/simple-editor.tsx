@@ -53,7 +53,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 // --- Components ---
 
 // --- Lib ---
-import { cn, handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
+import { cn, handleImageUpload, MAX_FILE_SIZE } from "@/libs/tiptap/tiptap-utils";
 
 // --- Icons (external) ---
 import { addToast } from "@heroui/react";

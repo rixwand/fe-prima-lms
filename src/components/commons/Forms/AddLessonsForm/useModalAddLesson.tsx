@@ -1,7 +1,7 @@
 import useEditLesson from "@/components/views/Instructor/Course/EditCourse/Forms/CurriculumForm/useEditLesson";
 import { AddLessonsFormRhf } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import { useForm } from "react-hook-form";
-import FormWrapperDialog from "../../Dialog/AddSectionsDialog";
+import FormWrapperDialog from "../../Dialog/FormDialog";
 import AddLessonsForm from "./";
 
 export default function useModalAddLessons(sectionId: number) {

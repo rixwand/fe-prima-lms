@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Separator } from "@/components/tiptap-ui-primitive/separator"
-import { cn } from "@/lib/tiptap-utils"
+import { cn } from "@/libs/tiptap/tiptap-utils"
 import { useMenuNavigation } from "@/hooks/use-menu-navigation"
 import { useComposedRef } from "@/hooks/use-composed-ref"
 

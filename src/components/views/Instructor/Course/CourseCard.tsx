@@ -1,4 +1,4 @@
-import { cn } from "@/lib/tiptap-utils";
+import { cn } from "@/libs/tiptap/tiptap-utils";
 import { finalPrice, formatRupiah } from "@/libs/utils/currency";
 import { formatDate } from "@/libs/utils/string";
 import courseService from "@/services/course.service";
@@ -7,7 +7,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FiMoreHorizontal } from "react-icons/fi";
 import { LuEye, LuGlobe, LuPencil, LuStar, LuTrash2, LuUsers } from "react-icons/lu";
 import { PiMoneyWavyLight } from "react-icons/pi";
 import { confirmDialog } from "../../../commons/Dialog/confirmDialog";
@@ -21,7 +20,7 @@ export function CourseCardGrid({
 }: {
   data: ICourseListItem;
   isLoading: boolean;
-  onPublish: (id: number) => Promise<void>;
+  onPublish: (props: { id: number; title: string }) => void;
   onUnpublish: (id: number) => void;
   onDelete: (id: number) => void;
 }) {
@@ -71,13 +70,13 @@ export function CourseCardGrid({
       <div className="p-4 space-y-3">
         <div className="flex items-start gap-2">
           <h3 className="font-semibold flex-1 leading-snug text-start">{data.title}</h3>
-          <button
+          {/* <button
             onClick={e => {
               e.preventDefault();
             }}
             className="ml-auto p-1.5 rounded-lg hover:bg-slate-100">
             <FiMoreHorizontal className="w-5 h-5 text-slate-500" />
-          </button>
+          </button> */}
         </div>
         <div className="flex items-center gap-4 text-sm text-slate-600">
           <span className="inline-flex items-center gap-1">
@@ -108,7 +107,13 @@ export function CourseCardGrid({
         </div>
         <div className="flex items-center gap-2 pt-2 pb-1">
           {data.status !== "PUBLISHED" ? (
-            <Button variant="flat" color="secondary" radius="sm" isIconOnly className="reset-button px-3 py-2 ">
+            <Button
+              onPress={() => onPublish({ id: data.id, title: data.title })}
+              variant="flat"
+              color="secondary"
+              radius="sm"
+              isIconOnly
+              className="reset-button px-3 py-2 ">
               <LuGlobe size={16} className="mr-1" />
               Publish
             </Button>

@@ -2,7 +2,7 @@ import useEditSection from "@/components/views/Instructor/Course/EditCourse/Form
 import { AddSectionsFormRhf } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import { useForm } from "react-hook-form";
 import AddSectionsForm from ".";
-import FormWrapperDialog from "../../Dialog/AddSectionsDialog";
+import FormWrapperDialog from "../../Dialog/FormDialog";
 
 export default function useModalAddSections() {
   const addSectionsMethod = useForm<AddSectionsFormRhf>({ defaultValues: { sections: [] } });

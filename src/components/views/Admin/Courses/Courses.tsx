@@ -1,19 +1,18 @@
 import StatCard from "@/components/commons/Cards/StatsCard";
+import Toolbar from "@/components/commons/Toolbar";
 import { pendingCourses, publishedCourses } from "@/libs/dummy-data/courses";
 import { Tab, Tabs } from "@heroui/react";
-import { useEffect } from "react";
+import { Suspense, useState } from "react";
 import { LuBookOpen, LuClock } from "react-icons/lu";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
-import PendingCourses from "./PendingCourses";
-import PublishedCourses from "./PublishedCourses";
-import useCourses from "./useCourses";
+import CoursesLoading from "./CoursesLoading";
+import AllCourses from "./Tabs/AllCourses";
+import PendingCourses from "./Tabs/PendingCourses";
+import PublishedCourses from "./Tabs/PublishedCourses";
 
+type TabKeys = "all" | "published" | "pending";
 export default function Courses() {
-  const { queryCourses, isLoading } = useCourses();
-
-  useEffect(() => {
-    console.log(queryCourses);
-  }, [queryCourses]);
+  const [activeTab, setActiveTab] = useState<TabKeys>("all");
   const handleSearch = () => {};
 
   return (
@@ -42,32 +41,30 @@ export default function Courses() {
           value={pendingCourses.length.toLocaleString("id-ID")}
         />
       </div>
-      {/* <div className="flex justify-between items-center mb-6"> */}
       <div className="relative">
-        {/* <Tabs activeTab={activeTab} setActiveTab={setActiveTab} /> */}
-        <Tabs variant="underlined" className="flex">
-          {/* <Tab title="All" key={"all"}>
-            <AllCourses {...{ isLoading: isLoading.isLoading, courses: [...pendingCourses, ...publishedCourses] }} />
-          </Tab> */}
-          <Tab title="Published" key={"published"}>
-            <PublishedCourses {...{ isLoading: isLoading.isLoading, courses: publishedCourses }} />
+        <Tabs variant="underlined" className="flex" selectedKey={activeTab} onSelectionChange={setActiveTab as VoidFn}>
+          <Tab title="All" key={"all"}>
+            <AllCourses />
           </Tab>
           <Tab title="Pending" key={"pending"}>
-            <PendingCourses {...{ isLoading: isLoading.isLoading, courses: pendingCourses }} />
+            <Suspense fallback={<Fallback />}>
+              <PendingCourses />
+            </Suspense>
+          </Tab>
+          <Tab title="Published" key={"published"}>
+            <Suspense fallback={<Fallback />}>
+              <PublishedCourses />
+            </Suspense>
           </Tab>
         </Tabs>
       </div>
-
-      {/* {isPending ? (
-        <div className="text-center py-12">
-          <LuLoaderCircle className="animate-spin text-4xl text-primary-500 mx-auto" />
-        </div>
-      ) : (
-        <>
-          {activeTab === "pending" && <PendingCourses courses={filteredPendingCourses} />}
-          {activeTab === "published" && <PublishedCourses courses={filteredPublishedCourses} />}
-        </>
-      )} */}
     </section>
   );
 }
+
+const Fallback = () => (
+  <div className="pt-5 border-t border-slate-200">
+    <Toolbar setLayout={() => {}} handleSearch={() => {}} />
+    <CoursesLoading layout="grid" />
+  </div>
+);

@@ -3,17 +3,13 @@ import PageHead from "@/components/commons/PageHead";
 import SimpleEditorLayout from "@/components/layouts/SimpleEditorLayout";
 import LessonEditor from "@/components/views/Instructor/Course/EditCourse/LessonEditor/LessonEditor";
 import NoLessonMessage from "@/components/views/Instructor/Course/EditCourse/NoLessonMessage";
-import { getErrorMessage } from "@/libs/axios/error";
+import { useNProgress } from "@/hooks/use-nProgress";
+import { useQueryError } from "@/hooks/use-query-error";
 import { LessonEditorContext } from "@/libs/context/LessonEditorContext";
-import NProgress from "@/libs/loader/nprogress-setup";
 import courseSectionService from "@/services/course-section.service";
-import { AppAxiosError } from "@/types/axios";
-import { addToast } from "@heroui/react";
-import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
-import { keepPreviousData } from "@tanstack/react-query";
+import { dehydrate, keepPreviousData, QueryClient, useQuery } from "@tanstack/react-query";
 import type { GetStaticPaths, GetStaticProps } from "next";
-import { useEffect, useMemo, useState } from "react";
-import { isAxiosError } from "axios";
+import { useMemo, useState } from "react";
 
 export const getStaticPaths: GetStaticPaths = async () => ({
   paths: [],
@@ -32,7 +28,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   await queryClient.prefetchQuery({
     queryKey: ["courseSections", courseId],
-    queryFn: () => courseSectionService.list(courseId).then((res) => res.data),
+    queryFn: () => courseSectionService.list(courseId).then(res => res.data),
   });
 
   return {
@@ -50,7 +46,7 @@ export default function CurriculumPage({ id }: { id: number }) {
     sections: CourseSection[];
   }>({
     queryKey: ["courseSections", id],
-    queryFn: () => courseSectionService.list(id).then((res) => res.data),
+    queryFn: () => courseSectionService.list(id).then(res => res.data),
     enabled: Boolean(id),
     placeholderData: keepPreviousData,
   });
@@ -71,19 +67,8 @@ export default function CurriculumPage({ id }: { id: number }) {
     return undefined;
   }, [activeLesson, id]);
 
-  useEffect(() => {
-    if (isPending) NProgress.start();
-    else NProgress.done();
-  }, [isPending]);
-
-  useEffect(() => {
-    if (isError && error)
-      addToast({
-        color: "danger",
-        title: "Error",
-        description: isAxiosError(error) ? getErrorMessage(error) : error.message,
-      });
-  }, [isError, error]);
+  useNProgress(isPending);
+  useQueryError({ isError, error });
 
   if (!data && !isPending && !isFetching) {
     return <NotFound message="Course Not Found." />;
@@ -94,7 +79,7 @@ export default function CurriculumPage({ id }: { id: number }) {
   }
 
   const hasNoContent =
-    !data.sections || data.sections.length === 0 || data.sections.every((s) => !s.lessons || s.lessons.length === 0);
+    !data.sections || data.sections.length === 0 || data.sections.every(s => !s.lessons || s.lessons.length === 0);
 
   if (data && !isPending && !isFetching && hasNoContent) {
     return (
@@ -113,11 +98,9 @@ export default function CurriculumPage({ id }: { id: number }) {
       <SimpleEditorLayout
         courseTitle={data.courseTitle || ""}
         lessonState={lessonState}
-        structure={data.sections || []}
-      >
+        structure={data.sections || []}>
         {activeLesson ? <LessonEditor lessonState={lessonState} /> : <div>Select a lesson to start editing</div>}
       </SimpleEditorLayout>
     </LessonEditorContext.Provider>
   );
 }
-

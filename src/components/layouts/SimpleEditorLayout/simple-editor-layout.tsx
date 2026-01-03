@@ -1,7 +1,8 @@
 import * as React from "react";
 
-import { cn } from "@/lib/tiptap-utils";
+import { cn } from "@/libs/tiptap/tiptap-utils";
 
+import { findFirstSelectableLesson } from "@/libs/utils/course";
 import { StateType } from "@/types/Helper";
 import { SimpleEditorHeader } from "./simple-editor-layout-header";
 import { SimpleEditorSidebar } from "./simple-editor-layout-sidebar";
@@ -10,21 +11,6 @@ import { SimpleEditorLayoutProvider } from "./simple-editor-layout.context";
 export { useSimpleEditorLayoutContext } from "./simple-editor-layout.context";
 
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
-
-const findFirstSelectableLesson = (
-  sections: CourseSection[]
-): { section: CourseSection; lesson: Lesson; path: string[] } | null => {
-  for (const section of sections) {
-    if (section.lessons.length === 0) continue;
-    const lesson = section.lessons[0];
-    return {
-      section,
-      lesson,
-      path: [section.title, lesson.title],
-    };
-  }
-  return null;
-};
 
 type SimpleEditorLayoutProps = React.PropsWithChildren<{
   structure: CourseSection[];

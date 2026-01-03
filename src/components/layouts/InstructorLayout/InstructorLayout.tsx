@@ -13,7 +13,7 @@ const prefix = "/instructor/dashboard";
 
 const navLinks: NavStruct = [
   { label: "Overview", Icon: HiOutlineSquares2X2, link: prefix },
-  { label: "MyCourses", Icon: LuBookOpen, link: prefix + "/course" },
+  { label: "My Courses", Icon: LuBookOpen, link: prefix + "/course" },
   { label: "Analytics", Icon: HiOutlineDocumentChartBar, link: prefix + "/report" },
   { label: "Payouts", Icon: HiOutlineCreditCard, link: prefix + "/payout" },
   { label: "Setting", Icon: HiOutlineCog6Tooth, link: prefix + "/setting" },
@@ -27,10 +27,12 @@ export default function InstructorLayout({
   active,
   customNav,
   navTitle,
+  customBg,
 }: {
   children: ReactNode;
   title?: string;
   active: (typeof navLinks)[number]["label"];
+  customBg?: string;
 } & Nav) {
   const [collapsed, setCollapsed] = useState(false);
   const [open, setOpen] = useState(false);
@@ -42,7 +44,8 @@ export default function InstructorLayout({
         className={cn([
           inter.className,
           collapsed ? "md:ml-[72px]" : "md:ml-[260px]",
-          "min-h-screen bg-gradient-to-br from-gray-50 to-white text-slate-900 transition-all duration-200",
+          "min-h-screen text-slate-900 transition-all duration-200",
+          customBg || "bg-gradient-to-br from-gray-50 to-white",
         ])}>
         {customNav ? customNav : <NavbarDashboard {...{ setOpen, setCollapsed, title: navTitle! }} />}
         <section className={cn(["space-y-6 p-5"])}>{children}</section>
