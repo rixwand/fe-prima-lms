@@ -2,7 +2,7 @@ import AuthCard from "@/components/commons/Cards/AuthCard";
 import TextField from "@/components/commons/TextField";
 import { Spinner } from "@heroui/react";
 import { Controller } from "react-hook-form";
-import useRegister from "./useRegister";
+import useRegister from "../../../../hooks/auth/useRegister";
 
 function PasswordHint() {
   return <p className="mt-1 text-xs text-slate-500">Minimal 8 karakter, kombinasikan huruf & angka.</p>;

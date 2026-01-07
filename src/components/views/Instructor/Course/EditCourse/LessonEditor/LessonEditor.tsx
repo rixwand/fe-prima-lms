@@ -1,10 +1,10 @@
-import { SimpleEditor } from "@/components/tiptap-templates/simple/simple-editor";
+import { SimpleEditor } from "@/components/tiptap/tiptap-templates/simple/simple-editor";
+import useLessonEditor from "@/hooks/course/useLessonEditor";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { hasTrue } from "@/libs/utils/boolean";
 import { StateType } from "@/types/Helper";
 import { JSONContent } from "@tiptap/core";
 import { useEffect } from "react";
-import useLessonEditor from "./useLessonEditor";
 
 type LessonEditorProps = {
   lessonState: StateType<Lesson | null>;

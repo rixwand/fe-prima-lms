@@ -17,13 +17,14 @@
     "incremental": true,
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "baseUrl": ".",
+    "rootDir": "src"
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "src/components/views/Instructor/Course/CreateCourse/Forms/BasicForm.tsx.bak"
+    // "**/*.ts", "**/*.tsx"
+    "src/**/*"
   ],
   "exclude": ["node_modules"]
 }

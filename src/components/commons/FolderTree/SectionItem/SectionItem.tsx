@@ -1,6 +1,6 @@
-import useEditLesson from "@/components/views/Instructor/Course/EditCourse/Forms/CurriculumForm/useEditLesson";
-import useEditSection from "@/components/views/Instructor/Course/EditCourse/Forms/CurriculumForm/useEditSection";
 import { CourseSectionForm, EditCourseForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
+import useEditLesson from "@/hooks/course/useEditLesson";
+import useEditSection from "@/hooks/course/useEditSection";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import { useFolderTreeContext } from "@/libs/context/FolderTreeContext";
@@ -29,11 +29,11 @@ import {
   LuSquarePen,
   LuTrash2,
 } from "react-icons/lu";
-import { confirmDialog } from "../../Dialog/confirmDialog";
-import useModalAddLessons from "../../Forms/AddLessonsForm/useModalAddLesson";
-import NormalCkbox from "../../NormalCkbox/NormalCkbox";
-import { OnSelect } from "../FolderTree";
-import CourseLessonItem from "./LessonItem";
+import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
+import useModalAddLessons from "@/components/commons/Forms/AddLessonsForm/useModalAddLesson";
+import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
+import { OnSelect } from "@/components/commons/FolderTree/FolderTree";
+import CourseLessonItem from "@/components/commons/FolderTree/SectionItem/LessonItem";
 const CourseSectionItem: FC<{
   section: CourseSectionForm;
   onSelect: OnSelect;

@@ -1,4 +1,4 @@
-import CourseCard from "@/components/commons/Cards/CourseCard2";
+import CourseCard from "@/components/commons/Cards/CourseCardProgress";
 import StatusCard from "@/components/commons/Cards/StatusCard";
 import UpcomingList from "@/components/commons/List/UpcomingList";
 import { Button, Card, CardBody, CardHeader, Divider, Progress, Skeleton, Tab, Tabs } from "@heroui/react";

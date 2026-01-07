@@ -1,10 +1,8 @@
-import { QueryObserverResult } from "@tanstack/react-query";
-
 export interface EditCourseForm {
   coverImage: string;
   fileImage: FileList | null;
   title: string;
-  status: "PUBLISHED" | "DRAFT";
+  status: "PUBLISHED" | "DRAFT" | "PENDING";
   previewVideo?: string;
   shortDescription: string;
   descriptionJson?: string;
@@ -51,7 +49,6 @@ export interface EditCourseForm {
 export type CurriculumFormProps = {
   courseId: number;
   defaultValue: CourseSection[];
-  refetch: () => Promise<QueryObserverResult>;
 };
 
 export type CourseSectionForm = NonNullable<EditCourseForm["sections"]>[number];

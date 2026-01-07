@@ -1,10 +1,10 @@
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
-import useEditLesson from "@/components/views/Instructor/Course/EditCourse/Forms/CurriculumForm/useEditLesson";
 import { CourseSectionForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
+import useEditLesson from "@/hooks/course/useEditLesson";
 import { useNProgress } from "@/hooks/use-nProgress";
-import { cn } from "@/libs/tiptap/tiptap-utils";
 import { useFolderTreeContext } from "@/libs/context/FolderTreeContext";
+import { cn } from "@/libs/tiptap/tiptap-utils";
 import { hasTrue } from "@/libs/utils/boolean";
 import { toRoundedMinutes } from "@/libs/utils/string";
 import { useSortable } from "@dnd-kit/sortable";
@@ -21,7 +21,7 @@ import {
   LuPencil,
   LuTrash2,
 } from "react-icons/lu";
-import { OnSelect } from "../../FolderTree";
+import { OnSelect } from "@/components/commons/FolderTree/FolderTree";
 
 const CourseLessonItem = ({
   lesson,

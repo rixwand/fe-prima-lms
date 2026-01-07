@@ -1,13 +1,12 @@
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import { SUPABASE_BUCKET, SUPABASE_URL } from "@/config/env";
+import useCourse from "@/hooks/course/useCourse";
 import { EditCourseContext } from "@/libs/context/EditCourseContext";
-import NProgress from "@/libs/loader/nprogress-setup";
 import { storageClient } from "@/libs/supabase/client";
 import cn from "@/libs/utils/cn";
 import { finalPrice } from "@/libs/utils/currency";
 import { getDirtyData } from "@/libs/utils/rhf";
 import { toSlug } from "@/libs/utils/string";
-import courseService from "@/services/course.service";
 import { StateType } from "@/types/Helper";
 import {
   Button,
@@ -21,7 +20,6 @@ import {
   addToast,
 } from "@heroui/react";
 import { parseAbsoluteToLocal } from "@internationalized/date";
-import { QueryObserverResult, useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import { Key, useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -37,14 +35,14 @@ import { EditCourseForm } from "./Forms/form.type";
 export type EditCourseTabsType = "basic" | "tags" | "media" | "pricing" | "curriculum";
 
 export default function EditCourse({
-  data: { previewVideo, ownerId, slug, tags, descriptionJson, id, sections, discount: discounts, ...course },
-  refetch,
+  id,
   tabsState: [selectedKey, setSelectedKey],
 }: {
-  data: Course;
-  refetch: () => Promise<QueryObserverResult>;
+  id: number;
   tabsState: StateType<EditCourseTabsType>;
 }) {
+  const { updateCourse, updateTags, course: data, hasPending } = useCourse(id);
+  const { previewVideo, ownerId, slug, tags, descriptionJson, sections, discount: discounts, ...course } = data!;
   const defaultValues = {
     ...course,
     ...(discounts[0]
@@ -69,34 +67,6 @@ export default function EditCourse({
   const [loading, setLoading] = useState(false);
   const showPreviewState = useState(true);
   const pendingKeyRef = useRef<EditCourseTabsType | null>(null);
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: courseService.update,
-    onError: e => {
-      console.log(e);
-      addToast({ title: "Erorr", description: e.message, color: "danger" });
-    },
-    onSuccess: async () => {
-      addToast({ title: "Success", description: "Success save changes", color: "success" });
-      await refetch();
-    },
-  });
-
-  const { mutate: mutateTags, isPending: isPendingTags } = useMutation({
-    mutationFn: courseService.updateTags,
-    onError: e => {
-      addToast({ title: "Erorr", description: e.message, color: "danger" });
-    },
-    onSuccess: async () => {
-      addToast({ title: "Success", description: "Success save changes", color: "success" });
-      await refetch();
-    },
-  });
-
-  useEffect(() => {
-    if (isPending || loading || isPendingTags) NProgress.start();
-    else NProgress.done();
-  }, [isPending, loading, isPendingTags]);
 
   const methods = useForm<EditCourseForm>({
     defaultValues,
@@ -126,7 +96,7 @@ export default function EditCourse({
       const values = methods.getValues();
       const dirtyData = getDirtyData(dirty, values);
       if (dirtyData.tags) {
-        return mutateTags({ id, tags: dirtyData.tags });
+        return updateTags({ id, tags: dirtyData.tags });
       }
       if (dirtyData.fileImage) {
         setLoading(true);
@@ -148,7 +118,7 @@ export default function EditCourse({
         if (!values.discount.id) dirtyData.discounts = [values.discount];
         else dirtyData.discounts = [{ ...dirtyData.discount, id: values.discount.id }];
       }
-      return mutate({ id, data: dirtyData });
+      return updateCourse({ id, data: dirtyData });
     } catch (error) {
       setLoading(false);
       const err = error as Error;
@@ -190,7 +160,7 @@ export default function EditCourse({
   }, [showPreviewState, selectedKey]);
 
   return (
-    <EditCourseContext.Provider value={{ showCoursePreviewState: showPreviewState, courseId: id, refetch }}>
+    <EditCourseContext.Provider value={{ showCoursePreviewState: showPreviewState, courseId: id }}>
       <section className="grid grid-cols-1 xl:grid-cols-12 gap-8 @container">
         <div
           className={cn(
@@ -274,10 +244,10 @@ export default function EditCourse({
                 <MediaForm defaultValues={{ coverImage: course.coverImage, previewVideo }} />
               </Tab>
               <Tab key="pricing" title="Pricing">
-                <PricingPanel discountId={discounts[0]?.id} refetch={refetch} courseId={id} />
+                <PricingPanel discountId={discounts[0]?.id} courseId={id} />
               </Tab>
               <Tab key="curriculum" title="Curriculum">
-                <CurriculumForm courseId={id} refetch={refetch} defaultValue={sections} />
+                <CurriculumForm courseId={id} defaultValue={sections} />
               </Tab>
             </Tabs>
           </FormProvider>
@@ -287,7 +257,7 @@ export default function EditCourse({
                 <LuX /> Cancel
               </Button>
               <Button
-                isDisabled={isPending || isPendingTags || loading}
+                isDisabled={hasPending}
                 onClick={methods.handleSubmit(saveChanges)}
                 size="md"
                 radius="sm"

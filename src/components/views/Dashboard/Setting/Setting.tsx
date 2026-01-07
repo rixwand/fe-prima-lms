@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { Controller } from "react-hook-form";
 import { IoIosSave } from "react-icons/io";
 import { MdEdit } from "react-icons/md";
-import useSetting from "./useSetting";
+import useSetting from "../../../../hooks/dashboard/useSetting";
 
 export default function Setting() {
   const {

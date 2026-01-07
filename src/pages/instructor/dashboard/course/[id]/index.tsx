@@ -1,12 +1,12 @@
+import CourseInfo from "@/components/commons/CourseInfo";
 import CustomNav from "@/components/commons/CustomNav";
 import NotFound from "@/components/commons/NotFound";
 import PageHead from "@/components/commons/PageHead";
-import CourseInfo from "@/components/views/Instructor/Course/CourseInfo";
 import { useNProgress } from "@/hooks/use-nProgress";
-import { useQueryError } from "@/hooks/use-query-error";
+import courseQueries from "@/queries/course-queries";
 import courseService from "@/services/course.service";
-import { dehydrate, keepPreviousData, QueryClient, useQuery } from "@tanstack/react-query";
-import { AxiosResponse } from "axios";
+import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { Fragment } from "react";
 
 export async function getStaticPaths() {
@@ -26,28 +26,23 @@ export async function getStaticProps({ params }: { params: { id: string } }) {
 }
 
 export default function CoursePage({ id }: { id: number }) {
-  const {
-    data: res,
-    isPending,
-    isError,
-    error,
-  } = useQuery<AxiosResponse<Course>>({
-    queryKey: ["coursePreview", id],
-    queryFn: () => courseService.get(id),
-    placeholderData: keepPreviousData,
-  });
+  const { data, isPending, isError, error } = useQuery(courseQueries.options.getCourse(id));
 
   useNProgress(isPending);
 
-  useQueryError({ isError, error });
-
-  if (!res?.data && !isPending) return <NotFound />;
-  if (res && res.data) {
+  if (isError) {
+    return isAxiosError(error) ? (
+      <NotFound code={error.status} message={error.response?.statusText} />
+    ) : (
+      <NotFound message="Course Not Found." />
+    );
+  }
+  if (data) {
     return (
       <Fragment>
-        <PageHead title={res.data.title} />
+        <PageHead title={data.title} />
         <CustomNav title="Course Preview" />
-        <CourseInfo data={res.data} />
+        <CourseInfo data={data} />
       </Fragment>
     );
   }

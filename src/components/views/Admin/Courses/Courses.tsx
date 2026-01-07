@@ -5,7 +5,7 @@ import { Tab, Tabs } from "@heroui/react";
 import { Suspense, useState } from "react";
 import { LuBookOpen, LuClock } from "react-icons/lu";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
-import CoursesLoading from "./CoursesLoading";
+import CoursesLoading from "../../../commons/Cards/CoursesCardLoading";
 import AllCourses from "./Tabs/AllCourses";
 import PendingCourses from "./Tabs/PendingCourses";
 import PublishedCourses from "./Tabs/PublishedCourses";

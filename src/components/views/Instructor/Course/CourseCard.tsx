@@ -1,6 +1,7 @@
 import { cn } from "@/libs/tiptap/tiptap-utils";
 import { finalPrice, formatRupiah } from "@/libs/utils/currency";
 import { formatDate } from "@/libs/utils/string";
+import courseQueries from "@/queries/course-queries";
 import courseService from "@/services/course.service";
 import { Button, Card, Chip, Skeleton } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -25,8 +26,7 @@ export function CourseCardGrid({
   onDelete: (id: number) => void;
 }) {
   const qc = useQueryClient();
-  const prefetch = () =>
-    qc.prefetchQuery({ queryKey: ["coursePreview", data.id], queryFn: () => courseService.get(data.id) });
+  const prefetch = () => qc.prefetchQuery(courseQueries.options.getCourse(data.id));
   const router = useRouter();
   return (
     <Card

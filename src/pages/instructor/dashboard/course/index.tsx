@@ -19,9 +19,7 @@ export default function InstructorDashboard() {
   return (
     <InstructorLayout
       active="My Courses"
-      {...(page === "course"
-        ? { navTitle: "Course Management" }
-        : { customNav: <CreateCourseNav {...{ page, setPage }} /> })}>
+      {...(page === "course" ? { customNav: <></> } : { customNav: <CreateCourseNav {...{ page, setPage }} /> })}>
       {page == "course" ? (
         <InstructorCourse onCreate={() => setPage("create")} />
       ) : (

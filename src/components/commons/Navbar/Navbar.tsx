@@ -16,7 +16,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { Fragment, useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import AvatarProfile from "../AvatarProfile";
+import AvatarProfile from "@/components/commons/AvatarProfile";
 export default function Navbar() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const router = useRouter();

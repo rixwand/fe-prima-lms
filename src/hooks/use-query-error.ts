@@ -1,7 +1,7 @@
 import { addToast } from "@heroui/react";
 import { isAxiosError } from "axios";
 import { useEffect } from "react";
-import { getErrorMessage } from "../libs/axios/error";
+import { getErrorMessage } from "@/libs/axios/error";
 
 interface UseQueryErrorOptions {
   isError: boolean;

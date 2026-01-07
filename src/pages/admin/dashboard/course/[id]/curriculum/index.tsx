@@ -4,8 +4,8 @@ import Lessonview from "@/components/views/Admin/Courses/CurriculumView/LessonVi
 import NoLessonMessage from "@/components/views/Instructor/Course/EditCourse/NoLessonMessage";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { CurriculumViewContext, LessonPathIds } from "@/libs/context/CurriculumViewContext";
-import courseSectionService from "@/services/course-section.service";
-import { QueryClient, dehydrate, keepPreviousData, useQuery } from "@tanstack/react-query";
+import courseQueries from "@/queries/course-queries";
+import { QueryClient, dehydrate, useQuery } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { useEffect, useState } from "react";
@@ -25,10 +25,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   const queryClient = new QueryClient();
 
-  await queryClient.prefetchQuery({
-    queryKey: ["courseSections", courseId],
-    queryFn: () => courseSectionService.list(courseId).then(res => res.data),
-  });
+  await queryClient.prefetchQuery(courseQueries.options.listSections(courseId));
 
   return {
     props: {
@@ -40,18 +37,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 };
 
 export default function CurriculumPagePreview({ id }: { id: number }) {
-  const { data, isPending, isFetching, isError, error } = useQuery<{
-    courseTitle: string;
-    sections: CourseSection[];
-  }>({
-    queryKey: ["courseSections", id],
-    queryFn: () => courseSectionService.list(id).then(res => res.data),
-    enabled: Boolean(id),
-    placeholderData: keepPreviousData,
-  });
-  const hasNoContent =
-    data &&
-    (!data.sections || data.sections.length === 0 || data.sections.every(s => !s.lessons || s.lessons.length === 0));
+  const { data, isPending, isError, error } = useQuery(courseQueries.options.listSections(id));
+  const hasNoContent = !data || data.length === 0 || data.every(s => !s.lessons || s.lessons.length === 0);
   const [activeLesson, setActiveLesson] = useState<LessonPathIds | null>(null);
   const onSelect = (section: CourseSection, lesson: Lesson) => {
     setActiveLesson({ sectionId: section.id!, lessonId: lesson.id!, courseId: id });
@@ -60,16 +47,16 @@ export default function CurriculumPagePreview({ id }: { id: number }) {
   useNProgress(isPending);
   // useQueryError({ isError, error });
   useEffect(() => {
-    if (data && data.sections && data.sections.length > 0) {
+    if (data && data && data.length > 0) {
       setActiveLesson({
         courseId: id,
-        lessonId: data.sections[0].lessons[0].id,
-        sectionId: data.sections[0].id,
+        lessonId: data[0].lessons[0].id,
+        sectionId: data[0].id,
       });
     }
-  }, [data?.sections]);
+  }, [data]);
 
-  if (!data && !isPending && !isFetching) {
+  if (isError || !data) {
     return isAxiosError(error) ? (
       <NotFound code={error.status} message={error.response?.statusText} />
     ) : (
@@ -77,17 +64,13 @@ export default function CurriculumPagePreview({ id }: { id: number }) {
     );
   }
 
-  if (!data) {
-    return null;
-  }
-
-  if (data && !isPending && !isFetching && hasNoContent) {
+  if (hasNoContent) {
     return <NoLessonMessage />;
   }
 
   return (
     <CurriculumViewContext.Provider value={{ activeLesson, setActiveLesson, onSelect }}>
-      <CurriculumNav courseTitle={data.courseTitle} sections={data.sections}>
+      <CurriculumNav courseId={id} sections={data}>
         {activeLesson != null ? <Lessonview activeLesson={activeLesson} /> : <p>Select a lesson</p>}
       </CurriculumNav>
     </CurriculumViewContext.Provider>

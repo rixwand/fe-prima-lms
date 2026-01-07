@@ -4,6 +4,8 @@ import FolderTree from "@/components/commons/FolderTree";
 import useModalAddSections from "@/components/commons/Forms/AddSectionsForm/useModalAddSections";
 import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
 import { TiptapViewer } from "@/components/commons/TiptapViewer/TiptapViewer";
+import useEditSection from "@/hooks/course/useEditSection";
+import { useQueryBlocks } from "@/hooks/course/useLessonEditor";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { useStickySentinel } from "@/hooks/use-sticky-shadow";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
@@ -30,12 +32,10 @@ import {
   LuTrash2,
   LuX,
 } from "react-icons/lu";
-import { useQueryBlocks } from "../../LessonEditor/useLessonEditor";
 import { CourseSectionForm, CurriculumFormProps, EditCourseForm } from "../form.type";
-import useEditSection from "./useEditSection";
 
 type SelectState = StateType<Set<number>>;
-export default function CurriculumForm({ courseId, refetch, defaultValue }: CurriculumFormProps) {
+export default function CurriculumForm({ courseId, defaultValue }: CurriculumFormProps) {
   const { watch, getValues, reset } = useFormContext<EditCourseForm>();
 
   const sectionsValue = watch("sections");

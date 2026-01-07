@@ -1,4 +1,4 @@
-import useEditSection from "@/components/views/Instructor/Course/EditCourse/Forms/CurriculumForm/useEditSection";
+import useEditSection from "@/hooks/course/useEditSection";
 import { AddSectionsFormRhf } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import { useForm } from "react-hook-form";
 import AddSectionsForm from ".";

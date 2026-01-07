@@ -1,4 +1,4 @@
-import { useQueryBlocks } from "@/components/views/Instructor/Course/EditCourse/LessonEditor/useLessonEditor";
+import { useQueryBlocks } from "@/hooks/course/useLessonEditor";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { useQueryError } from "@/hooks/use-query-error";
 import { LessonPathIds } from "@/libs/context/CurriculumViewContext";

@@ -4,8 +4,8 @@ import { Tab, Tabs } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { LuBookOpen, LuPlus, LuStar, LuUsers } from "react-icons/lu";
 import { PiMoneyWavy } from "react-icons/pi";
-import PendingCoursesTab from "./PendingCoursesTab";
-import useCourse from "./useCourse";
+import useCourse from "../../../../hooks/course/useListCourses";
+import AllCoursesTab from "./Tabs/AllCoursesTab";
 
 export default function InstructorCourse({ onCreate }: { onCreate: () => void }) {
   const { courses, isLoading, deleteCourse } = useCourse();
@@ -87,9 +87,10 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
       </div> */}
       <div className="relative">
         <Tabs variant="underlined" className="flex">
-          <Tab title="Pending" key={"pending"}>
-            <PendingCoursesTab {...{ isLoading: false, onCreate, courses }} />
+          <Tab title="All" key={"all"}>
+            <AllCoursesTab {...{ isLoading: false, onCreate, courses }} />
           </Tab>
+          <Tab title="Pending" key={"pending"}></Tab>
           <Tab title="Published" key={"published"}></Tab>
           <Tab title="Draft" key={"draft"}></Tab>
         </Tabs>

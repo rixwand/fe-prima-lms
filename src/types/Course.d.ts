@@ -72,7 +72,7 @@ interface Course {
   id: number;
   title: string;
   slug: string;
-  status: "PUBLISHED" | "DRAFT";
+  status: "PUBLISHED" | "DRAFT" | "PENDING";
   ownerId: number;
   coverImage: string;
   previewVideo: string | null;

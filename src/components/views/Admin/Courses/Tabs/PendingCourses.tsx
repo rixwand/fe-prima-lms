@@ -1,6 +1,6 @@
+import useCourses from "../../../../../hooks/course/usePublishCourses";
 import CoursesList from "../CoursesList";
 import NoResult from "../NoResult";
-import useCourses from "../useCourses";
 
 export default function PendingCourses() {
   const { isLoading, queryCourses } = useCourses({ status: "PENDING", limit: 12, page: 1 });

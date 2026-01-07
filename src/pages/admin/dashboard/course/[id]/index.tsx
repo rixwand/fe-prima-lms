@@ -1,14 +1,10 @@
-import CustomNav from "@/components/commons/CustomNav";
 import NotFound from "@/components/commons/NotFound";
-import PageHead from "@/components/commons/PageHead";
-import CourseInfo from "@/components/views/Instructor/Course/CourseInfo";
+import AdminCourseInfo from "@/components/views/Admin/Courses/CourseInfo";
 import { useNProgress } from "@/hooks/use-nProgress";
-import { useQueryError } from "@/hooks/use-query-error";
-import courseService from "@/services/course.service";
-import { dehydrate, keepPreviousData, QueryClient, useQuery } from "@tanstack/react-query";
-import { AxiosResponse } from "axios";
+import courseQueries from "@/queries/course-queries";
+import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { GetStaticPaths } from "next";
-import { Fragment } from "react";
 
 export const getStaticPaths: GetStaticPaths = async () => {
   return { paths: [], fallback: "blocking" };
@@ -16,10 +12,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export async function getStaticProps({ params }: { params: { id: string } }) {
   const qc = new QueryClient();
-  await qc.prefetchQuery({
-    queryKey: ["coursePreview", params.id],
-    queryFn: () => courseService.get(Number(params.id)).then(res => res.data),
-  });
+  await qc.prefetchQuery(courseQueries.options.getCourse(Number(params.id)));
   return {
     props: { dehydratedState: dehydrate(qc), id: params.id },
     revalidate: 60,
@@ -27,29 +20,18 @@ export async function getStaticProps({ params }: { params: { id: string } }) {
 }
 
 export default function CoursePage({ id }: { id: number }) {
-  const {
-    data: res,
-    isPending,
-    isError,
-    error,
-  } = useQuery<AxiosResponse<Course>>({
-    queryKey: ["coursePreview", id],
-    queryFn: () => courseService.get(id),
-    placeholderData: keepPreviousData,
-  });
+  const { data, isPending, isError, error } = useQuery(courseQueries.options.getCourse(id));
 
   useNProgress(isPending);
 
-  useQueryError({ isError, error });
-
-  if (!res?.data && !isPending) return <NotFound />;
-  if (res && res.data) {
-    return (
-      <Fragment>
-        <PageHead title={res.data.title} />
-        <CustomNav title="Course Preview" />
-        <CourseInfo data={res.data} />
-      </Fragment>
+  if (isError) {
+    return isAxiosError(error) ? (
+      <NotFound code={error.status} message={error.response?.statusText} />
+    ) : (
+      <NotFound message="Course Not Found." />
     );
+  }
+  if (data) {
+    return <AdminCourseInfo course={data} />;
   }
 }

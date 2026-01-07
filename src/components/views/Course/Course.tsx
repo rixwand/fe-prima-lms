@@ -1,4 +1,4 @@
-import CourseCard from "@/components/commons/Cards/CourseCard";
+import UserCourseCard from "@/components/commons/Cards/UserCourseCard";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { fromSlug, toSlug } from "@/libs/utils/string";
@@ -83,15 +83,15 @@ export default function Course() {
           </span>
         </div>
         <div className="grid grid-cols-2 @md:gap-6 @md:mx-4 @2xl:gap-x-5 gap-3 @lg:gap-y-7 @xl:grid-cols-3 @4xl:grid-cols-4 @5xl:grid-cols-5">
-          <CourseCard />
-          <CourseCard />
-          <CourseCard />
-          <CourseCard />
-          <CourseCard />
-          <CourseCard />
-          <CourseCard />
-          <CourseCard />
-          <CourseCard />
+          <UserCourseCard />
+          <UserCourseCard />
+          <UserCourseCard />
+          <UserCourseCard />
+          <UserCourseCard />
+          <UserCourseCard />
+          <UserCourseCard />
+          <UserCourseCard />
+          <UserCourseCard />
         </div>
       </div>
     </section>

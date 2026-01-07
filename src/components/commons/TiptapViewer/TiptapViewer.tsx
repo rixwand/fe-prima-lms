@@ -1,4 +1,4 @@
-import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node";
+import ImageUploadNode from "@/components/tiptap/tiptap-node/image-upload-node/image-upload-node-extension";
 import { JSONContent, generateHTML } from "@tiptap/core";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Image } from "@tiptap/extension-image";

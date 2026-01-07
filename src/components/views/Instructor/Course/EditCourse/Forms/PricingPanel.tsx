@@ -1,28 +1,17 @@
- 
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import TextField from "@/components/commons/TextField";
-import NProgress from "@/libs/loader/nprogress-setup";
+import useCourse from "@/hooks/course/useCourse";
 import cn from "@/libs/utils/cn";
 import { finalPrice } from "@/libs/utils/currency";
-import courseService from "@/services/course.service";
-import { Button, DatePicker, Select, SelectItem, Switch, addToast } from "@heroui/react";
-import { QueryObserverResult, useMutation } from "@tanstack/react-query";
-import { Fragment, useEffect, useRef } from "react";
+import { Button, DatePicker, Select, SelectItem, Switch } from "@heroui/react";
+import { Fragment, useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { HiSelector } from "react-icons/hi";
 import { LuTrash2, LuUndo2 } from "react-icons/lu";
 import Field from "../../CreateCourse/Forms/Field";
 import { EditCourseForm } from "./form.type";
 
-export default function PricingPanel({
-  discountId,
-  courseId,
-  refetch,
-}: {
-  discountId?: number;
-  courseId: number;
-  refetch: () => Promise<QueryObserverResult>;
-}) {
+export default function PricingPanel({ discountId, courseId }: { discountId?: number; courseId: number }) {
   const {
     control,
     register,
@@ -31,6 +20,7 @@ export default function PricingPanel({
     resetField,
     formState: { dirtyFields },
   } = useFormContext<EditCourseForm>();
+
   const [price, free, discount] = watch(["priceAmount", "isFree", "discount"]);
   const startAt = useRef<HTMLInputElement | null>(null);
   const reset = () => {
@@ -39,29 +29,15 @@ export default function PricingPanel({
     resetField("priceAmount");
   };
 
-  const { mutate, isPending, isSuccess } = useMutation({
-    mutationFn: courseService.deleteDiscount,
-    onError: e => {
-      addToast({ title: "Erorr", description: e.message, color: "danger" });
-    },
-    onSuccess: async () => {
-      addToast({ title: "Success", description: "Success remove discount", color: "success" });
-      await refetch();
-    },
-  });
-
-  useEffect(() => {
-    if (isPending) NProgress.start();
-    else NProgress.done();
-  }, [isPending]);
+  const { deleteDiscount, isSuccessDeleteDiscount } = useCourse(courseId);
 
   const removeDiscount = () => {
     confirmDialog({
       title: "Remove Discount?",
       desc: "This action will remove discount",
       onConfirmed: () => {
-        if (discountId) mutate({ id: discountId, courseId });
-        if (!discountId || isSuccess) setValue("discount", undefined);
+        if (discountId) deleteDiscount({ id: discountId, courseId });
+        if (!discountId || isSuccessDeleteDiscount) setValue("discount", undefined);
       },
     });
   };

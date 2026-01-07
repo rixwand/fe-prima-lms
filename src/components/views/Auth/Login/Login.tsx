@@ -2,7 +2,7 @@ import AuthCard from "@/components/commons/Cards/AuthCard";
 import TextField from "@/components/commons/TextField";
 import { Spinner } from "@heroui/react";
 import { Controller } from "react-hook-form";
-import useLogin from "./useLogin";
+import useLogin from "../../../../hooks/auth/useLogin";
 
 export default function Login() {
   const { control, handleSubmit, handlerLogin, isPending } = useLogin();

@@ -25,7 +25,7 @@ export async function getStaticProps({ params }: { params: { id: string } }) {
 }
 
 export default function EditCoursePage({ id }: { id: number }) {
-  const { data, isPending, refetch, isError, error } = useQuery(courseQueries.options.getCourse(id));
+  const { data, isPending, isError, error } = useQuery(courseQueries.options.getCourse(id));
 
   const router = useRouter();
   const tabsState = useState<EditCourseTabsType>("basic");
@@ -53,7 +53,7 @@ export default function EditCoursePage({ id }: { id: number }) {
   if (data) {
     return (
       <InstructorLayout customNav={<CustomNav title="Edit Course" />} active="MyCourses">
-        <EditCourse data={data} refetch={refetch} tabsState={tabsState} />
+        <EditCourse id={id} tabsState={tabsState} />
       </InstructorLayout>
     );
   }

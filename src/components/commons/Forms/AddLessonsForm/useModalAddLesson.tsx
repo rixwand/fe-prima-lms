@@ -1,4 +1,4 @@
-import useEditLesson from "@/components/views/Instructor/Course/EditCourse/Forms/CurriculumForm/useEditLesson";
+import useEditLesson from "@/hooks/course/useEditLesson";
 import { AddLessonsFormRhf } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import { useForm } from "react-hook-form";
 import FormWrapperDialog from "../../Dialog/FormDialog";

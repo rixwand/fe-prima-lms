@@ -15,7 +15,7 @@ import { Button } from "@heroui/react";
 import { useEffect, useMemo, useState } from "react";
 import { UseFormReturn, useFieldArray } from "react-hook-form";
 import { LuPlus, LuTrash2 } from "react-icons/lu";
-import { AddLessonsFormRhf } from "../../../views/Instructor/Course/EditCourse/Forms/form.type";
+import { AddLessonsFormRhf } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import NewLessonItem from "./NewLessonsItem";
 
 export type RhfMethods = UseFormReturn<AddLessonsFormRhf>;
