@@ -1,10 +1,11 @@
+import UserCourseCard from "@/components/commons/Cards/UserCourseCard";
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import { SUPABASE_BUCKET, SUPABASE_URL } from "@/config/env";
 import useCourse from "@/hooks/course/useCourse";
+import { useNProgress } from "@/hooks/use-nProgress";
 import { EditCourseContext } from "@/libs/context/EditCourseContext";
 import { storageClient } from "@/libs/supabase/client";
 import cn from "@/libs/utils/cn";
-import { finalPrice } from "@/libs/utils/currency";
 import { getDirtyData } from "@/libs/utils/rhf";
 import { toSlug } from "@/libs/utils/string";
 import { StateType } from "@/types/Helper";
@@ -20,16 +21,15 @@ import {
   addToast,
 } from "@heroui/react";
 import { parseAbsoluteToLocal } from "@internationalized/date";
-import Image from "next/image";
+import { useSession } from "next-auth/react";
 import { Key, useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { LuEye, LuImage, LuSave, LuStar, LuText, LuUsers, LuX } from "react-icons/lu";
-import { PiMoneyWavyLight } from "react-icons/pi";
+import { LuEye, LuSave, LuText, LuX } from "react-icons/lu";
 import BasicsForm from "./Forms/BasicForm";
+import CategoriesTagsForm from "./Forms/CategoriesTagsForm";
 import CurriculumForm from "./Forms/CurriculumForm";
 import MediaForm from "./Forms/MediaForm";
 import PricingPanel from "./Forms/PricingPanel";
-import TagsForm from "./Forms/TagsForm";
 import { EditCourseForm } from "./Forms/form.type";
 
 export type EditCourseTabsType = "basic" | "tags" | "media" | "pricing" | "curriculum";
@@ -41,10 +41,23 @@ export default function EditCourse({
   id: number;
   tabsState: StateType<EditCourseTabsType>;
 }) {
-  const { updateCourse, updateTags, course: data, hasPending } = useCourse(id);
-  const { previewVideo, ownerId, slug, tags, descriptionJson, sections, discount: discounts, ...course } = data!;
+  const {
+    updateCourse,
+    updateTags,
+    course: data,
+    hasPending,
+    updateCategories,
+  } = useCourse(id, { refetchOnMutateSuccess: true });
+  const { ownerId: _o, slug: _s, tags: _approvedTags, sections, categories: _c, metaDraft: draft, ...course } = data!;
+  const {
+    draftTags: tags,
+    draftDiscounts: discounts,
+    draftCategories: categories,
+    ...metaDraft
+  } = { ...draft, draftDiscounts: draft.draftDiscounts || [] };
   const defaultValues = {
     ...course,
+    ...metaDraft,
     ...(discounts[0]
       ? {
           discount: {
@@ -57,13 +70,13 @@ export default function EditCourse({
         }
       : {}),
     sections,
-    descriptionJson: descriptionJson || undefined,
-    previewVideo: previewVideo || undefined,
+    categories,
+    // descriptionJson: descriptionJson || undefined,
+    // previewVideo: previewVideo || undefined,
     fileList: undefined,
     removeDiscount: undefined,
     addDiscount: undefined,
   };
-
   const [loading, setLoading] = useState(false);
   const showPreviewState = useState(true);
   const pendingKeyRef = useRef<EditCourseTabsType | null>(null);
@@ -72,22 +85,10 @@ export default function EditCourse({
     defaultValues,
   });
 
-  // useEffect(() => {
-  //   methods.reset(defaultValues);
-  // }, [data, methods]);
-
   const fileList = methods.watch("fileImage");
   const preview = fileList?.[0] ? URL.createObjectURL(fileList[0]) : null;
 
-  const [title, subtitle, status, price, discount, discountType, discountActive] = methods.watch([
-    "title",
-    "shortDescription",
-    "status",
-    "priceAmount",
-    "discount.value",
-    "discount.type",
-    "discount.isActive",
-  ]);
+  const [title, price, discount] = methods.watch(["title", "priceAmount", "discount"]);
 
   const saveChanges = async () => {
     const dirty = methods.formState.dirtyFields;
@@ -95,14 +96,23 @@ export default function EditCourse({
     try {
       const values = methods.getValues();
       const dirtyData = getDirtyData(dirty, values);
-      if (dirtyData.tags) {
-        return updateTags({ id, tags: dirtyData.tags });
+      if (Object.keys(dirtyData).length == 0) return;
+      // addToast({ title: "dirtyData", description: JSON.stringify(dirtyData, null, 2) });
+      if (dirtyData.tags || (dirtyData.categories && dirtyData.categories.length > 0)) {
+        if (dirtyData.tags) updateTags({ id, tags: dirtyData.tags });
+        if (dirtyData.categories) {
+          const currentField = methods.getValues("categories");
+          const ids = currentField!.map(c => c.id);
+          const primaryId = currentField![0].id;
+          updateCategories({ id: course.id, categories: { ids, primaryId } });
+        }
+        return;
       }
       if (dirtyData.fileImage) {
         setLoading(true);
         const fileImage = dirtyData.fileImage[0];
         const ext = fileImage.name.split(".").pop();
-        const path = `courses/${toSlug(dirtyData.title || course.title)}.${ext}`;
+        const path = `courses/${toSlug(dirtyData.title || metaDraft.title)}.${ext}`;
         const { error, data } = await storageClient.from(SUPABASE_BUCKET).upload(path, fileImage, { upsert: true });
         if (error) {
           addToast({ color: "danger", title: "Error uploading image", description: error.message });
@@ -132,7 +142,6 @@ export default function EditCourse({
   };
 
   const handleSelectionChange = (nextKey: Key) => {
-    console.log(methods.formState.dirtyFields);
     if (!Object.hasOwn(methods.formState.dirtyFields, "tags")) {
       actuallySwitch(nextKey as EditCourseTabsType);
       return;
@@ -153,11 +162,13 @@ export default function EditCourse({
     });
   };
 
-  const [popOpen, setPopOpen] = useState(false);
+  const { data: user } = useSession();
 
+  const [popOpen, setPopOpen] = useState(false);
+  useNProgress(loading);
   useEffect(() => {
-    console.log(showPreviewState[0], selectedKey);
-  }, [showPreviewState, selectedKey]);
+    methods.reset(defaultValues);
+  }, [data]);
 
   return (
     <EditCourseContext.Provider value={{ showCoursePreviewState: showPreviewState, courseId: id }}>
@@ -165,7 +176,7 @@ export default function EditCourse({
         <div
           className={cn(
             showPreviewState[0] || selectedKey != "curriculum" ? "lg:col-span-8" : "lg:col-span-12",
-            "space-y-4 relative"
+            "space-y-4 relative",
           )}>
           <FormProvider {...methods}>
             <div className="flex gap-x-4 items-center @xl:hidden mx-2">
@@ -199,8 +210,8 @@ export default function EditCourse({
                     <ListboxItem aria-label="basic" key="basic">
                       Basic
                     </ListboxItem>
-                    <ListboxItem aria-label="tags" key="tags">
-                      Tags
+                    <ListboxItem aria-label="categories and tags" key="categories_tags">
+                      Categories & Tags
                     </ListboxItem>
                     <ListboxItem aria-label="media" key="media">
                       Media
@@ -225,7 +236,7 @@ export default function EditCourse({
               color="primary"
               radius="lg"
               classNames={{
-                tab: "w-28 px-4 font-semibold h-[34px] @xl:flex hidden",
+                tab: "w-30 px-4 font-semibold h-[34px] @xl:flex hidden",
                 cursor: "bg-blue-700",
                 tabList: "shadow-none border-slate-300 border @xl:flex hidden",
                 tabContent: "text-slate-700",
@@ -233,15 +244,13 @@ export default function EditCourse({
               }}
               variant="bordered">
               <Tab key="basic" title="Basic">
-                <BasicsForm
-                  defaultValues={{ descriptionJson, shortDescription: course.shortDescription, title: course.title }}
-                />
+                <BasicsForm defaultValues={{ ...metaDraft }} />
               </Tab>
-              <Tab key="tags" title="Tags">
-                <TagsForm tags={tags} />
+              <Tab key="categories_tags" title="Category/Tag">
+                <CategoriesTagsForm categories={categories} tags={tags} />
               </Tab>
               <Tab key="media" title="Media">
-                <MediaForm defaultValues={{ coverImage: course.coverImage, previewVideo }} />
+                <MediaForm defaultValues={{ ...metaDraft, previewVideo: metaDraft.previewVideo! }} />
               </Tab>
               <Tab key="pricing" title="Pricing">
                 <PricingPanel discountId={discounts[0]?.id} courseId={id} />
@@ -274,49 +283,34 @@ export default function EditCourse({
               <div className="p-4 border-b border-slate-200 flex items-center gap-2">
                 <LuEye className="w-4 h-4" /> Live Preview
               </div>
-              <div className="p-4">
-                <div className="rounded-xl overflow-hidden border border-slate-200">
-                  <div className="relative aspect-video bg-slate-100 grid place-items-center">
-                    {preview ? (
-                      <div className="w-full h-fit aspect-video rounded-lg overflow-hidden relative">
-                        <Image src={preview} alt="course image" fill objectFit="cover" />
-                      </div>
-                    ) : course.coverImage ? (
-                      <div className="w-full h-fit aspect-video rounded-lg overflow-hidden relative">
-                        <Image src={course.coverImage} alt="course image" fill objectFit="cover" />
-                      </div>
-                    ) : (
-                      <div className="text-slate-400 text-sm flex flex-col items-center">
-                        <LuImage className="w-8 h-8 mb-1" />
-                        Thumbnail
-                      </div>
-                    )}
-                    <span className="absolute left-3 top-3 text-xs px-2.5 py-1 rounded-full bg-blue-600 text-white">
-                      {status}
-                    </span>
-                  </div>
-                  <div className="p-4 space-y-1">
-                    <p className="font-semibold">{title || "Course title"}</p>
-                    <p className="text-sm text-slate-600 line-clamp-2">
-                      {subtitle || "Write a compelling subtitle or description."}
-                    </p>
-                    <div className="flex items-center gap-3 text-xs text-slate-500 pt-1">
-                      <span className="inline-flex items-center gap-1">
-                        <LuStar className="w-3.5 h-3.5" /> 0.0
-                      </span>
-                      <span className="inline-flex items-center gap-1">
-                        <LuUsers className="w-3.5 h-3.5" /> 0
-                      </span>
-                      <span className="inline-flex items-center gap-1">
-                        <PiMoneyWavyLight size={16} />{" "}
-                        {(discount && discountActive
-                          ? finalPrice(price!, discount, discountType)
-                          : price || 0
-                        ).toLocaleString("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 })}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+              <div className="p-6 grid">
+                <UserCourseCard
+                  course={{
+                    metaApproved: {
+                      ...metaDraft,
+                      title,
+                      priceAmount: price,
+                      ...(preview && { coverImage: preview }),
+                    },
+                    owner: {
+                      fullName: user?.user.fullName || "instructor Name",
+                      profilePict: user?.user.image || "/images/user.jpg",
+                      username: user?.user.name || "instructor Name",
+                    },
+                    discounts: discounts[0] && [
+                      {
+                        id: discounts[0].id,
+                        courseId: discounts[0].courseId,
+                        endAt: discount?.endAt?.toString() || discounts[0].endAt || "",
+                        startAt: discount?.startAt?.toString() || discounts[0].startAt || "",
+                        isActive: discount?.isActive == undefined ? discounts[0].isActive : discount.isActive,
+                        label: discount?.label || discounts[0].label,
+                        type: discount?.type || discounts[0].type,
+                        value: discount?.value || discounts[0].value,
+                      },
+                    ],
+                  }}
+                />
               </div>
             </div>
 

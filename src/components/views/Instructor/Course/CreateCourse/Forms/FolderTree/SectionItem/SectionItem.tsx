@@ -1,17 +1,13 @@
-import { CourseSectionForm, EditCourseForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
-import useEditLesson from "@/hooks/course/useEditLesson";
-import useEditSection from "@/hooks/course/useEditSection";
-import { useNProgress } from "@/hooks/use-nProgress";
-import { useEditCourseContext } from "@/libs/context/EditCourseContext";
+import useModalAddLessons from "@/components/commons/Forms/AddLessonsForm/useModalAddLesson";
+import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
+import CourseLessonItem from "@/components/views/Instructor/Course/CreateCourse/Forms/FolderTree/SectionItem/LessonItem";
 import { useFolderTreeContext } from "@/libs/context/FolderTreeContext";
-import { hasTrue } from "@/libs/utils/boolean";
 import cn from "@/libs/utils/cn";
-import { diffList } from "@/libs/utils/data";
 import { StateType } from "@/types/Helper";
 import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button, Listbox, ListboxItem, Popover, PopoverContent, PopoverTrigger, addToast } from "@heroui/react";
+import { Button, Listbox, ListboxItem, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 import { useOverlayTriggerState } from "@react-stately/overlays";
 import { CSSProperties, FC, Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -29,34 +25,29 @@ import {
   LuSquarePen,
   LuTrash2,
 } from "react-icons/lu";
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
-import useModalAddLessons from "@/components/commons/Forms/AddLessonsForm/useModalAddLesson";
-import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
-import { OnSelect } from "@/components/commons/FolderTree/FolderTree";
-import CourseLessonItem from "@/components/commons/FolderTree/SectionItem/LessonItem";
+import { CourseForm, CourseSectionForm } from "../../../form.type";
 const CourseSectionItem: FC<{
   section: CourseSectionForm;
-  onSelect: OnSelect;
-  expandState: StateType<Set<number>>;
+  expandedState: StateType<Set<string>>;
   idx: number;
   overlay?: boolean;
-  onRemove?: (id: number, title: string) => void;
+  onRemove?: (idx: number) => void;
+  onRename?: (idx: number, title: string) => void;
   onCheck?: () => void;
   isChecked: boolean;
-  defaultLessons: CourseSection["lessons"];
 }> = ({
   section,
-  onSelect,
-  expandState: [expanded, setExpanded],
-  idx,
+  expandedState: [expanded, setExpanded],
   onRemove = () => {},
   onCheck = () => {},
   isChecked,
-  defaultLessons,
+  idx,
+  onRename = () => {},
 }) => {
   const { editMode } = useFolderTreeContext();
-  const [editSection, setEditSection] = useState<{ id: number; title: string } | null>(null);
+  const [editSection, setEditSection] = useState<{ id: string; title: string } | null>(null);
   const [isEditLesson, setEditLesson] = useState(false);
+  const [newLesson, setNewLesson] = useState<string | null>(null);
 
   useEffect(() => {
     if (editMode) setEditLesson(false);
@@ -86,12 +77,11 @@ const CourseSectionItem: FC<{
   } as CSSProperties;
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
-  const { control, reset, watch, getValues, resetField, setValue } = useFormContext<EditCourseForm>();
-  const idIdx = getValues("sections")!.findIndex(s => s.id == section.id);
-  const { fields, move } = useFieldArray({
+  const { control } = useFormContext<CourseForm>();
+  const { fields, move, append, update, remove } = useFieldArray({
     control,
-    name: `sections.${idIdx}.lessons`,
-    keyName: "fieldId",
+    name: `sections.${idx}.lessons`,
+    keyName: "id",
   });
   const ids = useMemo(() => fields.map(s => s.id!), [fields]);
   const handleDrag = ({ active, over }: DragEndEvent) => {
@@ -103,7 +93,6 @@ const CourseSectionItem: FC<{
     move(from, to);
   };
 
-  const [newLesson, setNewLesson] = useState<string | null>(null);
   const inputNewLessonRef = useRef<HTMLInputElement>(null);
   const menuState = useOverlayTriggerState({ defaultOpen: false });
 
@@ -116,20 +105,7 @@ const CourseSectionItem: FC<{
     }
   }, [menuState.isOpen, newLesson]);
 
-  const { courseId } = useEditCourseContext();
-  const { renameSection, isPending } = useEditSection({});
-  const handleRenameSection = () => {
-    if (!editSection || !editSection.title || !editSection.id)
-      return addToast({
-        title: "Error",
-        description: "Section title must be not empty",
-        color: "danger",
-      });
-    if (editSection.title.trim() == section.title.trim()) return setEditSection(null);
-    return renameSection({ courseId, sectionId: editSection.id, title: editSection.title });
-  };
-
-  const [selectedLesson, setSelectedLesson] = useState<Set<number>>(new Set());
+  const [selectedLesson, setSelectedLesson] = useState<Set<string>>(new Set());
   useEffect(() => {
     if (isChecked) {
       setSelectedLesson(new Set(ids));
@@ -138,7 +114,7 @@ const CourseSectionItem: FC<{
     }
   }, [isChecked, ids]);
 
-  const toggleSelect = (id: number) => {
+  const toggleSelect = (id: string) => {
     setSelectedLesson(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -147,54 +123,37 @@ const CourseSectionItem: FC<{
     });
   };
 
-  const { createLessons, isLoading, queryLessons, reorderLessons, batchRemoveLesson } = useEditLesson({
-    sectionId: section.id!,
-    onCreateLessonSuccess() {
-      setNewLesson(null);
-    },
-    onReorderLessonSuccess() {
-      setEditLesson(false);
-    },
-    onBatchRemoveLessonSuccess() {
-      setEditLesson(false);
-    },
-  });
-
-  useEffect(() => {
-    if (queryLessons) {
-      setValue(`sections.${idIdx}.lessons`, queryLessons);
-    }
-  }, [queryLessons]);
-
-  const handleSubmitLesson = () => {
-    if (!newLesson) return;
-    return createLessons([{ title: newLesson }]);
-  };
-  const handleSubmitReorderLesson = () => {
-    const base = queryLessons || defaultLessons;
-    const changes = fields.map(({ fieldId: _fId, position: _pos, ...v }, i) => ({ position: i + 1, ...v }));
-    const reorderList = diffList(base, changes as Lesson[], { props: ["position"] });
-    if (reorderList.length == 0) return setEditLesson(false);
-    return reorderLessons(reorderList);
-  };
-
   const handleToggleAllSelectedLesson = (v: boolean) => {
     if (v) setSelectedLesson(new Set([...ids]));
     else setSelectedLesson(new Set());
   };
 
-  const handleBatchRemoveLessons = () => {
-    if (selectedLesson.size == 0) return;
-    return confirmDialog({
-      title: "Remove Lessons ?",
-      desc: `This action will permananently remove ${selectedLesson.size} lesson${selectedLesson.size > 1 ? "s" : ""}`,
-      isLoading: isLoading.batchRemoveLessonPending,
-      onConfirmed: () => batchRemoveLesson([...selectedLesson]),
-    });
+  const handleRenameSection = () => (editSection ? onRename(idx, editSection.title) : null);
+
+  const handleAddLesson = () => {
+    if (newLesson) {
+      append({ title: newLesson });
+      setNewLesson(null);
+    }
   };
 
-  const { opneAddLessonModal } = useModalAddLessons(section.id!);
-  useNProgress(hasTrue(isPending) || hasTrue(isLoading));
+  const { opneAddLessonModal } = useModalAddLessons({
+    createLessons(newLessons) {
+      append(newLessons.map(t => t));
+    },
+  });
+
+  const onRenameLesson = (idx: number, title: string) => update(idx, { title });
+  const onRemoveLesson = (idx: number) => remove(idx);
+
+  const handleDeleteLessons = () => {
+    if (selectedLesson.size > 0) {
+      const idxs = fields
+        .map(({ id }, idx) => (selectedLesson.has(id) ? idx : null))
+        .filter((f): f is number => f !== null);
+      remove(idxs);
+    }
+  };
 
   return (
     <li
@@ -215,7 +174,7 @@ const CourseSectionItem: FC<{
           "flex w-full items-center gap-2 rounded-lg text-left transition-colors duration-150 cursor-pointer",
           "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)] border-abu text-[var(--tt-theme-text)]",
           editSection == null ? "py-1.5 px-2" : "pl-2 py-[3px] pr-[3px]",
-          isEditLesson && "border border-blue-300 py-[5px]"
+          isEditLesson && "border border-blue-300 py-[5px]",
         )}
         onClick={isEditLesson ? () => {} : handleToggle}>
         <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center")}>
@@ -276,18 +235,7 @@ const CourseSectionItem: FC<{
               <span className="flex gap-x-3 mr-1">
                 <Button
                   isIconOnly
-                  onPress={handleSubmitReorderLesson}
-                  hidden={!isEditLesson}
-                  radius="none"
-                  size="lg"
-                  className={cn("reset-button p-[5px] text-sm rounded-md")}
-                  color="primary"
-                  variant={"flat"}>
-                  <LuCheck />
-                </Button>
-                <Button
-                  isIconOnly
-                  onPress={handleBatchRemoveLessons}
+                  onPress={handleDeleteLessons}
                   hidden={!isEditLesson}
                   radius="none"
                   size="lg"
@@ -331,7 +279,7 @@ const CourseSectionItem: FC<{
                       New lesson batch
                     </ListboxItem>
                     <ListboxItem
-                      hidden={!section.lessons || section.lessons.length == 0}
+                      hidden={fields.length == 0}
                       onPress={() => {
                         setExpanded(v => new Set([...v, section.id!]));
                         setEditLesson(true);
@@ -347,7 +295,7 @@ const CourseSectionItem: FC<{
                       Rename
                     </ListboxItem>
                     <ListboxItem
-                      onPress={() => onRemove(section.id!, section.title)}
+                      onPress={() => onRemove(idx)}
                       startContent={<LuTrash2 />}
                       key="delete"
                       className="text-danger"
@@ -369,19 +317,18 @@ const CourseSectionItem: FC<{
               "ml-4 flex list-none flex-col gap-1 px-3",
               isEditLesson
                 ? "border-blue-300 border-x border-b rounded-b-lg py-2 mr-1"
-                : "border-l  border-[var(--tt-border-color)] mt-1"
+                : "border-l  border-[var(--tt-border-color)] mt-1",
             )}
             role="group">
             <SortableContext strategy={verticalListSortingStrategy} items={ids}>
-              {fields.map(lesson => (
+              {fields.map((lesson, idx) => (
                 <CourseLessonItem
+                  sectionIdx={idx}
                   isChecked={selectedLesson.has(lesson.id!)}
                   onCheck={() => toggleSelect(lesson.id!)}
-                  lesson={lesson}
-                  onSelect={onSelect}
-                  section={section}
                   key={lesson.id}
                   editMode={isEditLesson}
+                  {...{ section, lesson, idx, onRemove: onRemoveLesson, onRename: onRenameLesson }}
                 />
               ))}
             </SortableContext>
@@ -408,7 +355,7 @@ const CourseSectionItem: FC<{
                     name="new lesson"
                     className={cn(
                       "w-full border text-sm px-1 py-1 focus:outline-0 text-[var(--tt-theme-text)] rounded-md",
-                      "bg-gray-100 border-gray-300"
+                      "bg-gray-100 border-gray-300",
                     )}
                     ref={inputNewLessonRef}
                     value={newLesson || undefined}
@@ -417,13 +364,13 @@ const CourseSectionItem: FC<{
                     onKeyDown={e => {
                       if (e.key == "Enter") {
                         e.preventDefault();
-                        handleSubmitLesson();
+                        handleAddLesson();
                       }
                       if (e.key == "Escape") setNewLesson(null);
                     }}
                   />
                   <Button
-                    onPress={handleSubmitLesson}
+                    onPress={handleAddLesson}
                     variant="flat"
                     color="primary"
                     isIconOnly

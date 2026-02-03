@@ -1,27 +1,28 @@
+import UserCourseCard from "@/components/commons/Cards/UserCourseCard";
 import { SUPABASE_BUCKET, SUPABASE_URL } from "@/config/env";
 import { storageClient } from "@/libs/supabase/client";
 import cn from "@/libs/utils/cn";
-import { finalPrice } from "@/libs/utils/currency";
 import { toSlug } from "@/libs/utils/string";
 import courseService from "@/services/course.service";
 import { Spinner, addToast } from "@heroui/react";
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 import { Fragment, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { LuChevronLeft, LuChevronRight, LuCircleCheck, LuEye, LuImage, LuStar, LuUsers } from "react-icons/lu";
-import { PiMoneyWavyLight } from "react-icons/pi";
+import { LuChevronLeft, LuChevronRight, LuCircleCheck, LuEye } from "react-icons/lu";
 import BasicsForm from "./Forms/BasicForm";
 import CurriculumBuilder from "./Forms/CurriculumBuilder";
 import PricingPanel from "./Forms/PricingPanel";
+import { CourseForm } from "./form.type";
 
 export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => void; onFinish: () => void }) {
+  const { data: user } = useSession();
   const [step, setStep] = useState(1);
   const [isLoading, setLoading] = useState(false);
   const methods = useForm<CourseForm>({
     defaultValues: {
       priceAmount: 0,
-      status: "DRAFT",
       tags: [],
       sections: [],
     },
@@ -56,8 +57,9 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
       console.log(error);
       return;
     }
+    const categoryIds = value.categories.map(c => c.id);
     const urlImg = SUPABASE_URL + "/object/public/" + data.fullPath;
-    const courseData = { ...value, coverImage: urlImg };
+    const courseData = { ...value, coverImage: urlImg, categories: { ids: categoryIds, primaryId: categoryIds[0] } };
     if (value.discount == undefined) Reflect.deleteProperty(courseData, "discount");
     setLoading(false);
     console.log(courseData);
@@ -71,7 +73,7 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
   const goPrev = () => setStep(s => Math.max(1, s - 1));
 
   const validateBasicForm = async () => {
-    const isValid = await methods.trigger(["title", "shortDescription", "coverImage", "tags"]);
+    const isValid = await methods.trigger(["title", "shortDescription", "coverImage", "tags", "categories"]);
     if (isValid) goNext();
   };
 
@@ -80,21 +82,13 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
     if (isValid) goNext();
   };
 
-  const [title, subtitle, status, price, discount, discountType, discountActive] = methods.watch([
-    "title",
-    "shortDescription",
-    "status",
-    "priceAmount",
-    "discount.value",
-    "discount.type",
-    "discount.isActive",
-  ]);
+  const [title, subtitle, price, discount] = methods.watch(["title", "shortDescription", "priceAmount", "discount"]);
 
   const saveCourse = methods.handleSubmit(onSubmit);
 
   return (
-    <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <div className="lg:col-span-8 space-y-6">
+    <section className="grid grid-cols-1 @5xl:grid-cols-12 gap-8">
+      <div className="@5xl:col-span-8 space-y-6">
         {/* Stepper */}
         <div className="flex items-center gap-3">
           <StepPill active={step === 1} done={step > 1} label="Basics" />
@@ -106,7 +100,7 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
 
         {/* Panels */}
         <FormProvider {...methods}>
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 @container">
             <AnimatePresence mode="wait">
               {step === 1 && (
                 <motion.div
@@ -174,7 +168,7 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
                 type="button"
                 onClick={step == 1 ? validateBasicForm : step == 2 ? validatePricing : undefined}
                 className={cn(
-                  "h-10 px-4 rounded-xl bg-blue-600 text-white font-medium inline-flex items-center gap-2"
+                  "h-10 px-4 rounded-xl bg-blue-600 text-white font-medium inline-flex items-center gap-2",
                 )}>
                 Next <LuChevronRight className="w-4 h-4" />
               </button>
@@ -200,7 +194,7 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
       </div>
 
       {/* Live Preview / Help */}
-      <aside className="lg:col-span-4 space-y-6">
+      {/* <aside className="lg:col-span-4 space-y-6">
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <div className="p-4 border-b border-slate-200 flex items-center gap-2">
             <LuEye className="w-4 h-4" /> Live Preview
@@ -253,6 +247,50 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
             <li>Mark 1–2 lessons as preview to attract learners.</li>
           </ul>
         </div>
+      </aside> */}
+      <aside className="@5xl:col-span-4 space-y-6 grid-cols-12 grid @5xl:grid-cols-1 @container gap-3">
+        <div className="rounded-2xl border border-slate-200 max-w-md bg-white shadow-sm overflow-hidden @4xl:col-span-6 col-span-12">
+          <div className="p-4 border-b border-slate-200 flex items-center gap-2">
+            <LuEye className="w-4 h-4" /> Live Preview
+          </div>
+          <div className="p-6 grid">
+            <UserCourseCard
+              course={{
+                metaApproved: {
+                  coverImage: preview || "/images/thumbnail-placeholder.svg",
+                  priceAmount: price,
+                  title: title || "Course Title",
+                },
+                owner: {
+                  fullName: user?.user.fullName || "instructor Name",
+                  profilePict: user?.user.image || "/images/user.jpg",
+                  username: user?.user.name || "instructor Name",
+                },
+                discounts: discount && [
+                  {
+                    id: 0,
+                    courseId: 0,
+                    endAt: discount.endAt?.toString() || "",
+                    startAt: discount.startAt?.toString() || "",
+                    isActive: discount.isActive == undefined ? false : discount.isActive,
+                    label: discount.label || "Discount",
+                    type: discount.type,
+                    value: discount.value,
+                  },
+                ],
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="rounded-2xl h-fit border border-slate-200 bg-white shadow-sm p-4 col-span-12 @4xl:col-span-6">
+          <p className="text-sm font-medium mb-2">Tips</p>
+          <ul className="text-sm text-slate-600 list-disc pl-5 space-y-1">
+            <li>Use actionable titles (e.g., “Build a REST API with Express & Prisma”).</li>
+            <li>Each lesson should have a clear outcome in 5–10 minutes.</li>
+            <li>Mark 1–2 lessons as preview to attract learners.</li>
+          </ul>
+        </div>
       </aside>
     </section>
   );
@@ -266,8 +304,8 @@ function StepPill({ active, done, label }: { active: boolean; done: boolean; lab
         active
           ? "border-blue-600 text-blue-700 bg-blue-50"
           : done
-          ? "border-emerald-600 text-emerald-700 bg-emerald-50"
-          : "border-slate-200 text-slate-600"
+            ? "border-emerald-600 text-emerald-700 bg-emerald-50"
+            : "border-slate-200 text-slate-600",
       )}>
       {done ? <LuCircleCheck className="w-4 h-4" /> : <span className="w-2 h-2 rounded-full bg-current opacity-60" />}
       {label}

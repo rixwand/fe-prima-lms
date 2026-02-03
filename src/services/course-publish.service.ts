@@ -8,6 +8,9 @@ const coursePublishService = {
       params,
       paramsSerializer: params => buildQueryParams(params),
     }),
+  reject: ({ reqId, notes }: { reqId: number; notes: string }) =>
+    api.patch(endpoint.PUBLISH_COURSE + `/reject/${reqId}`, { notes }),
+  approve: (reqId: number) => api.patch(endpoint.PUBLISH_COURSE + `/approve/${reqId}`),
 };
 
 export default coursePublishService;

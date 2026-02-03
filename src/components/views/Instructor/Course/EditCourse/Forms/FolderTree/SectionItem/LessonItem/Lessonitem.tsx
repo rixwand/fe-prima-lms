@@ -1,5 +1,6 @@
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
+import { OnSelect } from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree/FolderTree";
 import { CourseSectionForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import useEditLesson from "@/hooks/course/useEditLesson";
 import { useNProgress } from "@/hooks/use-nProgress";
@@ -21,7 +22,6 @@ import {
   LuPencil,
   LuTrash2,
 } from "react-icons/lu";
-import { OnSelect } from "@/components/commons/FolderTree/FolderTree";
 
 const CourseLessonItem = ({
   lesson,
@@ -117,7 +117,7 @@ const CourseLessonItem = ({
           isActiveLesson
             ? "border-[var(--tt-brand-color-500)] bg-[var(--tt-brand-color-50)] text-blue-600 font-medium dark:border-[var(--tt-brand-color-400)] dark:bg-[rgba(91,126,238,0.2)]"
             : "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)]",
-          editLesson?.id != lesson.id ? "py-1.5 px-2" : "pl-2 py-[3px] pr-[3px]"
+          editLesson?.id != lesson.id ? "py-1.5 px-2" : "pl-2 py-[3px] pr-[3px]",
         )}
         onClick={handleSelectLesson}>
         {editMode ? (
@@ -145,7 +145,7 @@ const CourseLessonItem = ({
               ref={inputLessonRef}
               className={cn(
                 "w-full border text-sm px-1 py-1 focus:outline-0 text-[var(--tt-theme-text)] rounded-md",
-                isActiveLesson ? "bg-gray-50 border-blue-400" : "bg-gray-100 border-gray-300"
+                isActiveLesson ? "bg-gray-50 border-blue-400" : "bg-gray-100 border-gray-300",
               )}
               onClick={e => e.stopPropagation()}
               value={editLesson.title}

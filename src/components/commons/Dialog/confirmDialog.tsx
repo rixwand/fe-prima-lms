@@ -43,10 +43,12 @@ function ConfirmModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleCancel} placement="center" backdrop="blur">
+    <Modal isOpen={isOpen} onClose={handleCancel} placement="center" size="lg" backdrop="blur">
       <ModalContent>
         <ModalHeader className="text-lg font-semibold">{title}</ModalHeader>
-        <ModalBody className="text-slate-600">{desc}</ModalBody>
+        <ModalBody className="text-slate-600">
+          <p className="whitespace-pre-line">{desc}</p>
+        </ModalBody>
         <ModalFooter>
           {!loading && (
             <Button variant="light" onPress={handleCancel} isDisabled={loading}>

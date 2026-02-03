@@ -2,12 +2,12 @@ export interface EditCourseForm {
   coverImage: string;
   fileImage: FileList | null;
   title: string;
-  status: "PUBLISHED" | "DRAFT" | "PENDING";
   previewVideo?: string;
   shortDescription: string;
   descriptionJson?: string;
   priceAmount: number;
   isFree: boolean;
+  categories?: { id: number; name: string }[];
   tags?: {
     createOrConnect: string[];
     disconnectSlugs: string[];

@@ -1,12 +1,16 @@
-import useEditSection from "@/hooks/course/useEditSection";
 import { AddSectionsFormRhf } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import { useForm } from "react-hook-form";
 import AddSectionsForm from ".";
 import FormWrapperDialog from "../../Dialog/FormDialog";
 
-export default function useModalAddSections() {
+export default function useModalAddSections({
+  createSection,
+  isPending = false,
+}: {
+  createSection: (props: { sections: string[]; courseId?: number }) => void;
+  isPending?: boolean;
+}) {
   const addSectionsMethod = useForm<AddSectionsFormRhf>({ defaultValues: { sections: [] } });
-  const { createSection, isPending } = useEditSection({});
   const openAddSectionsModal = () => {
     addSectionsMethod.setValue("sections", [{ title: "New Section" }]);
     FormWrapperDialog({
@@ -19,7 +23,7 @@ export default function useModalAddSections() {
       title: "Add Sections",
       formSubscribe: addSectionsMethod.subscribe,
       fieldName: "sections",
-      isLoading: isPending.createSectionPendig,
+      isLoading: isPending,
     });
   };
 

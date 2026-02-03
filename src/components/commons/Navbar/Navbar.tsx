@@ -1,3 +1,4 @@
+import AvatarProfile from "@/components/commons/AvatarProfile";
 import { inter } from "@/libs/fonts";
 import {
   Button,
@@ -16,8 +17,10 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { Fragment, useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import AvatarProfile from "@/components/commons/AvatarProfile";
-export default function Navbar() {
+type Props = {
+  showSearch?: boolean;
+};
+export default function Navbar({ showSearch = true }: Props) {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
   const menuItems = [
@@ -33,7 +36,20 @@ export default function Navbar() {
         <NavbarBrand className="mr-4">
           <Image src="/images/logo-full.png" alt="brand logo" height={34} width={128} />
         </NavbarBrand>
-        <NavbarContent className="hidden lg:flex gap-10 mr-4">
+        {showSearch && (
+          <NavbarContent className="hidden lg:flex gap-10 mr-4">
+            {menuItems.map(val => (
+              <NavbarItem key={val.title}>
+                <Link color="foreground" href={val.link}>
+                  {val.title}
+                </Link>
+              </NavbarItem>
+            ))}
+          </NavbarContent>
+        )}
+      </NavbarContent>
+      {!showSearch && (
+        <NavbarContent className="hidden lg:flex gap-10 mr-4" justify="center">
           {menuItems.map(val => (
             <NavbarItem key={val.title}>
               <Link color="foreground" href={val.link}>
@@ -42,20 +58,22 @@ export default function Navbar() {
             </NavbarItem>
           ))}
         </NavbarContent>
-      </NavbarContent>
+      )}
       <NavbarContent as="div" justify="end">
-        <Input
-          className="sm:flex hidden mr-3"
-          variant="bordered"
-          radius="sm"
-          classNames={{
-            base: "max-w-full sm:max-w-[30rem]",
-            inputWrapper: "h-full text-default-500 px-4",
-          }}
-          placeholder="Apa yang ingin anda pelajari?"
-          startContent={<FaSearch size={18} />}
-          type="search"
-        />
+        {showSearch && (
+          <Input
+            className="sm:flex hidden mr-3"
+            variant="bordered"
+            radius="sm"
+            classNames={{
+              base: "max-w-full sm:max-w-[30rem]",
+              inputWrapper: "h-full text-default-500 px-4",
+            }}
+            placeholder="Apa yang ingin anda pelajari?"
+            startContent={<FaSearch size={18} />}
+            type="search"
+          />
+        )}
 
         {status == "authenticated" ? (
           <AvatarProfile />

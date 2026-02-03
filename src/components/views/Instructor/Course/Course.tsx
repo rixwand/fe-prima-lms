@@ -1,21 +1,22 @@
 import StatCard from "@/components/commons/Cards/StatsCard";
 import { formatRupiah } from "@/libs/utils/currency";
 import { Tab, Tabs } from "@heroui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LuBookOpen, LuPlus, LuStar, LuUsers } from "react-icons/lu";
 import { PiMoneyWavy } from "react-icons/pi";
 import useCourse from "../../../../hooks/course/useListCourses";
 import AllCoursesTab from "./Tabs/AllCoursesTab";
+import DraftCoursesTab from "./Tabs/DraftCourse";
+import PendingCoursesTab from "./Tabs/PendingCourseTab";
+import PublishedCoursesTab from "./Tabs/PublishedCourseTab";
+import RejectedCoursesTab from "./Tabs/RejectedCourseTab";
 
 export default function InstructorCourse({ onCreate }: { onCreate: () => void }) {
-  const { courses, isLoading, deleteCourse } = useCourse();
+  const { coursesMeta } = useCourse();
   const [query, setQuery] = useState("");
 
   const totalStudents = 21000;
   const totalRevenue = 1_300_000;
-  useEffect(() => {
-    console.log(courses);
-  }, [courses]);
 
   return (
     <section className="space-y-6 @container">
@@ -42,7 +43,11 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
         <StatCard icon={<LuStar className="w-5 h-5" />} label="Avg. Rating" value={"4.7"} />
         {/* <StatCard icon={<LuStar className="w-5 h-5" />} label="Avg. Rating" value={avgRating(filtered)} /> */}
         <StatCard icon={<PiMoneyWavy size={24} />} label="Revenue" value={formatRupiah(totalRevenue)} />
-        <StatCard icon={<LuBookOpen className="w-5 h-5" />} label="Courses" value={courses?.length.toString() || "0"} />
+        <StatCard
+          icon={<LuBookOpen className="w-5 h-5" />}
+          label="Courses"
+          value={coursesMeta?.total.toString() || "0"}
+        />
       </div>
 
       {/* Toolbar */}
@@ -88,11 +93,20 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
       <div className="relative">
         <Tabs variant="underlined" className="flex">
           <Tab title="All" key={"all"}>
-            <AllCoursesTab {...{ isLoading: false, onCreate, courses }} />
+            <AllCoursesTab {...{ isLoading: false, onCreate }} />
           </Tab>
-          <Tab title="Pending" key={"pending"}></Tab>
-          <Tab title="Published" key={"published"}></Tab>
-          <Tab title="Draft" key={"draft"}></Tab>
+          <Tab title="Draft" key={"draft"}>
+            <DraftCoursesTab {...{ isLoading: false, onCreate }} />
+          </Tab>
+          <Tab title="Pending" key={"pending"}>
+            <PendingCoursesTab {...{ isLoading: false, onCreate }} />
+          </Tab>
+          <Tab title="Published" key={"published"}>
+            <PublishedCoursesTab {...{ isLoading: false, onCreate }} />
+          </Tab>
+          <Tab title="Rejected" key={"rejected"}>
+            <RejectedCoursesTab {...{ isLoading: false, onCreate }} />
+          </Tab>
         </Tabs>
       </div>
 

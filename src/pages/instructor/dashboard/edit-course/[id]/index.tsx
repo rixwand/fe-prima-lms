@@ -52,7 +52,7 @@ export default function EditCoursePage({ id }: { id: number }) {
   if (!data && !isPending) return <NotFound />;
   if (data) {
     return (
-      <InstructorLayout customNav={<CustomNav title="Edit Course" />} active="MyCourses">
+      <InstructorLayout customNav={<CustomNav title="Edit Course" />} active="My Courses">
         <EditCourse id={id} tabsState={tabsState} />
       </InstructorLayout>
     );

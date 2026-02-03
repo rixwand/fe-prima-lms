@@ -1,12 +1,14 @@
-import { CourseCardGrid, CourseCardList } from "@/components/commons/Cards/CourseCards";
+import { CourseCard } from "@/components/commons/Cards/CourseCard";
+import NoResult from "@/components/commons/NoResult";
+import useDump from "@/hooks/use-dump";
 import { useNProgress } from "@/hooks/use-nProgress";
-import { aVoidFn } from "@/libs/utils/function";
+import cn from "@/libs/utils/cn";
+import { getCourseStatus } from "@/libs/utils/course";
 import { useRouter } from "next/router";
 import { ReactNode, useState } from "react";
 import CoursesLoading from "../../../commons/Cards/CoursesCardLoading";
 import Toolbar from "../../../commons/Toolbar";
 import AdminListBoxAction from "./AdminListBoxActions";
-import NoResult from "./NoResult";
 
 export default function CoursesList({
   courses,
@@ -18,46 +20,53 @@ export default function CoursesList({
   notFound?: ReactNode;
 }) {
   const [layout, setLayout] = useState<Layout>("grid");
-  // const { queryCourses, isLoading: queryLoading } = useCourses();
   useNProgress(isLoading);
   const router = useRouter();
+  useDump(courses);
+
   return (
     <div className="pt-5 border-t border-slate-200">
       <Toolbar setLayout={setLayout} handleSearch={() => {}} />
-      <div className="overflow-x-auto">
+      <div className="">
         {isLoading ? (
           <CoursesLoading layout={layout} />
         ) : courses.length == 0 ? (
           notFound
-        ) : layout === "grid" ? (
-          <div className="grid grid-cols-1 @lg:grid-cols-2 @7xl:grid-cols-4 @4xl:grid-cols-3 gap-4">
+        ) : (
+          <div
+            className={cn(
+              layout == "grid"
+                ? "grid grid-cols-1 @lg:grid-cols-2 @7xl:grid-cols-4 @4xl:grid-cols-3 gap-4"
+                : "space-y-2",
+            )}>
             {courses?.map(c => (
-              <CourseCardGrid
+              <CourseCard
+                layout={layout}
                 key={c.id}
                 data={{
                   ...c.course,
-                  id: c.id,
+                  ...c.course.metaDraft,
+                  id: c.courseId,
                   createdAt: c.createdAt,
-                  status: c.status,
+                  status: getCourseStatus({ ...c.course, publishRequest: { id: c.id, notes: "", status: c.status } }),
+                  requestType: c.type,
+                  publishedRequestStatus: c.status,
                 }}
                 onPress={() => {
-                  router.push(`/admin/dashboard/course/${c.id}`);
+                  return c.type == "NEW"
+                    ? router.push(`/admin/dashboard/course/${c.courseId}`)
+                    : router.push(`/admin/dashboard/course/${c.courseId}/review-changes`);
                 }}
-                PopoverContentAction={<AdminListBoxAction courseId={c.id} courseStatus={c.status} />}
+                LisBoxActions={
+                  <AdminListBoxAction
+                    courseTitle={c.course.metaDraft.title}
+                    courseStatus={c.status}
+                    reqId={c.id}
+                    courseId={c.courseId}
+                  />
+                }
                 owner={c.course.owner}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {courses?.map(c => (
-              <CourseCardList
-                key={c.id}
-                data={c}
-                onPublish={aVoidFn}
-                onUnpublish={aVoidFn}
-                onDelete={aVoidFn}
-                isLoading={false}
+                unPressable={c.status == "REJECTED"}
               />
             ))}
           </div>

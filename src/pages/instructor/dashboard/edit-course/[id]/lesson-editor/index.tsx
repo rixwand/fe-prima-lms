@@ -6,10 +6,10 @@ import NoLessonMessage from "@/components/views/Instructor/Course/EditCourse/NoL
 import { useNProgress } from "@/hooks/use-nProgress";
 import { useQueryError } from "@/hooks/use-query-error";
 import { LessonEditorContext } from "@/libs/context/LessonEditorContext";
-import courseSectionService from "@/services/course-section.service";
-import { dehydrate, keepPreviousData, QueryClient, useQuery } from "@tanstack/react-query";
+import courseQueries from "@/queries/course-queries";
+import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
 import type { GetStaticPaths, GetStaticProps } from "next";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export const getStaticPaths: GetStaticPaths = async () => ({
   paths: [],
@@ -26,10 +26,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   const queryClient = new QueryClient();
 
-  await queryClient.prefetchQuery({
-    queryKey: ["courseSections", courseId],
-    queryFn: () => courseSectionService.list(courseId).then(res => res.data),
-  });
+  await queryClient.prefetchQuery(courseQueries.options.listSections(courseId));
 
   return {
     props: {
@@ -41,16 +38,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 };
 
 export default function CurriculumPage({ id }: { id: number }) {
-  const { data, isPending, isFetching, isError, error } = useQuery<{
-    courseTitle: string;
-    sections: CourseSection[];
-  }>({
-    queryKey: ["courseSections", id],
-    queryFn: () => courseSectionService.list(id).then(res => res.data),
-    enabled: Boolean(id),
-    placeholderData: keepPreviousData,
-  });
-
+  const { data, isPending, isFetching, isError, error } = useQuery(courseQueries.options.getCourse(id));
   const lessonState = useState<Lesson | null>(null);
   const [activeLesson] = lessonState;
 
@@ -69,7 +57,9 @@ export default function CurriculumPage({ id }: { id: number }) {
 
   useNProgress(isPending);
   useQueryError({ isError, error });
-
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
   if (!data && !isPending && !isFetching) {
     return <NotFound message="Course Not Found." />;
   }
@@ -78,6 +68,8 @@ export default function CurriculumPage({ id }: { id: number }) {
     return null;
   }
 
+  const { sections } = data;
+
   const hasNoContent =
     !data.sections || data.sections.length === 0 || data.sections.every(s => !s.lessons || s.lessons.length === 0);
 
@@ -85,7 +77,7 @@ export default function CurriculumPage({ id }: { id: number }) {
     return (
       <>
         <PageHead title="Edit Course" />
-        <SimpleEditorLayout courseTitle={data.courseTitle || ""} lessonState={[null, () => {}]} structure={[]}>
+        <SimpleEditorLayout courseTitle={data.metaDraft.title} lessonState={[null, () => {}]} structure={[]}>
           <NoLessonMessage courseId={id} />
         </SimpleEditorLayout>
       </>
@@ -96,10 +88,14 @@ export default function CurriculumPage({ id }: { id: number }) {
     <LessonEditorContext.Provider value={contextValue}>
       <PageHead title="Edit Course" />
       <SimpleEditorLayout
-        courseTitle={data.courseTitle || ""}
+        courseTitle={data.metaDraft.title || ""}
         lessonState={lessonState}
         structure={data.sections || []}>
-        {activeLesson ? <LessonEditor lessonState={lessonState} /> : <div>Select a lesson to start editing</div>}
+        {activeLesson ? (
+          <LessonEditor lessonState={lessonState} />
+        ) : (
+          <NoLessonMessage title="No Lesson Selected" desc="Select a lesson to start editing" />
+        )}
       </SimpleEditorLayout>
     </LessonEditorContext.Provider>
   );

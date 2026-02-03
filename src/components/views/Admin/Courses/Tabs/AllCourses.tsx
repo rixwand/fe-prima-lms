@@ -1,10 +1,7 @@
-import { useNProgress } from "@/hooks/use-nProgress";
-import { hasTrue } from "@/libs/utils/boolean";
-import usePublishCourses from "../../../../../hooks/course/usePublishCourses";
+import usePublishCourses from "../../../../../hooks/course/useListPublishRequest";
 import CoursesList from "../CoursesList";
 
 export default function AllCourses() {
-  const { queryCourses, isLoading, refetch } = usePublishCourses({ limit: 12, page: 1 });
-  useNProgress(hasTrue(isLoading));
-  return <CoursesList {...{ isLoading: isLoading.isLoading, courses: queryCourses?.courses || [] }} />;
+  const { queryCourses, isQueryLoading } = usePublishCourses({ queryParams: { limit: 12, page: 1 } });
+  return <CoursesList {...{ isLoading: isQueryLoading, courses: queryCourses?.courses || [] }} />;
 }

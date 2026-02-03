@@ -1,14 +1,39 @@
+import SortableChip from "@/components/commons/Chip/SortableChip";
 import TextField from "@/components/commons/TextField";
-import { Chip } from "@heroui/react";
-import { useState } from "react";
-import { Controller, useFormContext } from "react-hook-form";
-import { IoClose } from "react-icons/io5";
-import { LuImage, LuUpload } from "react-icons/lu";
+import useCourseCategories from "@/hooks/course/useCourseCategories";
+import cn from "@/libs/utils/cn";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  Chip,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  addToast,
+} from "@heroui/react";
+import { Key, useMemo, useState } from "react";
+import { Controller, useFieldArray, useFormContext } from "react-hook-form";
+import { LuChevronDown, LuImage, LuInfo, LuUpload } from "react-icons/lu";
+import { CourseForm } from "../form.type";
 import Field from "./Field";
 
 export default function BasicsForm() {
   const [tagInput, setTagInput] = useState("");
-
+  const [dragState, setDragState] = useState<{ id: number; width: number; height: number } | null>(null);
+  const { categories } = useCourseCategories();
   const {
     control,
     setValue,
@@ -16,16 +41,16 @@ export default function BasicsForm() {
     register,
     formState: { errors },
   } = useFormContext<CourseForm>();
-  // const {fields} = useFieldArray({control, name: 'courseInfo.tags', keyName: ""})
 
-  // const onThumbPick = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const f = e.target.files?.[0];
-  //   if (!f) return;
-  //   const url = URL.createObjectURL(f);
-  //   set("thumbnail", url);
-  // };
+  const { move, fields, append, remove } = useFieldArray({ control, name: "categories", keyName: "fieldId" });
+  const ids = useMemo(() => fields.map(c => c.id), [fields]);
 
   register("tags", { minLength: { value: 1, message: "Add at least 1 tag" }, required: "Add at least 1 tag" });
+  register("categories", {
+    minLength: { value: 1, message: "Add at least 1 categories" },
+    required: "Add at least 1 categories",
+  });
+
   const tags = watch("tags");
   const fileList = watch("coverImage");
   const preview = fileList?.[0] ? URL.createObjectURL(fileList[0]) : null;
@@ -38,9 +63,40 @@ export default function BasicsForm() {
     setTagInput("");
   };
 
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  const onDragEnd = ({ active, over }: DragEndEvent) => {
+    setDragState(null);
+    if (!over || active.id === over.id) return;
+
+    const from = fields.findIndex(s => s.id === active.id);
+    const to = fields.findIndex(s => s.id === over.id);
+    if (from === -1 || to === -1) return;
+    move(from, to);
+  };
+
+  const onDragStart = ({ active }: DragStartEvent) => {
+    const element = document.querySelector<HTMLElement>(`[data-chip-sortable="${active.id}"]`);
+    if (element) {
+      const rect = element.getBoundingClientRect();
+      setDragState({
+        width: rect.width,
+        height: rect.height,
+        id: parseInt(active.id.toString()),
+      });
+    }
+  };
+  const selectedKeys = useMemo(() => new Set(fields.map(f => String(f.id))), [fields]);
+
+  const handleSelectionChange = (key: Key) => {
+    if (fields.some(f => f.id == Number(key))) remove(fields.findIndex(f => f.id == Number(key)));
+    else if (fields.length >= 3) return addToast({ color: "danger", title: "Cannot add more than 3 Categories" });
+    else append(categories[categories.findIndex(c => c.id == Number(key))]);
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div className="space-y-6 @container">
+      <div className="grid grid-cols-1 @3xl:grid-cols-2 gap-5">
         <Controller
           control={control}
           name="title"
@@ -55,6 +111,15 @@ export default function BasicsForm() {
                 label="Title"
                 placeholder="e.g., Build a Full-Stack LMS with Next.js"
               />
+              // <Input
+              //   labelPlacement={"outside-top"}
+              //   label="Title"
+              //   placeholder="e.g., Build a Full-Stack LMS with Next.js"
+              //   type="text"
+              //   errorMessage={error?.message}
+              //   isInvalid={!!error?.message}
+              //   {...field}
+              // />
             );
           }}
         />
@@ -95,18 +160,101 @@ export default function BasicsForm() {
           );
         }}
       />
-      <Controller
-        control={control}
-        name="previewVideo"
-        render={({ field }) => (
-          <TextField
-            field={field}
-            label="Preview vide (url)"
-            id="previewVideo"
-            placeholder="e.g., https://youtu.be/dQw4w9WgXcQ"
+      <div className="grid grid-cols-1 @3xl:grid-cols-2 gap-5">
+        <div className="flex flex-col gap-3">
+          <Controller
+            control={control}
+            name="previewVideo"
+            render={({ field }) => (
+              <TextField
+                field={field}
+                label="Preview vide (url)"
+                id="previewVideo"
+                placeholder="e.g., https://youtu.be/dQw4w9WgXcQ"
+              />
+            )}
           />
-        )}
-      />
+        </div>
+        <div className="flex flex-col gap-y-1">
+          <span className="text-sm font-medium flex items-center gap-x-1">
+            Categories
+            <Popover showArrow>
+              <PopoverTrigger>
+                <span className="">
+                  <LuInfo />
+                </span>
+              </PopoverTrigger>
+              <PopoverContent>
+                <div className="px-1 py-2">
+                  <div className="text-sm font-semibold text-slate-700">Drag untuk mengurutkan kategori</div>
+                  <div className="text-sm text-slate-600">Kategori urutan pertama akan menjadi kategori utama</div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </span>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}>
+            <Dropdown placement="bottom-start">
+              <DropdownTrigger>
+                <div
+                  className={cn(
+                    errors.categories?.root ? "border-danger" : "border-slate-200 ",
+                    "w-full py-1 rounded-xl border-1 h-fit focus:ring-2 focus:ring-blue-100 flex items-center justify-between focus-visible:outline-0",
+                  )}>
+                  <span className="flex gap-x-1.5 px-1.5 overflow-x-scroll scrollbar-hide">
+                    <SortableContext items={ids} strategy={horizontalListSortingStrategy}>
+                      {fields.length > 0 ? (
+                        fields.map((c, i) => <SortableChip id={c.id} name={c.name} key={c.id} index={i} />)
+                      ) : (
+                        <p
+                          className={cn(
+                            errors.categories?.root ? "text-danger" : "text-slate-400",
+                            "text-sm py-1 px-1.5",
+                          )}>
+                          Choose Categories
+                        </p>
+                      )}
+                    </SortableContext>
+                  </span>
+                  <span className="pr-1.5 pl-1 flex rounded-r-xl">
+                    <LuChevronDown className="text-slate-300 text-xl my-auto" />
+                  </span>
+                  {dragState && (
+                    <DragOverlay>
+                      <span style={{ width: dragState.width, height: dragState.height }}>
+                        <Chip
+                          size="md"
+                          radius="sm"
+                          color="primary"
+                          variant={fields.findIndex(c => c.id == dragState.id) == 0 ? "solid" : "flat"}>
+                          {categories[categories.findIndex(c => c.id == dragState.id)]["name"]}
+                        </Chip>
+                      </span>
+                    </DragOverlay>
+                  )}
+                </div>
+              </DropdownTrigger>
+              <DropdownMenu
+                selectionMode="multiple"
+                selectedKeys={selectedKeys}
+                closeOnSelect={false}
+                classNames={{ list: "" }}
+                onAction={handleSelectionChange}>
+                {categories.map(c => (
+                  <DropdownItem key={c.id}>{c.name}</DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+          </DndContext>
+          {errors.categories?.root ? (
+            <p className="mt-0.5 text-xs text-rose-600">{errors.categories.root?.message}</p>
+          ) : null}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Field label="Thumbnail" required>
           <div className="rounded-xl border border-dashed border-slate-300 p-4 flex items-center gap-4">
@@ -153,11 +301,11 @@ export default function BasicsForm() {
                 variant="bordered"
                 color="primary"
                 key={t}
-                endContent={<IoClose />}
+                // endContent={<IoClose />}
                 onClose={() =>
                   setValue(
                     "tags",
-                    tags.filter(tag => tag != t)
+                    tags.filter(tag => tag != t),
                   )
                 }>
                 {t}

@@ -4,7 +4,6 @@ import { signOut, useSession } from "next-auth/react";
 
 export default function AvatarProfile() {
   const { data } = useSession();
-  const getPfp = (pict?: string | null) => (!pict || pict == "user.jpg" ? `/images/${pict}` : pict);
   const logoutHandler = async () => {
     await authService.logout();
     await signOut({
@@ -21,7 +20,7 @@ export default function AvatarProfile() {
           color="primary"
           name={data?.user.name || "Username"}
           size="sm"
-          src={getPfp(data?.user.image)}
+          src={data?.user.image || "/images/user.jpg"}
         />
       </DropdownTrigger>
       <DropdownMenu aria-label="Profile Actions" variant="flat">

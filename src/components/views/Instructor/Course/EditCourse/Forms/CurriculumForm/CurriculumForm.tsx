@@ -1,9 +1,9 @@
 "use client";
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
-import FolderTree from "@/components/commons/FolderTree";
 import useModalAddSections from "@/components/commons/Forms/AddSectionsForm/useModalAddSections";
 import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
 import { TiptapViewer } from "@/components/commons/TiptapViewer/TiptapViewer";
+import FolderTree from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree";
 import useEditSection from "@/hooks/course/useEditSection";
 import { useQueryBlocks } from "@/hooks/course/useLessonEditor";
 import { useNProgress } from "@/hooks/use-nProgress";
@@ -17,8 +17,8 @@ import { StateType } from "@/types/Helper";
 import { Button } from "@heroui/react";
 import { Content, JSONContent } from "@tiptap/core";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import {
   LuCheck,
   LuChevronsDown,
@@ -36,14 +36,14 @@ import { CourseSectionForm, CurriculumFormProps, EditCourseForm } from "../form.
 
 type SelectState = StateType<Set<number>>;
 export default function CurriculumForm({ courseId, defaultValue }: CurriculumFormProps) {
-  const { watch, getValues, reset } = useFormContext<EditCourseForm>();
+  const { watch, getValues, resetField, control } = useFormContext<EditCourseForm>();
 
   const sectionsValue = watch("sections");
   const isLessonEditorDisabled = useMemo(
     () =>
       !Array.isArray(sectionsValue) ||
       !sectionsValue.some(section => Array.isArray(section?.lessons) && section.lessons.length > 0),
-    [sectionsValue]
+    [sectionsValue],
   );
 
   const [activeLesson, setActiveLesson] = useState<LessonPathIds | null>(null);
@@ -57,11 +57,13 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
   const sections = watch("sections");
   const ids = useMemo(() => sections?.flatMap(s => s.id!), [sections]);
   const expandedState = useState(new Set(ids));
+  const fieldArray = useFieldArray({ control, name: "sections", keyName: "fieldId" });
+  const { replace } = fieldArray;
 
   const onSelect = (
     section: CourseSectionForm,
     lesson: NonNullable<CourseSectionForm["lessons"]>[number],
-    path: string[]
+    path: string[],
   ) => {
     setActiveLesson({ path, ids: { sectionId: section.id!, lessonId: lesson.id!, courseId } });
   };
@@ -87,15 +89,15 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
   const { setSentinelRef: sentinelPreviewRef, stuck: previewStuck } = useStickySentinel(previewParentRef);
   const { setSentinelRef: sentinelFormRef, stuck: formStuck } = useStickySentinel(parentFormRef);
 
-  const { querySections, isPending, reorderSection, removeManySections } = useEditSection({
+  const { querySections, isPending, reorderSection, removeManySections, createSection } = useEditSection({
     onReorderSectionSuccess() {
       setEditMode(false);
     },
   });
 
-  const resetSections = useCallback(() => {
-    reset({ sections: querySections ? querySections.sections : defaultValue });
-  }, [defaultValue, reset, querySections]);
+  const resetSections = () => {
+    replace(querySections ? querySections.sections : defaultValue);
+  };
 
   const handleSubmitReorder = () => {
     const sections = getValues("sections");
@@ -129,7 +131,7 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
     }
   }, [blocks]);
 
-  const { openAddSectionsModal } = useModalAddSections();
+  const { openAddSectionsModal } = useModalAddSections({ createSection, isPending: isPending.createSectionPendig });
 
   useNProgress(hasTrue(isPending) || isLoading);
 
@@ -141,14 +143,14 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
           ref={parentFormRef}
           className={cn(
             editMode ? "border-blue-400 shadow-blue-300" : "border-slate-200",
-            "rounded-xl border shadow-sm flex flex-col @container max-h-[calc(100vh-190px)] overflow-y-scroll bg-white scrollbar-hide"
+            "rounded-xl border shadow-sm flex flex-col @container max-h-[calc(100vh-190px)] overflow-y-scroll bg-white scrollbar-hide",
           )}>
           <div className="w-full h-1" ref={sentinelFormRef} />
           <div
             className={cn(
               "space-y-3 sticky top-0 pt-5 px-6 pb-3 z-50 bg-white",
               formStuck && `shadow-sm`,
-              editMode && "shadow-blue-100"
+              editMode && "shadow-blue-100",
             )}>
             <div className="flex flex-col gap-4 @xl:flex-row @xl:items-center @xl:justify-between">
               <header className="flex flex-col gap-y-2">
@@ -156,12 +158,12 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
                 <p className="text-sm text-slate-500">Organize sections and lessons for your course.</p>
               </header>
               <Link
-                href={`/instructor/dashboard/edit-course/${courseId}/curriculum`}
+                href={`/instructor/dashboard/edit-course/${courseId}/lesson-editor`}
                 aria-disabled={isLessonEditorDisabled}
                 tabIndex={isLessonEditorDisabled ? -1 : undefined}
                 className={cn(
                   "inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-slate-200 text-slate-700 transition",
-                  isLessonEditorDisabled ? "pointer-events-none opacity-60 cursor-not-allowed" : "hover:bg-slate-50"
+                  isLessonEditorDisabled ? "pointer-events-none opacity-60 cursor-not-allowed" : "hover:bg-slate-50",
                 )}>
                 <LuExternalLink className="w-4 h-4" />
                 Lesson Editor
@@ -286,6 +288,7 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
                   selectState={selectState}
                   expandedState={expandedState}
                   defaultValue={defaultValue}
+                  fieldArray={fieldArray}
                 />
               </div>
             </FolderTreeContext.Provider>
@@ -299,13 +302,13 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
           className={cn(
             "@5xl:col-span-5 @5xl:-mt-20 @5xl:max-h-[calc(100vh-110px)] @5xl:overflow-y-scroll",
             "rounded-xl border bg-white border-slate-200 shadow-sm",
-            "relative scrollbar-hide"
+            "relative scrollbar-hide",
           )}>
           <div ref={sentinelPreviewRef} className="h-1 w-full" />
           <div
             className={cn(
               "py-2 flex items-center text-sm font-medium px-5 w-full bg-white z-50 text-slate-700 sticky top-0 rounded-t-xl transition-all duration-300",
-              previewStuck && "shadow-xs"
+              previewStuck && "shadow-xs",
             )}>
             <p className="truncate min-w-0">
               {activeLesson.path.join(" / ")} <span className="text-slate-400 ml-2 italic">(preview)</span>

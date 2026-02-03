@@ -1,6 +1,6 @@
 import StatCard from "@/components/commons/Cards/StatsCard";
 import Toolbar from "@/components/commons/Toolbar";
-import { pendingCourses, publishedCourses } from "@/libs/dummy-data/courses";
+import usePublishCourses from "@/hooks/course/useListPublishRequest";
 import { Tab, Tabs } from "@heroui/react";
 import { Suspense, useState } from "react";
 import { LuBookOpen, LuClock } from "react-icons/lu";
@@ -9,10 +9,12 @@ import CoursesLoading from "../../../commons/Cards/CoursesCardLoading";
 import AllCourses from "./Tabs/AllCourses";
 import PendingCourses from "./Tabs/PendingCourses";
 import PublishedCourses from "./Tabs/PublishedCourses";
+import RejectedCourses from "./Tabs/RejectedCourses";
 
 type TabKeys = "all" | "published" | "pending";
 export default function Courses() {
   const [activeTab, setActiveTab] = useState<TabKeys>("all");
+  const { queryCourses } = usePublishCourses();
   const handleSearch = () => {};
 
   return (
@@ -33,12 +35,12 @@ export default function Courses() {
         <StatCard
           icon={<LuBookOpen className="w-5 h-5" />}
           label="Total Courses"
-          value={publishedCourses.length.toLocaleString("id-ID")}
+          value={queryCourses?.meta?.total.toString() || "0"}
         />
         <StatCard
           icon={<LuClock className="w-5 h-5" />}
           label="Pending Approval"
-          value={pendingCourses.length.toLocaleString("id-ID")}
+          value={queryCourses?.courses.filter(({ status }) => status == "PENDING").length.toString() || "0"}
         />
       </div>
       <div className="relative">
@@ -54,6 +56,11 @@ export default function Courses() {
           <Tab title="Published" key={"published"}>
             <Suspense fallback={<Fallback />}>
               <PublishedCourses />
+            </Suspense>
+          </Tab>
+          <Tab title="Rejected" key={"rejected"}>
+            <Suspense fallback={<Fallback />}>
+              <RejectedCourses />
             </Suspense>
           </Tab>
         </Tabs>

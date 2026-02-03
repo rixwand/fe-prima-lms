@@ -13,13 +13,12 @@ import {
 import { useRouter } from "next/router";
 import { Fragment } from "react";
 import { LuArrowLeft, LuEllipsisVertical } from "react-icons/lu";
-import AdminListBoxAction from "../AdminListBoxActions";
 
 export default function AdminCourseInfo({ course }: { course: Course }) {
   const router = useRouter();
   return (
     <Fragment>
-      <PageHead title={course.title} />
+      <PageHead title={course.metaDraft.title} />
       <Navbar isBordered maxWidth="full" className="md:px-2">
         <NavbarContent className="max-w-[calc(50%-64px)]">
           <NavbarItem className="w-[85%]">
@@ -43,7 +42,10 @@ export default function AdminCourseInfo({ course }: { course: Course }) {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="p-2 w-44">
-                <AdminListBoxAction courseStatus={course.status} courseId={course.id} />
+                {/* <AdminListBoxAction
+                reqId={}
+                courseTitle={course.title} courseStatus={course.status} courseId={course.id} /> */}
+                <></>
               </PopoverContent>
             </Popover>
           </NavbarItem>

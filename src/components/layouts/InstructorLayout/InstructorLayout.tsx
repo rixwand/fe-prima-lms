@@ -48,7 +48,7 @@ export default function InstructorLayout({
           customBg || "bg-gradient-to-br from-gray-50 to-white",
         ])}>
         {customNav ? customNav : <NavbarDashboard {...{ setOpen, setCollapsed, title: navTitle! }} />}
-        <section className={cn(["space-y-6 p-5"])}>{children}</section>
+        <section className={cn(["space-y-6 p-5 @container"])}>{children}</section>
       </main>
     </Fragment>
   );

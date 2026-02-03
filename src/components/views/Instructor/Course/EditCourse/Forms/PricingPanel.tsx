@@ -3,6 +3,7 @@ import TextField from "@/components/commons/TextField";
 import useCourse from "@/hooks/course/useCourse";
 import cn from "@/libs/utils/cn";
 import { finalPrice } from "@/libs/utils/currency";
+import { hasDirty } from "@/libs/utils/rhf";
 import { Button, DatePicker, Select, SelectItem, Switch } from "@heroui/react";
 import { Fragment, useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
@@ -217,7 +218,7 @@ export default function PricingPanel({ discountId, courseId }: { discountId?: nu
                           style: "currency",
                           currency: "IDR",
                           maximumFractionDigits: 0,
-                        }
+                        },
                       )}
                     </span>
                   </p>
@@ -240,7 +241,7 @@ export default function PricingPanel({ discountId, courseId }: { discountId?: nu
           ) : null}
         </Fragment>
       )}
-      {["discount", "priceAmount", "isFree"].some(item => Object.getOwnPropertyNames(dirtyFields).includes(item)) && (
+      {(["discount", "priceAmount", "isFree"] as const).some(key => hasDirty(dirtyFields?.[key])) && (
         <Button color="danger" onPress={reset} className="h-9" variant="flat" radius="sm">
           <LuUndo2 /> Reset
         </Button>

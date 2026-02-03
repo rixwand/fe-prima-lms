@@ -25,23 +25,28 @@ export default function AdminLayout({
   children,
   title = "Admin",
   active,
+  customNav,
 }: {
   children: ReactNode;
   title?: string;
   active: (typeof navLinks)[number]["label"];
+  customNav?: ReactNode;
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [open, setOpen] = useState(false);
   return (
     <Fragment>
       <PageHead title={title} />
-      <main className={cn([inter.className, "min-h-screen bg-gradient-to-br from-gray-50 to-white text-slate-900"])}>
-        <Sidebar {...{ open, setOpen, collapsed, setCollapsed, active, navLinks, subTitle: "Admin Dashboard" }} />
+      <Sidebar {...{ open, setOpen, collapsed, setCollapsed, active, navLinks, subTitle: "Admin Dashboard" }} />
+      <main
+        className={cn([
+          inter.className,
+          collapsed ? "md:ml-[72px]" : "md:ml-[260px]",
+          "min-h-screen bg-gradient-to-br from-gray-50 to-white text-slate-900",
+        ])}>
+        {customNav}
         {/* Content */}
-        <section
-          className={cn([collapsed ? "md:ml-[72px]" : "md:ml-[260px]", "space-y-6 p-5 transition-all duration-200"])}>
-          {children}
-        </section>
+        <section className={cn(["space-y-6 p-5 transition-all duration-200"])}>{children}</section>
       </main>
     </Fragment>
   );

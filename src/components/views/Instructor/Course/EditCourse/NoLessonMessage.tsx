@@ -1,14 +1,21 @@
 import { Button } from "@heroui/react";
 import { useRouter } from "next/router";
 
-export default function NoLessonMessage({ courseId }: { courseId?: number }) {
+export default function NoLessonMessage({
+  courseId,
+  desc,
+  title,
+}: {
+  courseId?: number;
+  title?: string;
+  desc?: string;
+}) {
   const router = useRouter();
-
   return (
     <div className="flex items-center justify-center h-full">
       <div className="text-center">
-        <h2 className="text-2xl font-semibold text-gray-500">This course has no lessons yet.</h2>
-        <p className="mt-2 text-gray-400">Create a new lesson to get started.</p>
+        <h2 className="text-xl font-semibold text-gray-700">{title || "This course has no lessons yet."}</h2>
+        <p className="mt-2 text-gray-600">{desc || "Create a new lesson to get started."}</p>
         {courseId && (
           <Button
             variant="shadow"

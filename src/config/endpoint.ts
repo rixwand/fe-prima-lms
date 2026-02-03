@@ -4,4 +4,5 @@ export const endpoint = {
   MY_COURSE: "/me/courses",
   COURSE: "/courses",
   PUBLISH_COURSE: "/courses/publish-requests",
+  COURSE_CATEGORY: "/course-categories",
 };

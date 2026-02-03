@@ -1,15 +1,23 @@
+type PublishCourseStatus = "PENDING" | "APPROVED" | "REJECTED";
 type QueryPublishCourse = {
   id: number;
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  status: PublishCourseStatus;
   createdAt: string; // ISO date string
+  type: "NEW" | "UPDATE";
   courseId: number;
   course: {
-    title: string;
-    coverImage: string;
     slug: string;
-    priceAmount: number;
-    isFree: boolean;
-    discount?: Discount[];
+    publishedAt?: string;
+    metaDraft: {
+      title: string;
+      coverImage: string;
+      priceAmount: number;
+      isFree: boolean;
+      draftDiscounts?: Discount[];
+      draftTags: Tag[];
+      draftCategories: Category[];
+    };
+    discounts?: Discount[];
     owner: {
       username: string;
       fullName: string;
@@ -19,7 +27,7 @@ type QueryPublishCourse = {
 };
 
 type PublishCourseListParams = {
-  status?: "APPROVED" | "PENDING" | "REJECTED";
+  status?: PublishCourseStatus;
   page?: number;
   limit?: number;
   startDate?: Date;

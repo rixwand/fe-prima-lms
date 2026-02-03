@@ -1,10 +1,4 @@
-import * as React from "react";
-
-import { CourseSectionForm, EditCourseForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
-import useEditSection from "@/hooks/course/useEditSection";
-import { useNProgress } from "@/hooks/use-nProgress";
-import { useEditCourseContext } from "@/libs/context/EditCourseContext";
-import { hasTrue } from "@/libs/utils/boolean";
+import cn from "@/libs/utils/cn";
 import { StateType } from "@/types/Helper";
 import {
   DndContext,
@@ -18,69 +12,69 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Button, cn } from "@heroui/react";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { Button } from "@heroui/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { UseFieldArrayReturn } from "react-hook-form";
 import { LuCheck, LuListPlus } from "react-icons/lu";
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
-import CourseSectionItem from "./SectionItem";
+import { CourseForm } from "../../form.type";
+import CourseSectionItem from "./SectionItem/SectionItem";
 
-export type OnSelect = (
-  section: CourseSectionForm,
-  lesson: NonNullable<CourseSectionForm["lessons"]>[number],
-  path: string[]
-) => void;
+type ToggleSelect = (id: string) => void;
+
 export type FolderTreeProps = {
-  onSelect: OnSelect;
   newSectionState: StateType<string | null>;
-  selectState: StateType<Set<number>>;
-  expandedState: StateType<Set<number>>;
-  defaultValue: CourseSection[];
+  selectState: StateType<Set<string>>;
+  expandedState: StateType<Set<string>>;
+  fieldArray: UseFieldArrayReturn<CourseForm, "sections", "id">;
 };
-type ToggleSelect = (id: number) => void;
-export const FolderTree: React.FC<FolderTreeProps> = ({
+
+export default function FolderTree({
   expandedState,
-  onSelect,
   newSectionState: [newSection, setNewSection],
   selectState: [selected, setSelected],
-  defaultValue,
-}) => {
-  const { control, reset } = useFormContext<EditCourseForm>();
-  const { fields, append, remove, move, update } = useFieldArray({ control, name: "sections", keyName: "fieldId" });
+  fieldArray: { append, fields, move, update, remove },
+}: FolderTreeProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
-  const ids = React.useMemo(() => fields.map(s => s.id!), [fields]);
-  const [activeId, setActiveId] = React.useState<number | null>(null);
-  const [dragState, setDragState] = React.useState({ width: 0, height: 0, expanded: false });
+
+  const ids = useMemo(() => fields.map(s => s.id!), [fields]);
+  const [dragState, setDragState] = useState<{ id: string; width: number; height: number; expanded: boolean } | null>(
+    null,
+  );
   function handleDragStart({ active }: DragStartEvent) {
     if (!active) return;
-    setActiveId(active.id as number);
-
     const element = document.querySelector<HTMLElement>(`[data-section-sortable="${active.id}"]`);
-
     if (element) {
       const rect = element.getBoundingClientRect();
       setDragState({
         width: rect.width,
         height: rect.height,
         expanded: element.getAttribute("aria-expanded") == "true",
+        id: active.id.toString(),
       });
     }
   }
 
-  const inputNewSectionRef = React.useRef<HTMLInputElement>(null);
+  const inputNewSectionRef = useRef<HTMLInputElement>(null);
 
-  React.useEffect(() => {
+  const handleAddSection = () => {
+    if (newSection) {
+      append({ title: newSection });
+      setNewSection(null);
+    }
+  };
+  useEffect(() => {
     if (newSection && inputNewSectionRef.current) {
       inputNewSectionRef.current.focus();
     }
   }, [newSection]);
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
-    setActiveId(null);
+    setDragState(null);
     if (!over || active.id === over.id) return;
 
     const from = fields.findIndex(s => s.id === active.id);
@@ -97,35 +91,8 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
     });
   };
 
-  const { courseId } = useEditCourseContext();
-
-  const { createSection, querySections, removeSection, isPending } = useEditSection({
-    onCreateSectionSuccess() {
-      setNewSection(null);
-    },
-  });
-
-  const handleRemoveSection = (id: number, title: string) => {
-    return confirmDialog({
-      title: "Remove Section",
-      desc: `This action will permananently delete "${title}" section`,
-      onConfirmed() {
-        removeSection({ courseId, sectionId: id });
-      },
-      isLoading: isPending.removeSectionPending,
-    });
-  };
-
-  const handleSubmitSection = () => {
-    if (newSection == null) return;
-    createSection({ courseId, sections: [newSection] });
-  };
-
-  useNProgress(hasTrue(isPending));
-
-  React.useEffect(() => {
-    if (querySections) reset({ sections: querySections?.sections.map(section => ({ ...section })) });
-  }, [querySections, reset]);
+  const onRename = (idx: number, title: string) => update(idx, { title });
+  const onRemove = (idx: number) => remove(idx);
 
   return (
     <DndContext
@@ -137,19 +104,10 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
           {fields.map((section, idx) => (
             <CourseSectionItem
-              idx={idx}
-              key={`${section.id}-${section.fieldId}`}
-              section={section}
-              onSelect={onSelect}
-              onRemove={handleRemoveSection}
-              expandState={expandedState}
+              key={section.id}
               onCheck={() => toggleSelect(section.id!)}
               isChecked={selected.has(section.id!)}
-              defaultLessons={
-                querySections
-                  ? querySections.sections.filter(s => s.id == section.id!)[0]?.lessons
-                  : defaultValue.filter(s => s.id == section.id)[0].lessons
-              }
+              {...{ section, idx, expandedState, onRename, onRemove }}
             />
           ))}
         </SortableContext>
@@ -166,7 +124,7 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
               className={cn(
                 "flex w-full items-center rounded-lg text-left transition-colors duration-150 cursor-pointer",
                 "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)] border-abu text-[var(--tt-theme-text)]",
-                "pl-2 py-[3px] pr-[3px]"
+                "pl-2 py-[3px] pr-[3px]",
               )}>
               <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center mr-2")}>
                 <LuListPlus />
@@ -182,12 +140,16 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
                 onKeyDown={e => {
                   if (e.key == "Enter") {
                     e.preventDefault();
-                    handleSubmitSection();
+                    handleAddSection();
+                  }
+                  if (e.key == "Escape") {
+                    e.preventDefault();
+                    setNewSection(null);
                   }
                 }}
               />
               <Button
-                onPress={handleSubmitSection}
+                onPress={handleAddSection}
                 variant="flat"
                 color="primary"
                 isIconOnly
@@ -200,25 +162,19 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
           </li>
         )}
       </ul>
-      {activeId && (
+      {dragState && (
         <DragOverlay>
           <div style={{ width: dragState.width, height: dragState.height, opacity: 0.6 }}>
             <CourseSectionItem
-              idx={fields.findIndex(f => f.id == activeId)}
-              key={activeId}
-              section={fields.filter(f => f.id == activeId)[0]}
-              onSelect={onSelect}
-              expandState={expandedState}
-              isChecked={selected.has(activeId)}
-              defaultLessons={
-                querySections
-                  ? querySections.sections.filter(s => s.id == activeId)[0].lessons
-                  : defaultValue.filter(s => s.id == activeId)[0].lessons
-              }
+              idx={fields.findIndex(f => f.id == dragState.id)}
+              key={dragState.id}
+              section={fields.filter(f => f.id == dragState.id)[0]}
+              expandedState={expandedState}
+              isChecked={selected.has(dragState.id)}
             />
           </div>
         </DragOverlay>
       )}
     </DndContext>
   );
-};
+}

@@ -1,4 +1,3 @@
- 
 import TextField from "@/components/commons/TextField";
 import cn from "@/libs/utils/cn";
 import { finalPrice } from "@/libs/utils/currency";
@@ -7,6 +6,7 @@ import { Fragment } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { HiSelector } from "react-icons/hi";
 import { LuTrash2 } from "react-icons/lu";
+import { CourseForm } from "../form.type";
 import Field from "./Field";
 
 export default function PricingPanel() {
@@ -186,7 +186,7 @@ export default function PricingPanel() {
                           style: "currency",
                           currency: "IDR",
                           maximumFractionDigits: 0,
-                        }
+                        },
                       )}
                     </span>
                   </p>

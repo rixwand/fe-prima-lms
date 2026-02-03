@@ -13,7 +13,7 @@ type ILogin = Omit<IRegister, "username" | "fullName">;
 interface IGetUser extends BaseUser {
   id: number;
   profilePict: string;
-  roles: {
+  role: {
     name: string;
   };
 }

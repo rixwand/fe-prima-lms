@@ -1,7 +1,6 @@
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { finalPrice } from "@/libs/utils/currency";
-import { toSlug } from "@/libs/utils/string";
 import { Accordion, AccordionItem, Button, Card, Chip, Input, Tab, Tabs } from "@heroui/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -12,22 +11,28 @@ import { Rating } from "react-simple-star-rating";
 
 export default function CourseInfo({ data }: { data: CoursePreview }) {
   const route = useRouter();
-  const { descriptionJson, shortDescription, sections, discount } = data;
+  const {
+    metaApproved: { descriptionJson, shortDescription, coverImage, isFree, priceAmount, title, previewVideo },
+    sections,
+    discounts,
+    tags,
+    slug,
+  } = data;
   return (
     <section className={cn([inter.className, "2xl:container xl:px-12 2xl:mx-auto px-4"])}>
       <div className="flex relative max-xl:mx-auto max-xl:container flex-col min-xl:flex-row gap-x-4 gap-y-9 items-start">
         <div className="flex-1">
           <div className="flex gap-8 flex-col sm:flex-row">
             <div className="max-w-96 w-full h-fit aspect-video rounded-lg overflow-hidden relative">
-              <Image src={data.coverImage} alt="course image" fill objectFit="cover" />
+              <Image src={coverImage} alt="course image" fill objectFit="cover" />
             </div>
             <div className="space-y-4">
-              <h1 className="font-bold text-xl xl:text-2xl">{data.title}</h1>
+              <h1 className="font-bold text-xl xl:text-2xl">{title}</h1>
               <span className="flex items-center gap-x-2">
                 <p className="text-slate-800">Tags:</p>
-                {data.tags.map(tag => (
-                  <Chip key={toSlug(tag)} variant="bordered" color="primary">
-                    {tag}
+                {tags.map(({ name, slug }) => (
+                  <Chip key={slug} variant="bordered" color="primary">
+                    {name}
                   </Chip>
                 ))}
               </span>
@@ -53,9 +58,9 @@ export default function CourseInfo({ data }: { data: CoursePreview }) {
                   <SyllabusTab sections={sections} />
                 </Tab>
               )}
-              {data.previewVideo && (
+              {previewVideo && (
                 <Tab key="preview" title="Preview">
-                  <PreviewTab url={data.previewVideo} />
+                  <PreviewTab url={previewVideo} />
                 </Tab>
               )}
             </Tabs>
@@ -70,25 +75,25 @@ export default function CourseInfo({ data }: { data: CoursePreview }) {
             <p
               className={cn([
                 "2xl:text-xl text-lg font-semibold",
-                discount && discount.length > 0 && discount[0].isActive && "line-through text-[#aaa]",
+                discounts && discounts.length > 0 && discounts[0].isActive && "line-through text-[#aaa]",
               ])}>
-              {data.priceAmount.toLocaleString("id-ID", {
+              {priceAmount.toLocaleString("id-ID", {
                 style: "currency",
                 currency: "IDR",
                 maximumFractionDigits: 0,
               })}
             </p>
           </span>
-          {data.discount && data.discount.length > 0 && data.discount[0].isActive && (
+          {discounts && discounts.length > 0 && discounts[0].isActive && (
             <span className="w-full flex items-center justify-between">
               <p className=" 2xl:text-lg leading-2">
-                Diskon {data.discount[0].type == "PERCENTAGE" && data.discount[0].value + "%"}
+                Diskon {discounts[0].type == "PERCENTAGE" && discounts[0].value + "%"}
               </p>
               <p className="2xl:text-xl text-lg font-semibold">
                 -
-                {(data.discount[0].type == "FIXED"
-                  ? data.discount[0].value
-                  : data.priceAmount * (data.discount[0].value / 100)
+                {(discounts[0].type == "FIXED"
+                  ? discounts[0].value
+                  : priceAmount * (discounts[0].value / 100)
                 ).toLocaleString("id-ID", {
                   style: "currency",
                   currency: "IDR",
@@ -120,9 +125,9 @@ export default function CourseInfo({ data }: { data: CoursePreview }) {
           <span className="w-full flex items-center justify-between mt-2">
             <p className="font-bold text-sm 2xl:text-base">Jumlah Tagihan</p>
             <p className="2xl:text-xl text-lg font-semibold">
-              {(discount && discount.length > 0 && discount[0].isActive
-                ? finalPrice(data.priceAmount, discount[0].value, discount[0].type)
-                : data.priceAmount
+              {(discounts && discounts.length > 0 && discounts[0].isActive
+                ? finalPrice(priceAmount, discounts[0].value, discounts[0].type)
+                : priceAmount
               ).toLocaleString("id-ID", {
                 style: "currency",
                 currency: "IDR",
@@ -159,7 +164,7 @@ const PreviewTab = ({ url }: { url: string }) => {
 const SyllabusTab = ({ sections }: { sections: { title: string; lessons?: string[] }[] }) => {
   return (
     <div className="space-y-3 w-full lg:w-4/5 text-gray-500 2xl:text-lg">
-      <h3 className="w-full lg:ml-3 font-semibold 2xl:text-lg">Materi yang akan dipelajari pada kursus ini :</h3>
+      <h3 className="w-full lg:ml-3 font-medium 2xl:text-lg">Materi yang akan dipelajari pada kursus ini :</h3>
       <Accordion
         itemClasses={{
           base: ["shadow-none border-1 border-gray-300 mt-0.5 lg:ml-0 -ml-2"],

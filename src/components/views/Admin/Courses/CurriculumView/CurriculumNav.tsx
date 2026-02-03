@@ -50,7 +50,7 @@ export default function CurriculumNav({ children, sections, courseId }: Props) {
   useNProgress(isPending);
   return (
     <Fragment>
-      <PageHead title={course?.title} />
+      <PageHead title={course?.metaDraft.title} />
       <section className={cn([inter.className, "relative min-h-screen"])}>
         <Navbar isBordered maxWidth="full" className="md:px-2">
           <NavbarContent className="max-w-[calc(50%-64px)]">
@@ -64,7 +64,7 @@ export default function CurriculumNav({ children, sections, courseId }: Props) {
             </NavbarItem>
           </NavbarContent>
           <NavbarContent justify="center" className="">
-            <p className="font-semibold text-slate-700 truncate max-w-52 flex-1">{course?.title}</p>
+            <p className="font-semibold text-slate-700 truncate max-w-52 flex-1">{course?.metaDraft.title}</p>
           </NavbarContent>
           <NavbarContent justify="end" className="max-w-1/2">
             <NavbarItem className="md:hidden">

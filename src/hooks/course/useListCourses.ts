@@ -1,33 +1,15 @@
 import { getErrorMessage } from "@/libs/axios/error";
+import { hasTrue } from "@/libs/utils/boolean";
 import courseQueries from "@/queries/course-queries";
-import courseService from "@/services/course.service";
-import { AppAxiosError } from "@/types/axios";
 import { addToast } from "@heroui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { useEffect } from "react";
+import { useNProgress } from "../use-nProgress";
 
-export default function useListCourses() {
+export default function useListCourses(params?: ListCourseParams) {
   const qc = useQueryClient();
-  const { data: res, isLoading, isError, error } = useQuery(courseQueries.options.listCourses());
-  const invalidateCourseQueries = () =>
-    qc.invalidateQueries({
-      queryKey: courseQueries.keys.listCourses(),
-    });
-  const { mutate: deleteCourse, isPending: deleteCoursePending } = useMutation({
-    mutationFn: courseService.delete,
-    onSuccess() {
-      addToast({ title: "Success deleted course", color: "success" });
-      invalidateCourseQueries();
-    },
-    onError: error => {
-      addToast({
-        title: "Failed to delete course",
-        description: getErrorMessage(error as AppAxiosError),
-        color: "danger",
-      });
-    },
-  });
+  const { data: res, isLoading: queryLoading, isError, error } = useQuery(courseQueries.options.listCourses(params));
 
   useEffect(() => {
     if (isError && error)
@@ -38,29 +20,13 @@ export default function useListCourses() {
       });
   }, [isError, error]);
 
-  const { mutate: publishCourse, isPending: publishCoursePending } = useMutation({
-    mutationFn: courseService.publish,
-    onSuccess() {
-      addToast({ title: "Request for publish course success", color: "success" });
-      invalidateCourseQueries();
-    },
-    onError: error => {
-      addToast({
-        title: "Failed to request for publish course",
-        description: getErrorMessage(error as AppAxiosError),
-        color: "danger",
-      });
-    },
-  });
-
+  const isLoading = {
+    queryLoading,
+  };
+  useNProgress(hasTrue(isLoading));
   return {
-    courses: res?.data.courses as ICourseListItem[],
-    isLoading: {
-      queryLoading: isLoading,
-      publishCoursePending,
-      deleteCoursePending,
-    },
-    publishCourse,
-    deleteCourse,
+    isLoading,
+    courses: res?.courses,
+    coursesMeta: res?.meta,
   };
 }

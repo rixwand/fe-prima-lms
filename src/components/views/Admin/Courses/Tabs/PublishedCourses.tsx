@@ -1,13 +1,13 @@
-import useCourses from "../../../../../hooks/course/usePublishCourses";
+import useCourses from "../../../../../hooks/course/useListPublishRequest";
+import NoResult from "../../../../commons/NoResult/NoResult";
 import CoursesList from "../CoursesList";
-import NoResult from "../NoResult";
 
 export default function PublishedCourses() {
-  const { queryCourses, isLoading } = useCourses({ status: "APPROVED", limit: 12, page: 1 });
+  const { queryCourses, isQueryLoading } = useCourses({ queryParams: { status: "APPROVED", limit: 12, page: 1 } });
   return (
     <CoursesList
       {...{
-        isLoading: isLoading.isLoading,
+        isLoading: isQueryLoading,
         courses: queryCourses?.courses || [],
       }}
       notFound={

@@ -25,10 +25,11 @@ const config: NextAuthOptions = {
           const user: User = {
             id: userRes.id.toString(),
             accessToken: creds.accessToken,
-            role: userRes.roles.name,
+            role: userRes.role.name,
             email: userRes.email,
             image: userRes.profilePict,
             name: userRes.username,
+            fullName: userRes.fullName,
           };
           if (!user) return null;
           return user;
@@ -46,6 +47,7 @@ const config: NextAuthOptions = {
         token.uid = user.id;
         token.role = user.role;
         token.accessToken = user.accessToken;
+        token.fullName = user.fullName;
       }
       if (trigger == "update" && session.accessToken) {
         token.accessToken = session.accessToken;
@@ -58,6 +60,7 @@ const config: NextAuthOptions = {
         ...(session.user ?? {}),
         id: token.uid,
         role: token.role,
+        fullName: token.fullName,
       };
       session.accessToken = token.accessToken;
 

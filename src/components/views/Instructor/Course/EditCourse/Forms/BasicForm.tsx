@@ -1,4 +1,5 @@
 import TextField from "@/components/commons/TextField";
+import { hasDirty } from "@/libs/utils/rhf";
 import { Button } from "@heroui/react";
 import { Controller, useFormContext } from "react-hook-form";
 import { LuUndo2 } from "react-icons/lu";
@@ -79,9 +80,7 @@ export default function BasicsForm({
           );
         }}
       />
-      {["descriptionJson", "shortDescription", "title"].some(item =>
-        Object.getOwnPropertyNames(dirtyFields).includes(item)
-      ) && (
+      {(["descriptionJson", "shortDescription", "title"] as const).some(key => hasDirty(dirtyFields?.[key])) && (
         <Button color="danger" onPress={reset} className="h-9" variant="flat" radius="sm">
           <LuUndo2 /> Reset
         </Button>

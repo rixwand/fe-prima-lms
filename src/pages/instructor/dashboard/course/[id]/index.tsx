@@ -16,7 +16,7 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }: { params: { id: string } }) {
   const qc = new QueryClient();
   await qc.prefetchQuery({
-    queryKey: ["coursePreview", params.id],
+    queryKey: ["coursePreview", Number(params.id)],
     queryFn: () => courseService.get(Number(params.id)).then(res => res.data),
   });
   return {
@@ -40,7 +40,7 @@ export default function CoursePage({ id }: { id: number }) {
   if (data) {
     return (
       <Fragment>
-        <PageHead title={data.title} />
+        <PageHead title={data.metaDraft.title} />
         <CustomNav title="Course Preview" />
         <CourseInfo data={data} />
       </Fragment>

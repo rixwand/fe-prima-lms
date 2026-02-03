@@ -9,12 +9,14 @@ declare module "next-auth" {
     user: DefaultSession["user"] & {
       id: string;
       role: RoleName;
+      fullName: string;
     };
   }
 
   interface User extends DefaultUser {
     id: string;
     role: RoleName;
+    fullName: string;
     accessToken?: string; // remove if you don't want token in session
   }
 }
@@ -25,5 +27,6 @@ declare module "next-auth/jwt" {
     role: RoleName;
     accessToken?: string; // remove if you don't want token in session
     // accessTokenExpires?: number;  // add if you track expiry
+    fullName: string;
   }
 }

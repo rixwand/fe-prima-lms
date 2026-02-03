@@ -26,3 +26,10 @@ export function finalPrice(price: number, discount: number = 0, type: "PERCENTAG
 
   return p;
 }
+
+export const convertLocal = (num: number) =>
+  num.toLocaleString("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  });
