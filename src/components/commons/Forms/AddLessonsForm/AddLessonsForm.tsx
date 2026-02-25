@@ -1,4 +1,5 @@
-import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
+import NormalCkbox from "@/components/commons/NoResult/NormalCkbox";
+import { AddLessonsFormRhf } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import { cn } from "@/libs/tiptap/tiptap-utils";
 import { StateType } from "@/types/Helper";
 import {
@@ -15,7 +16,6 @@ import { Button } from "@heroui/react";
 import { useEffect, useMemo, useState } from "react";
 import { UseFormReturn, useFieldArray } from "react-hook-form";
 import { LuPlus, LuTrash2 } from "react-icons/lu";
-import { AddLessonsFormRhf } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import NewLessonItem from "./NewLessonsItem";
 
 export type RhfMethods = UseFormReturn<AddLessonsFormRhf>;

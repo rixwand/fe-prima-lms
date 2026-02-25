@@ -1,4 +1,4 @@
-import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
+import NormalCkbox from "@/components/commons/NoResult/NormalCkbox";
 import { cn } from "@/libs/tiptap/tiptap-utils";
 import { UniqueIdentifier } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
@@ -39,7 +39,7 @@ export default function NewLessonItem({
       role="treeitem"
       aria-selected={selected.has(id)}
       className={cn(
-        "flex w-full group focus-within:border-blue-500 focus-within:bg-blue-50 focus-within:hover:bg-blue-100 items-center rounded-md text-left transition-colors duration-150 cursor-pointer hover:bg-gray-100 text-[var(--tt-theme-text)] pl-2 bg-white border border-gray-100 relative"
+        "flex w-full group focus-within:border-blue-500 focus-within:bg-blue-50 focus-within:hover:bg-blue-100 items-center rounded-md text-left transition-colors duration-150 cursor-pointer hover:bg-gray-100 text-[var(--tt-theme-text)] pl-2 bg-white border border-gray-100 relative",
       )}>
       <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center")}>
         <LuChevronsDownUp />

@@ -3,6 +3,7 @@
 
 // =======================
 type DiscountType = "FIXED" | "PERCENTAGE";
+type LessonProgressStatus = "PENDING" | "CURRENT" | "COMPLETED";
 
 // =======================
 // Shared base models
@@ -127,7 +128,7 @@ interface CoursePreview extends BaseCourse {
   tags: Tag[];
   sections?: {
     title: string;
-    lessons: string[];
+    lessons: Lesson[];
   }[];
   discounts?: Discount[];
 }
@@ -157,6 +158,8 @@ interface CourseSection {
   courseId: number;
   title: string;
   position: number;
+  publishedAt: string | null;
+  removedAt: string | null;
   lessons: Lesson[];
 }
 
@@ -169,6 +172,14 @@ interface Lesson {
   position: number;
   durationSec: number | null;
   isPreview: boolean;
+  publishedAt: string | null;
+  removedAt: string | null;
+}
+
+interface LessonContent {
+  contentDraft: JSONContent;
+  contentLive: JSONContent;
+  publishedAt: string | null;
 }
 
 interface Tag {
@@ -194,3 +205,21 @@ type PublishRequest = {
   notes: string | null;
   status: PublishCourseStatus;
 };
+
+type QueryLessonItem = {
+  createdAt: Date;
+  updatedAt: Date;
+} & Lesson;
+
+interface CourseCurriculum {
+  title: MetaCourse["title"];
+  sections: Array<
+    Pick<CourseSection, "id" | "courseId" | "title" | "position" | "publishedAt" | "removedAt"> & {
+      lessons: Array<
+        Pick<Lesson, "id" | "isPreview" | "slug" | "sectionId" | "title" | "durationSec"> & {
+          lessonProgress: { status: LessonProgressStatus };
+        }
+      >;
+    }
+  >;
+}

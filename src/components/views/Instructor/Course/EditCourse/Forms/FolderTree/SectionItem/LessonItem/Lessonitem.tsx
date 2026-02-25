@@ -1,12 +1,11 @@
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
-import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
+import NormalCkbox from "@/components/commons/NoResult/NormalCkbox";
 import { OnSelect } from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree/FolderTree";
 import { CourseSectionForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
-import useEditLesson from "@/hooks/course/useEditLesson";
-import { useNProgress } from "@/hooks/use-nProgress";
+import { useEditLesson } from "@/hooks/course/useEditLesson";
+import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import { useFolderTreeContext } from "@/libs/context/FolderTreeContext";
 import { cn } from "@/libs/tiptap/tiptap-utils";
-import { hasTrue } from "@/libs/utils/boolean";
 import { toRoundedMinutes } from "@/libs/utils/string";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -71,20 +70,21 @@ const CourseLessonItem = ({
     opacity: isDragging ? 0.6 : 1,
     border: 1,
   } as CSSProperties;
-
-  const { removeLesson, isLoading, updateLesson } = useEditLesson({
-    sectionId: section.id!,
+  const { courseId } = useEditCourseContext();
+  const { pending, removeLesson, updateLesson } = useEditLesson({
+    idsPath: { courseId, lessonId: lesson.id!, sectionId: section.id! },
     onUpdateLessonSuccess(variant) {
       setEditLesson(null);
     },
+    enableQueryContent: false,
   });
 
   const handleDeleteLesson = () => {
     return confirmDialog({
       title: "Remove lesson ?",
       desc: `This action will permanently remove "${lesson.title}" lesson`,
-      isLoading: isLoading.removeLessonPending,
-      onConfirmed: () => removeLesson(lesson.id!),
+      isLoading: pending.removeLessonPending,
+      onConfirmed: () => removeLesson(),
     });
   };
 
@@ -92,10 +92,8 @@ const CourseLessonItem = ({
     if (!editLesson) return;
     if (editLesson.title.length == 0)
       return addToast({ color: "danger", title: "Error", description: "Lesson title cannot be empty" });
-    return updateLesson({ lessonId: editLesson.id, lesson: { title: editLesson.title } });
+    return updateLesson({ title: editLesson.title });
   };
-
-  useNProgress(hasTrue(isLoading));
 
   return (
     <li

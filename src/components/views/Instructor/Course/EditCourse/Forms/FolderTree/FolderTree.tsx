@@ -98,7 +98,7 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
     });
   };
 
-  const { courseId } = useEditCourseContext();
+  const { courseId, showPublished } = useEditCourseContext();
 
   const { createSection, querySections, removeSection, isPending } = useEditSection({
     onCreateSectionSuccess() {
@@ -127,7 +127,6 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
   React.useEffect(() => {
     if (querySections) reset({ sections: querySections?.sections.map(section => ({ ...section })) });
   }, [querySections, reset]);
-
   return (
     <DndContext
       sensors={sensors}
@@ -136,23 +135,26 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
       onDragEnd={onDragEnd}>
       <ul className={cn("m-0 flex list-none flex-col gap-1 ")} role="tree">
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
-          {fields.map((section, idx) => (
-            <CourseSectionItem
-              idx={idx}
-              key={`${section.id}-${section.fieldId}`}
-              section={section}
-              onSelect={onSelect}
-              onRemove={handleRemoveSection}
-              expandState={expandedState}
-              onCheck={() => toggleSelect(section.id!)}
-              isChecked={selected.has(section.id!)}
-              defaultLessons={
-                querySections
-                  ? querySections.sections.filter(s => s.id == section.id!)[0]?.lessons
-                  : defaultValue.filter(s => s.id == section.id)[0].lessons
-              }
-            />
-          ))}
+          {fields.map(
+            (section, idx) =>
+              ((showPublished && section.publishedAt) || !showPublished) && (
+                <CourseSectionItem
+                  idx={idx}
+                  key={`${section.id}-${section.fieldId}`}
+                  section={section}
+                  onSelect={onSelect}
+                  onRemove={handleRemoveSection}
+                  expandState={expandedState}
+                  onCheck={() => toggleSelect(section.id!)}
+                  isChecked={selected.has(section.id!)}
+                  defaultLessons={
+                    querySections
+                      ? querySections.sections.filter(s => s.id == section.id!)[0]?.lessons
+                      : defaultValue.filter(s => s.id == section.id)[0].lessons
+                  }
+                />
+              ),
+          )}
         </SortableContext>
         {newSection && (
           <li

@@ -98,6 +98,7 @@ import { ControllerRenderProps, FieldValues, Path } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 type InputType = "text" | "password" | "email" | "number";
+type InputValue<T extends InputType | undefined> = T extends "number" ? number : string;
 
 type NativeInputProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -145,7 +146,7 @@ const TextField = <T extends FieldValues, K extends Path<T> = Path<T>>({
     onChange?.(e);
   };
 
-  const resolvedValue = field ? field.value ?? "" : value !== undefined ? value : undefined;
+  const resolvedValue = field ? (field.value ?? "") : value !== undefined ? value : undefined;
 
   return (
     <div className={cn(["grid gap-1"], classNames?.wrapper)}>
@@ -180,7 +181,7 @@ const TextField = <T extends FieldValues, K extends Path<T> = Path<T>>({
                   ? "text-danger placeholder-danger border-danger focus:ring-rose-300"
                   : "text-slate-900 placeholder-slate-400 border-slate-200 focus:ring-blue-100",
               ],
-              classNames?.input
+              classNames?.input,
             )}
             {...rest}
           />

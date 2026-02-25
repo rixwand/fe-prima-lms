@@ -1,10 +1,10 @@
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import useModalAddLessons from "@/components/commons/Forms/AddLessonsForm/useModalAddLesson";
-import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
+import NormalCkbox from "@/components/commons/NoResult/NormalCkbox";
 import { OnSelect } from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree/FolderTree";
 import CourseLessonItem from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree/SectionItem/LessonItem";
 import { CourseSectionForm, EditCourseForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
-import useEditLesson from "@/hooks/course/useEditLesson";
+import useEditLessonList from "@/hooks/course/useEditLessonsList";
 import useEditSection from "@/hooks/course/useEditSection";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
@@ -116,7 +116,7 @@ const CourseSectionItem: FC<{
     }
   }, [menuState.isOpen, newLesson]);
 
-  const { courseId } = useEditCourseContext();
+  const { courseId, showPublished } = useEditCourseContext();
   const { renameSection, isPending } = useEditSection({});
   const handleRenameSection = () => {
     if (!editSection || !editSection.title || !editSection.id)
@@ -147,7 +147,7 @@ const CourseSectionItem: FC<{
     });
   };
 
-  const { createLessons, isLoading, queryLessons, reorderLessons, batchRemoveLesson } = useEditLesson({
+  const { createLessons, isLoading, queryLessons, reorderLessons, batchRemoveLesson } = useEditLessonList({
     sectionId: section.id!,
     onCreateLessonSuccess() {
       setNewLesson(null);
@@ -376,17 +376,20 @@ const CourseSectionItem: FC<{
             )}
             role="group">
             <SortableContext strategy={verticalListSortingStrategy} items={ids}>
-              {fields.map(lesson => (
-                <CourseLessonItem
-                  isChecked={selectedLesson.has(lesson.id!)}
-                  onCheck={() => toggleSelect(lesson.id!)}
-                  lesson={lesson}
-                  onSelect={onSelect}
-                  section={section}
-                  key={lesson.id}
-                  editMode={isEditLesson}
-                />
-              ))}
+              {fields.map(
+                lesson =>
+                  ((showPublished && lesson.publishedAt) || !showPublished) && (
+                    <CourseLessonItem
+                      isChecked={selectedLesson.has(lesson.id!)}
+                      onCheck={() => toggleSelect(lesson.id!)}
+                      lesson={lesson}
+                      onSelect={onSelect}
+                      section={section}
+                      key={lesson.id}
+                      editMode={isEditLesson}
+                    />
+                  ),
+              )}
             </SortableContext>
             {newLesson && (
               <li

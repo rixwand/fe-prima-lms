@@ -1,6 +1,9 @@
+import courseLessonService, { Ids } from "@/services/course-lesson.service";
 import coursePublishService from "@/services/course-publish.service";
 import courseSectionService from "@/services/course-section.service";
 import courseService from "@/services/course.service";
+import enrollmentService from "@/services/enrollment.service";
+import learnService from "@/services/learn.service";
 import { AppAxiosError } from "@/types/axios";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
@@ -16,8 +19,12 @@ function retry(failureCount: number, error: unknown) {
 const courseQueries = {
   keys: {
     getCourse: (id: number) => ["course-preview", id],
+    getLearningCurriculum: (slug: string) => ["learning-curriculum", slug],
+    listEnrolled: (search?: string) => (search ? ["enrolled-courses", search] : ["enrolled-course"]),
     listCourses: (params?: ListCourseParams) => (params ? ["course-list", params] : ["course-list"]),
     listSections: (id: number) => ["course-sections", id],
+    listLessons: (ids: Ids) => ["section-lessons", ids],
+    getLessonContent: (ids?: Ids & { lessonId: number }) => ["lesson-content", ids],
     listPublishRequest: (params?: PublishCourseListParams) =>
       params ? ["list-publish-request", params] : ["list-publish-request"],
     listPublicCourses: (params?: ListPublicCoursesParams) => (params ? ["public-courses", params] : ["public-courses"]),
@@ -25,6 +32,7 @@ const courseQueries = {
       params ? ["public-course-tags", params] : ["public-course-tags"],
     listCourseCategries: (params?: ListCoursesCategoriesParams) =>
       params ? ["courses-categories", params] : ["courses-categories"],
+    getCourseBySlug: (slug: string) => ["coruse-preview", slug],
   },
   options: {
     getCourse: (id: number) =>
@@ -118,6 +126,52 @@ const courseQueries = {
               else throw new Error(error.message);
             }),
         retry,
+      }),
+    listLessons: (ids: Ids) =>
+      queryOptions<QueryLessonItem[]>({
+        queryKey: courseQueries.keys.listLessons(ids),
+        queryFn: () =>
+          courseLessonService
+            .list(ids)
+            .then(res => res.data)
+            .catch(err => {
+              if (isAxiosError(err) && err.status == 404) return [];
+              throw new Error(err.message);
+            }),
+        enabled: false,
+        placeholderData: keepPreviousData,
+      }),
+    getLessonContent: (ids?: Ids & { lessonId: number }, enabled?: boolean) =>
+      queryOptions<LessonContent>({
+        queryKey: courseQueries.keys.getLessonContent(ids),
+        queryFn: () => courseLessonService.getContent(ids!).then(res => res.data),
+        enabled: enabled != undefined ? enabled : !!ids,
+        placeholderData: keepPreviousData,
+      }),
+    getCourseBySlug: (slug: string) =>
+      queryOptions<CoursePreview>({
+        queryKey: courseQueries.keys.getCourseBySlug(slug),
+        queryFn: () => courseService.PUBLIC.get(slug).then(res => res.data),
+        placeholderData: keepPreviousData,
+      }),
+    listEnrolled: (search?: string) =>
+      queryOptions<(BaseCourse & { metaApproved: MetaCourse })[]>({
+        queryKey: courseQueries.keys.listEnrolled(search),
+        queryFn: () =>
+          enrollmentService
+            .list(search)
+            .then(res => res.data)
+            .catch(err => {
+              if (isAxiosError(err) && err.status == 404) return [];
+              throw new Error(err.message);
+            }),
+        placeholderData: keepPreviousData,
+      }),
+    getLearningCurriculum: (slug: string) =>
+      queryOptions<CourseCurriculum>({
+        queryKey: courseQueries.keys.getLearningCurriculum(slug),
+        queryFn: () => learnService.getCurriculum(slug).then(res => res.data),
+        placeholderData: keepPreviousData,
       }),
   },
 };

@@ -1,18 +1,29 @@
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import TextField from "@/components/commons/TextField";
 import useCourse from "@/hooks/course/useCourse";
+import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import cn from "@/libs/utils/cn";
-import { finalPrice } from "@/libs/utils/currency";
+import { convertLocal, finalPrice } from "@/libs/utils/currency";
 import { hasDirty } from "@/libs/utils/rhf";
 import { Button, DatePicker, Select, SelectItem, Switch } from "@heroui/react";
-import { Fragment, useRef } from "react";
+import { parseAbsoluteToLocal } from "@internationalized/date";
+import { Fragment, useMemo, useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { HiSelector } from "react-icons/hi";
 import { LuTrash2, LuUndo2 } from "react-icons/lu";
 import Field from "../../CreateCourse/Forms/Field";
 import { EditCourseForm } from "./form.type";
 
-export default function PricingPanel({ discountId, courseId }: { discountId?: number; courseId: number }) {
+export default function PricingPanel({
+  discountId,
+  courseId,
+  publishedValues,
+}: {
+  discountId?: number;
+  courseId: number;
+  publishedValues?: { priceAmount: number; discounts: Discount[] };
+}) {
+  const { showPublished } = useEditCourseContext();
   const {
     control,
     register,
@@ -43,13 +54,144 @@ export default function PricingPanel({ discountId, courseId }: { discountId?: nu
     });
   };
 
+  const activeDiscounts = publishedValues?.discounts.filter(d => d.isActive && d.value > 0);
+
+  const { finalPublishedPrice, breakdown } = useMemo(() => {
+    let current = price;
+    const breakdown = activeDiscounts?.map(d => {
+      const amount = d.type === "FIXED" ? d.value : current * (d.value / 100);
+      const before = current;
+      current = Math.max(0, current - amount);
+      return { discount: d, amount, before, after: current };
+    });
+
+    return { finalPublishedPrice: current, breakdown };
+  }, [price, activeDiscounts]);
+
   return (
     <div className="space-y-6 rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
       {/* <label className="flex gap-x-3 items-center flex-row">
         <span className="font-medium text-sm">Free Course</span>
         <Switch {...register("isFree")} size="sm" />
       </label> */}
-      {free ? null : (
+      {showPublished && !free ? (
+        <Fragment>
+          {/* Base Price */}
+          <TextField
+            id="priceAmount"
+            value={publishedValues?.priceAmount?.toString() || "0"}
+            label="Base Price (Rp)"
+            type="number"
+            disabled
+          />
+
+          {/* Discount Section */}
+          {publishedValues?.discounts.map((d, i) => (
+            <div className="border bg-slate-50/50 space-y-6 p-5 border-slate-300 rounded-xl relative" key={d.id}>
+              <span className="absolute -top-3 left-3 bg-white px-1 text-sm text-slate-700">
+                Discount {d.label || i + 1}
+              </span>
+
+              <div className="grid grid-cols-1 items-start md:grid-cols-3 gap-5">
+                {/* Discount Type */}
+                <Field label="Type">
+                  <Select
+                    isDisabled
+                    selectedKeys={[d.type]}
+                    aria-label="Select course type"
+                    id="discount.type"
+                    disableSelectorIconRotation
+                    variant="bordered"
+                    className="max-w-xs h-10"
+                    classNames={{
+                      trigger: ["shadow-none border-slate-200 border"],
+                    }}
+                    placeholder="Select discount type"
+                    selectorIcon={<HiSelector />}>
+                    <SelectItem key="PERCENTAGE">Percentage</SelectItem>
+                    <SelectItem key="FIXED">Fixed</SelectItem>
+                  </Select>
+                </Field>
+
+                {/* Discount Amount */}
+                <TextField
+                  disabled
+                  id="discount.value"
+                  type="number"
+                  label="Amount"
+                  prefix="Rp"
+                  value={d.value.toString()}
+                />
+
+                {/* Active Switch */}
+                <label className="flex gap-y-2 flex-col">
+                  <span className="font-medium text-sm">Active</span>
+                  <Switch isSelected={d.isActive} isDisabled size="sm" />
+                </label>
+              </div>
+
+              {/* Label & Date */}
+              <div className="grid grid-cols-1 @7xl:grid-cols-3 gap-5">
+                <TextField id="discount.label" value={d.label} disabled label="Label (optional)" />
+
+                <DatePicker
+                  className="max-w-full"
+                  granularity="second"
+                  isDisabled
+                  defaultValue={d.startAt ? (parseAbsoluteToLocal(d.startAt) as unknown as CalendarDate) : undefined}
+                  labelPlacement="outside"
+                  label="Start At (optional)"
+                  variant="bordered"
+                  classNames={{
+                    inputWrapper:
+                      "focus-within:border-slate-300 hover:border-slate-300 focus-within:hover:border-slate-300 border-1 shadow-none focus-within:outline-blue-100 focus-within:hover:outline-blue-100 outline-2 outline-transparent",
+                  }}
+                />
+
+                <DatePicker
+                  className="max-w-full"
+                  granularity="second"
+                  labelPlacement="outside"
+                  isDisabled
+                  defaultValue={d.endAt ? (parseAbsoluteToLocal(d.endAt) as unknown as CalendarDate) : undefined}
+                  label="End At (optional)"
+                  variant="bordered"
+                  classNames={{
+                    inputWrapper:
+                      "focus-within:border-slate-300 hover:border-slate-300 focus-within:hover:border-slate-300 border-1 shadow-none focus-within:outline-blue-100 focus-within:hover:outline-blue-100 outline-2 outline-transparent",
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+
+          {/* Price Summary */}
+          <div className="rounded-xl border border-success-200 space-y-2 p-4 bg-success-50">
+            {!breakdown ||
+              (breakdown.length > 0 && (
+                <p className="text-sm text-slate-700 flex justify-between">
+                  Base price
+                  <span className="font-semibold line-through">{convertLocal(publishedValues?.priceAmount || 0)}</span>
+                </p>
+              ))}
+
+            {breakdown?.map(({ discount, amount }, _i) => (
+              <p key={discount.id} className="text-sm text-slate-700 flex justify-between">
+                Discount {discount.label}
+                {discount.type === "PERCENTAGE" && ` ${discount.value}%`}
+                <span className="font-semibold">-{convertLocal(amount)}</span>
+              </p>
+            ))}
+
+            <p className="text-sm text-success-700 flex justify-between">
+              Final price
+              <span className="font-semibold">{convertLocal(finalPublishedPrice)}</span>
+            </p>
+          </div>
+        </Fragment>
+      ) : null}
+
+      {showPublished || free ? null : (
         <Fragment>
           <Controller
             control={control}

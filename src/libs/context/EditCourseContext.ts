@@ -3,6 +3,7 @@ import { createContext, useContext } from "react";
 type EditCourseContextType = {
   courseId: number;
   showCoursePreviewState: StateType<boolean>;
+  showPublished: boolean;
 };
 
 export const EditCourseContext = createContext<EditCourseContextType | undefined>(undefined);

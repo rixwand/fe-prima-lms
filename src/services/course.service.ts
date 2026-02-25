@@ -8,7 +8,7 @@ const courseService = {
   PUBLIC: {
     get: (slug: string) => api.get(`${endpoint.COURSE}/${slug}`),
     list: (params?: ListPublicCoursesParams) =>
-      api.get(`${endpoint.COURSE}/public-courses`, {
+      api.get(`${endpoint.COURSE}/list`, {
         params,
         paramsSerializer: params => buildQueryParams(params),
       }),

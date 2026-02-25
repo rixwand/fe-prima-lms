@@ -37,9 +37,11 @@ export type EditCourseTabsType = "basic" | "tags" | "media" | "pricing" | "curri
 export default function EditCourse({
   id,
   tabsState: [selectedKey, setSelectedKey],
+  showPublished,
 }: {
   id: number;
   tabsState: StateType<EditCourseTabsType>;
+  showPublished: boolean;
 }) {
   const {
     updateCourse,
@@ -48,17 +50,25 @@ export default function EditCourse({
     hasPending,
     updateCategories,
   } = useCourse(id, { refetchOnMutateSuccess: true });
-  const { ownerId: _o, slug: _s, tags: _approvedTags, sections, categories: _c, metaDraft: draft, ...course } = data!;
+  const {
+    ownerId: _o,
+    slug: _s,
+    sections,
+    tags: approvedTags,
+    discounts: approvedDiscounts,
+    categories: approvedCategories,
+    metaDraft: draft,
+    metaApproved,
+    ...course
+  } = data!;
   const {
     draftTags: tags,
     draftDiscounts: discounts,
     draftCategories: categories,
     ...metaDraft
   } = { ...draft, draftDiscounts: draft.draftDiscounts || [] };
-  const defaultValues = {
-    ...course,
-    ...metaDraft,
-    ...(discounts[0]
+  const draftDiscounts = (
+    discounts[0]
       ? {
           discount: {
             ...discounts[0],
@@ -68,15 +78,16 @@ export default function EditCourse({
             endAt: discounts[0].endAt ? (parseAbsoluteToLocal(discounts[0].endAt) as unknown as CalendarDate) : null,
           },
         }
-      : {}),
+      : {}
+  ) satisfies { discount?: EditCourseForm["discount"] };
+  const defaultValues = {
+    ...course,
+    ...metaDraft,
+    ...draftDiscounts,
     sections,
     categories,
-    // descriptionJson: descriptionJson || undefined,
-    // previewVideo: previewVideo || undefined,
-    fileList: undefined,
-    removeDiscount: undefined,
-    addDiscount: undefined,
-  };
+    fileImage: null,
+  } satisfies EditCourseForm;
   const [loading, setLoading] = useState(false);
   const showPreviewState = useState(true);
   const pendingKeyRef = useRef<EditCourseTabsType | null>(null);
@@ -171,7 +182,7 @@ export default function EditCourse({
   }, [data]);
 
   return (
-    <EditCourseContext.Provider value={{ showCoursePreviewState: showPreviewState, courseId: id }}>
+    <EditCourseContext.Provider value={{ showCoursePreviewState: showPreviewState, courseId: id, showPublished }}>
       <section className="grid grid-cols-1 xl:grid-cols-12 gap-8 @container">
         <div
           className={cn(
@@ -244,16 +255,32 @@ export default function EditCourse({
               }}
               variant="bordered">
               <Tab key="basic" title="Basic">
-                <BasicsForm defaultValues={{ ...metaDraft }} />
+                <BasicsForm publishedValues={{ ...metaApproved }} defaultValues={{ ...metaDraft }} />
               </Tab>
               <Tab key="categories_tags" title="Category/Tag">
-                <CategoriesTagsForm categories={categories} tags={tags} />
+                <CategoriesTagsForm
+                  publishedTags={approvedTags}
+                  publishedCategories={approvedCategories}
+                  categories={categories}
+                  tags={tags}
+                />
               </Tab>
               <Tab key="media" title="Media">
-                <MediaForm defaultValues={{ ...metaDraft, previewVideo: metaDraft.previewVideo! }} />
+                <MediaForm
+                  publishedValues={
+                    metaApproved && {
+                      coverImage: metaApproved.coverImage,
+                      previewVideo: metaApproved.previewVideo || null,
+                    }
+                  }
+                />
               </Tab>
               <Tab key="pricing" title="Pricing">
-                <PricingPanel discountId={discounts[0]?.id} courseId={id} />
+                <PricingPanel
+                  publishedValues={{ priceAmount: metaApproved.priceAmount, discounts: approvedDiscounts }}
+                  discountId={discounts[0]?.id}
+                  courseId={id}
+                />
               </Tab>
               <Tab key="curriculum" title="Curriculum">
                 <CurriculumForm courseId={id} defaultValue={sections} />

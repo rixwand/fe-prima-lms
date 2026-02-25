@@ -1,11 +1,11 @@
 "use client";
+import { ToggleSwitch } from "@/components/commons/CustomHeroui/ToggleSwitch";
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import useModalAddSections from "@/components/commons/Forms/AddSectionsForm/useModalAddSections";
-import NormalCkbox from "@/components/commons/NormalCkbox/NormalCkbox";
+import NormalCkbox from "@/components/commons/NoResult/NormalCkbox";
 import { TiptapViewer } from "@/components/commons/TiptapViewer/TiptapViewer";
 import FolderTree from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree";
 import useEditSection from "@/hooks/course/useEditSection";
-import { useQueryBlocks } from "@/hooks/course/useLessonEditor";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { useStickySentinel } from "@/hooks/use-sticky-shadow";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
@@ -13,18 +13,22 @@ import { FolderTreeContext, LessonPathIds } from "@/libs/context/FolderTreeConte
 import { hasTrue } from "@/libs/utils/boolean";
 import cn from "@/libs/utils/cn";
 import { diffList } from "@/libs/utils/data";
+import courseQueries from "@/queries/course-queries";
 import { StateType } from "@/types/Helper";
 import { Button } from "@heroui/react";
+import { useQuery } from "@tanstack/react-query";
 import { Content, JSONContent } from "@tiptap/core";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import {
+  LuBookmark,
   LuCheck,
   LuChevronsDown,
   LuChevronsUp,
   LuCopyPlus,
   LuExternalLink,
+  LuGlobe,
   LuPencil,
   LuPencilOff,
   LuPlus,
@@ -51,8 +55,10 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
   const [editMode, setEditMode] = useState(false);
   const selectState: SelectState = useState(new Set());
   const newSectionState = useState<string | null>(null);
+  const [showContentLive, setShowContentLive] = useState(false);
   const {
     showCoursePreviewState: [showPreview, setShowCoursePreview],
+    showPublished,
   } = useEditCourseContext();
   const sections = watch("sections");
   const ids = useMemo(() => sections?.flatMap(s => s.id!), [sections]);
@@ -121,19 +127,27 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
     });
   };
 
-  const { data: blocks, isLoading } = useQueryBlocks(activeLesson?.ids);
-
+  const {
+    data: lessonContent,
+    isLoading,
+    isPending: isPendingGetLessonContent,
+  } = useQuery(courseQueries.options.getLessonContent(activeLesson?.ids));
   useEffect(() => {
-    if (blocks && blocks.length > 0) {
-      setBlockPreview(blocks[0].textJson);
+    if (showPublished && editMode) setEditMode(false);
+    if (showPublished && typeof lessonContent?.publishedAt != "string") {
+      setShowCoursePreview(true);
+    } else if (lessonContent && showContentLive) {
+      setBlockPreview(lessonContent.contentLive);
+    } else if (lessonContent && lessonContent.contentDraft) {
+      setBlockPreview(lessonContent.contentDraft);
     } else {
       setBlockPreview(undefined);
     }
-  }, [blocks]);
+  }, [lessonContent, showPublished, showContentLive]);
 
   const { openAddSectionsModal } = useModalAddSections({ createSection, isPending: isPending.createSectionPendig });
 
-  useNProgress(hasTrue(isPending) || isLoading);
+  useNProgress(hasTrue({ isPendingGetLessonContent, isLoading }));
 
   return (
     <section
@@ -180,6 +194,7 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
                 variant="light">
                 <LuChevronsDown size={18} />
               </Button>
+
               <Button
                 onPress={handleFoldSections}
                 isIconOnly
@@ -190,91 +205,99 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
                 variant="light">
                 <LuChevronsUp size={18} />
               </Button>
-              {editMode && (
-                <NormalCkbox
-                  className="p-0 px-2"
-                  onValueChange={() => {
-                    selectState[1](prev => {
-                      const next = new Set(prev);
-                      const allChecked = ids!.every(id => next.has(id));
-                      if (allChecked) return new Set();
-                      return new Set(ids);
-                    });
-                  }}
-                  isSelected={ids!.every(id => selectState[0].has(id))}
-                />
-              )}
-              <Button
-                onPress={resetSections}
-                isIconOnly
-                radius="sm"
-                size="lg"
-                hidden={!editMode}
-                className="reset-button p-2 z-10 ml-[1px]"
-                color="primary"
-                variant="light">
-                <LuRotateCcw size={18} />
-              </Button>
+
+              {editMode ? (
+                <Fragment>
+                  <NormalCkbox
+                    className="p-0 px-2"
+                    onValueChange={() => {
+                      selectState[1](prev => {
+                        const next = new Set(prev);
+                        const allChecked = ids!.every(id => next.has(id));
+                        return allChecked ? new Set() : new Set(ids);
+                      });
+                    }}
+                    isSelected={ids!.every(id => selectState[0].has(id))}
+                  />
+
+                  <Button
+                    onPress={resetSections}
+                    isIconOnly
+                    radius="sm"
+                    size="lg"
+                    className="reset-button p-2 z-10 ml-[1px]"
+                    color="primary"
+                    variant="light">
+                    <LuRotateCcw size={18} />
+                  </Button>
+                </Fragment>
+              ) : null}
+
               <span className={cn("ml-auto", editMode ? "space-x-3" : "space-x-1")}>
-                <Button
-                  onPress={() => newSectionState[1]("New Section")}
-                  isIconOnly
-                  radius="sm"
-                  size="lg"
-                  className="reset-button p-[7px]"
-                  color="primary"
-                  hidden={editMode}
-                  variant="light">
-                  <LuPlus size={18} />
-                </Button>
-                <Button
-                  isIconOnly
-                  onPress={openAddSectionsModal}
-                  radius="sm"
-                  size="lg"
-                  className="reset-button p-2"
-                  color="primary"
-                  hidden={editMode}
-                  variant="light">
-                  <LuCopyPlus size={18} />
-                </Button>
-                <Button
-                  isIconOnly
-                  onPress={handleSubmitReorder}
-                  hidden={!editMode}
-                  radius="sm"
-                  size="lg"
-                  className={cn("reset-button p-2")}
-                  color="primary"
-                  variant={"flat"}>
-                  <LuCheck />
-                </Button>
-                <Button
-                  isIconOnly
-                  onPress={handleDeleteSection}
-                  hidden={!editMode}
-                  radius="sm"
-                  size="lg"
-                  className={cn("reset-button p-2")}
-                  color="danger"
-                  variant={"flat"}>
-                  <LuTrash2 />
-                </Button>
-                <Button
-                  isIconOnly
-                  onPress={() => {
-                    setEditMode(mode => !mode);
-                    selectState[1](new Set());
-                  }}
-                  radius="sm"
-                  size="lg"
-                  className={cn("reset-button p-2")}
-                  {...(editMode ? { color: "warning", variant: "flat" } : { color: "primary", variant: "light" })}
-                  // color="primary"
-                  // variant={editMode ? "solid" : "light"}
-                >
-                  {editMode ? <LuPencilOff /> : <LuPencil />}
-                </Button>
+                {showPublished ? null : !editMode ? (
+                  <Fragment>
+                    <Button
+                      onPress={() => newSectionState[1]("New Section")}
+                      isIconOnly
+                      radius="sm"
+                      size="lg"
+                      className="reset-button p-[7px]"
+                      color="primary"
+                      variant="light">
+                      <LuPlus size={18} />
+                    </Button>
+
+                    <Button
+                      isIconOnly
+                      onPress={openAddSectionsModal}
+                      radius="sm"
+                      size="lg"
+                      className="reset-button p-2"
+                      color="primary"
+                      variant="light">
+                      <LuCopyPlus size={18} />
+                    </Button>
+                  </Fragment>
+                ) : (
+                  <>
+                    <Button
+                      isIconOnly
+                      onPress={handleSubmitReorder}
+                      radius="sm"
+                      size="lg"
+                      className="reset-button p-2"
+                      color="primary"
+                      variant="flat">
+                      <LuCheck />
+                    </Button>
+
+                    <Button
+                      isIconOnly
+                      onPress={handleDeleteSection}
+                      radius="sm"
+                      size="lg"
+                      className="reset-button p-2"
+                      color="danger"
+                      variant="flat">
+                      <LuTrash2 />
+                    </Button>
+                  </>
+                )}
+
+                {!showPublished && (
+                  <Button
+                    isIconOnly
+                    onPress={() => {
+                      setEditMode(mode => !mode);
+                      selectState[1](new Set());
+                    }}
+                    radius="sm"
+                    size="lg"
+                    className="reset-button p-2"
+                    {...(editMode ? { color: "warning", variant: "flat" } : { color: "primary", variant: "light" })}>
+                    {editMode ? <LuPencilOff /> : <LuPencil />}
+                  </Button>
+                )}
               </span>
             </div>
           </div>
@@ -307,12 +330,19 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
           <div ref={sentinelPreviewRef} className="h-1 w-full" />
           <div
             className={cn(
-              "py-2 flex items-center text-sm font-medium px-5 w-full bg-white z-50 text-slate-700 sticky top-0 rounded-t-xl transition-all duration-300",
+              "py-2 flex items-center text-sm font-medium px-5 w-full bg-white z-50 text-slate-700 sticky top-0 rounded-t-xl transition-all duration-300 gap-x-2",
               previewStuck && "shadow-xs",
             )}>
-            <p className="truncate min-w-0">
-              {activeLesson.path.join(" / ")} <span className="text-slate-400 ml-2 italic">(preview)</span>
-            </p>
+            <ToggleSwitch
+              isSelected={showContentLive}
+              onValueChange={setShowContentLive}
+              OffIcon={LuBookmark}
+              OnIcon={LuGlobe}
+              color="success"
+              wrapperClassName="bg-primary text-white group-data-[selected=true]:text-white p-2"
+            />
+            <p className="truncate min-w-0">{activeLesson.path.join(" / ")}</p>
+            <span className="text-slate-400 italic">{showContentLive ? "(Live)" : "(Draft)"}</span>
             <Button
               onPress={() => setActiveLesson(null)}
               isIconOnly

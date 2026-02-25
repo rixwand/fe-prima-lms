@@ -24,6 +24,12 @@ const eslintConfig = [
         },
       ],
     },
+    "import/no-anonymous-default-export": [
+      "warn",
+      {
+        allowObject: true,
+      },
+    ],
   },
 ];
 

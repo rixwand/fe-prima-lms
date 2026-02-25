@@ -1,12 +1,15 @@
-import CourseCard from "@/components/commons/Cards/CourseCardProgress";
+import CourseCardProgress, { LearningCardSkeleton } from "@/components/commons/Cards/CourseCardProgress";
 import StatusCard from "@/components/commons/Cards/StatusCard";
 import UpcomingList from "@/components/commons/List/UpcomingList";
+import NoResult from "@/components/commons/NoResult";
+import useEnrollments from "@/hooks/course/useEnrollments";
 import { Button, Card, CardBody, CardHeader, Divider, Progress, Skeleton, Tab, Tabs } from "@heroui/react";
+import { Fragment } from "react";
 import { BsBook } from "react-icons/bs";
 import { FaBook, FaClipboardCheck, FaLightbulb, FaPlay } from "react-icons/fa6";
 import { TbChecklist, TbClipboardCheck, TbNotebook } from "react-icons/tb";
 
-const courses = [
+const incomingCourse = [
   {
     title: "Dasar-dasar Desain Web: Belajar UI/UX untuk Pemula",
     tag: "Web Design",
@@ -24,6 +27,7 @@ const courses = [
 ];
 
 export default function Dashboard() {
+  const { courses, isLoading } = useEnrollments();
   return (
     <section className="flex flex-wrap gap-4 2xl:gap-6 @container text-sm 2xl:text-base pb-3">
       <div className="@6xl:max-w-8/12 w-full">
@@ -107,9 +111,25 @@ export default function Dashboard() {
             variant="solid">
             <Tab key="ongoing" title="Berjalan">
               <div className="grid grid-cols-1 gap-4 @xl:grid-cols-2 @4xl:grid-cols-3">
-                <CourseCard />
-                <CourseCard />
-                <CourseCard />
+                {isLoading ? (
+                  <Fragment>
+                    <LearningCardSkeleton />
+                    <LearningCardSkeleton />
+                    <LearningCardSkeleton />
+                  </Fragment>
+                ) : !courses || courses.length == 0 ? (
+                  <NoResult
+                    className="col-span-12"
+                    title="Kursus tidak ditemukan"
+                    description="tidak ada kursus yang berjalan"
+                  />
+                ) : (
+                  <Fragment>
+                    {courses.map(c => (
+                      <CourseCardProgress key={c.id} meta={c.metaApproved} slug={c.slug} />
+                    ))}
+                  </Fragment>
+                )}
               </div>
             </Tab>
             <Tab key="complete" title="Selesai">
@@ -126,7 +146,7 @@ export default function Dashboard() {
         </CardHeader>
         <CardBody>
           <ul className="pl-2 space-y-4 mb-3">
-            {courses.map((course, i) => (
+            {incomingCourse.map((course, i) => (
               <>
                 <li>
                   <UpcomingList key={i} {...course} />

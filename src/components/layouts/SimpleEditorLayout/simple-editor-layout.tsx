@@ -2,6 +2,8 @@ import * as React from "react";
 
 import { cn } from "@/libs/tiptap/tiptap-utils";
 
+import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
+import { useLessonEditorContext } from "@/libs/context/LessonEditorContext";
 import { findFirstSelectableLesson } from "@/libs/utils/course";
 import { StateType } from "@/types/Helper";
 import { SimpleEditorHeader } from "./simple-editor-layout-header";
@@ -33,7 +35,9 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
   const [toolbarOffset, setToolbarOffset] = React.useState(0);
   const [isDesktop, setIsDesktop] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-
+  const {
+    currentDirtyState: [isDirty],
+  } = useLessonEditorContext();
   const openSidebar = React.useCallback(() => {
     setIsSidebarOpen(true);
   }, []);
@@ -42,15 +46,26 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
     setIsSidebarOpen(false);
   }, []);
 
+  const switchLesson = (lesson: Lesson, path: string[]) => {
+    setActiveLesson(lesson);
+    setActivePath(path);
+    if (!isDesktop) {
+      closeSidebar();
+    }
+  };
+
   const handleSelect = React.useCallback(
     (_section: CourseSection, lesson: Lesson, path: string[]) => {
-      setActiveLesson(lesson);
-      setActivePath(path);
-      if (!isDesktop) {
-        closeSidebar();
-      }
+      if (!isDirty) {
+        switchLesson(lesson, path);
+      } else
+        confirmDialog({
+          title: "Discard changes?",
+          desc: "Unsaved changes will be lost if you leave this tab.",
+          onConfirmed: () => switchLesson(lesson, path),
+        });
     },
-    [closeSidebar, isDesktop]
+    [closeSidebar, isDesktop, isDirty],
   );
 
   React.useEffect(() => {
@@ -85,8 +100,8 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
   }, []);
 
   const toolbarOffsetStyle = React.useMemo(
-    () => ({ "--tt-toolbar-offset": `${toolbarOffset}px` } as React.CSSProperties),
-    [toolbarOffset]
+    () => ({ "--tt-toolbar-offset": `${toolbarOffset}px` }) as React.CSSProperties,
+    [toolbarOffset],
   );
 
   const contentStyle = React.useMemo(() => {
@@ -163,12 +178,12 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
       openSidebar,
       closeSidebar,
     }),
-    [closeSidebar, isDesktop, isSidebarOpen, openSidebar]
+    [closeSidebar, isDesktop, isSidebarOpen, openSidebar],
   );
 
   const breadcrumb = React.useMemo(
     () => (activeLesson ? activePath.join(" / ") : "Select a lesson"),
-    [activeLesson, activePath]
+    [activeLesson, activePath],
   );
 
   return (
@@ -177,7 +192,7 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
         style={toolbarOffsetStyle}
         className={cn(
           "flex min-h-screen flex-col bg-[var(--tt-bg-color)] text-[var(--tt-theme-text)] lg:h-screen lg:flex-row",
-          className
+          className,
         )}>
         <SimpleEditorSidebar
           structure={structure}

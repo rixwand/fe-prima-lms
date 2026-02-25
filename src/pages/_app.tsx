@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SessionProvider, useSession } from "next-auth/react";
 import type { AppProps } from "next/app";
+import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,12 +24,18 @@ const Bridge = () => {
 };
 
 export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   return (
     <SessionProvider session={session}>
       <Bridge />
       <QueryClientProvider client={queryClient}>
         <HeroUIProvider>
-          <ToastProvider placement="top-center" toastProps={{ classNames: { base: "top-5" } }} />
+          {isMounted ? <ToastProvider placement="top-center" toastProps={{ classNames: { base: "top-5" } }} /> : null}
           <Component {...pageProps} />
         </HeroUIProvider>
         <ReactQueryDevtools initialIsOpen={false} />

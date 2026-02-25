@@ -3,7 +3,7 @@ import { NextResponse, type MiddlewareConfig, type NextRequest } from "next/serv
 import { AUTH_SECRET } from "./config/env";
 
 const AUTH_PREFIX = "/auth";
-const PROTECTED_PREFIX = ["/dashboard"];
+const PROTECTED_PREFIX = ["/dashboard", "/learn"];
 const INSTRUCTOR_PREFIX = ["/instructor"];
 const ADMIN_PREFIX = ["/admin"];
 
@@ -49,8 +49,10 @@ export async function middleware(req: NextRequest) {
       return NextResponse.rewrite(new URL("/403", req.url));
     }
   }
+
+  return NextResponse.next();
 }
 
 export const config: MiddlewareConfig = {
-  matcher: ["/auth/:path*", "/dashboard/:path*", "/instructor/:path*", "/admin/:path*"],
+  matcher: ["/auth/:path*", "/dashboard/:path*", "/instructor/:path*", "/admin/:path*", "/learn/:path*"],
 };

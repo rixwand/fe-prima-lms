@@ -34,7 +34,7 @@ export function TiptapViewer({ json }: { json: JSONContent }) {
         limit: 3,
         upload: async () => "",
       }),
-    ])
+    ]),
   );
 
   return (

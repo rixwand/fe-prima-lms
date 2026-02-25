@@ -34,6 +34,8 @@ export interface EditCourseForm {
     id?: number;
     title: string;
     position?: number;
+    publishedAt?: string | null;
+    removedAt?: string | null;
     lessons?: {
       id?: number;
       title: string;
@@ -41,6 +43,8 @@ export interface EditCourseForm {
       durationSec?: number | null;
       isPreview?: boolean;
       position?: number;
+      publishedAt?: string | null;
+      removedAt?: string | null;
     }[];
   }[];
 }

@@ -1,38 +1,51 @@
+import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import { SimpleEditor } from "@/components/tiptap/tiptap-templates/simple/simple-editor";
-import useLessonEditor from "@/hooks/course/useLessonEditor";
+import { useEditLesson } from "@/hooks/course/useEditLesson";
 import { useNProgress } from "@/hooks/use-nProgress";
+import { useLessonEditorContext } from "@/libs/context/LessonEditorContext";
 import { hasTrue } from "@/libs/utils/boolean";
 import { StateType } from "@/types/Helper";
 import { JSONContent } from "@tiptap/core";
-import { useEffect } from "react";
 
 type LessonEditorProps = {
   lessonState: StateType<Lesson | null>;
 };
-export default function LessonEditor({ lessonState: [activeLesson, setActiveLesson] }: LessonEditorProps) {
-  // const {
-  //   ids: { sectionId },
-  // } = useLessonEditorContext();
+export default function LessonEditor({ lessonState }: LessonEditorProps) {
+  const { ids } = useLessonEditorContext();
 
-  const { queryBlocks, createBlock, updateBlock, isLoading } = useLessonEditor({
-    onCreateBlockSuccess() {},
-  });
+  const { lessonContent, updateLesson, pending, publishDraft } = useEditLesson({ idsPath: ids! });
 
-  useEffect(() => {
-    console.log(activeLesson?.title, " ", queryBlocks);
-  }, [queryBlocks]);
+  // useEffect(() => {
+  //   console.log(activeLesson?.title, " ", lessonContent);
+  // }, [lessonContent]);
 
-  const onSave = ({ json }: { html: string; json: JSONContent }) => {
-    if (queryBlocks && queryBlocks[0]?.id) {
-      return updateBlock({ blockId: queryBlocks[0].id, payload: { textJson: json } });
-    }
-    return createBlock({ type: "RICH_TEXT", textJson: json });
-  };
+  const onSave = ({ json, onSuccess }: { json: JSONContent; onSuccess?: () => void }) =>
+    updateLesson({ contentJson: json }, { onSuccess });
+  const onPublishDraft = ({ newDraft, onSuccess }: { newDraft?: JSONContent; onSuccess?: () => void }) =>
+    confirmDialog({
+      title: "Publish Draft",
+      desc: "The content in the draft will be published",
+      async onConfirmed() {
+        return publishDraft(
+          { newDraft },
+          {
+            onSuccess,
+            onError(e) {
+              console.log("publishDraft error: ", e);
+            },
+          },
+        );
+      },
+    });
 
-  useNProgress(hasTrue(isLoading));
+  useNProgress(hasTrue(pending));
 
-  if (isLoading.isLoading) return null;
+  if (pending.isPendingQuery) return null;
   return (
-    <SimpleEditor onSave={onSave} content={(queryBlocks && queryBlocks[0]?.textJson) || { type: "doc", content: [] }} />
+    <SimpleEditor
+      onSave={onSave}
+      onPublish={onPublishDraft}
+      lessonContent={lessonContent || { contentLive: [{}], contentDraft: [{}], publishedAt: null }}
+    />
   );
 }

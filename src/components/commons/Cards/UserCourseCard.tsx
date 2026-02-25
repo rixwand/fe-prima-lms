@@ -2,16 +2,21 @@ import cn from "@/libs/utils/cn";
 import { finalPrice } from "@/libs/utils/currency";
 import { Avatar, Card, Chip, Skeleton } from "@heroui/react";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { LuSquareArrowOutUpRight, LuStar, LuUsers } from "react-icons/lu";
 
 type Props = {
-  course: Pick<PublicCourseListItem, "owner" | "discounts"> & {
+  course: Pick<PublicCourseListItem, "owner" | "discounts" | "slug"> & {
     metaApproved: Pick<MetaCourse, "coverImage" | "priceAmount" | "title">;
   };
 };
 const UserCourseCard = ({ course: { metaApproved }, course }: Props) => {
+  const router = useRouter();
   return (
-    <Card className="rounded-xl overflow-hidden justify-between" isPressable>
+    <Card
+      className="rounded-xl overflow-hidden justify-between"
+      isPressable
+      onPress={() => router.push("/course/preview/" + course.slug)}>
       <div>
         <div className="relative w-full h-fit bg-red-50 aspect-video">
           <Image fill className="object-cover rounded-t-md" src={metaApproved!.coverImage} alt="Course Image" />

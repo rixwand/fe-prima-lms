@@ -1,6 +1,7 @@
 import SortableChip from "@/components/commons/Chip/SortableChip";
 import TextField from "@/components/commons/TextField";
 import useCourseCategories from "@/hooks/course/useCourseCategories";
+import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import cn from "@/libs/utils/cn";
 import { hasDirty } from "@/libs/utils/rhf";
 import { toSlug } from "@/libs/utils/string";
@@ -27,16 +28,20 @@ import {
   PopoverTrigger,
   addToast,
 } from "@heroui/react";
-import { Key, useEffect, useMemo, useState } from "react";
+import { Fragment, Key, useEffect, useMemo, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { LuChevronDown, LuInfo, LuUndo2 } from "react-icons/lu";
 import { EditCourseForm } from "./form.type";
 export default function CategoriesTagsForm({
   tags: defaultTags,
   categories: defaultCateories,
+  publishedCategories,
+  publishedTags,
 }: {
   tags: Tag[];
   categories: Category[];
+  publishedTags?: Tag[];
+  publishedCategories?: Category[];
 }) {
   const { categories } = useCourseCategories();
   const [tagInput, setTagInput] = useState("");
@@ -47,6 +52,8 @@ export default function CategoriesTagsForm({
     setValue,
     control,
   } = useFormContext<EditCourseForm>();
+
+  const { showPublished } = useEditCourseContext();
 
   const reset = () => {
     setTags(defaultTags.map(({ id: _, ...tag }) => tag));
@@ -140,110 +147,151 @@ export default function CategoriesTagsForm({
 
   return (
     <div className="space-y-6 rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-      <div className="flex flex-col gap-3">
-        <TextField
-          error={errors.tags?.message}
-          classNames={{ wrapper: "flex flex-col" }}
-          id="tags"
-          label="Tags"
-          value={tagInput}
-          onChange={e => setTagInput(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTag())}
-          placeholder="add tag and press enter"
-        />
-        <span className="flex flex-wrap gap-3">
-          {tags.map(({ name, slug }) => (
-            <Chip
-              className="mb-1"
-              variant="bordered"
-              color="primary"
-              key={slug}
-              onClose={() => removeTag({ slug: slug, title: name })}>
-              {name}
-            </Chip>
-          ))}
-        </span>
-      </div>
-
-      <div className="flex flex-col gap-y-1">
-        <span className="text-sm font-medium flex items-center gap-x-1">
-          Categories
-          <Popover showArrow>
-            <PopoverTrigger>
-              <span className="">
-                <LuInfo />
-              </span>
-            </PopoverTrigger>
-            <PopoverContent>
-              <div className="px-1 py-2">
-                <div className="text-sm font-semibold text-slate-700">Drag untuk mengurutkan kategori</div>
-                <div className="text-sm text-slate-600">Kategori urutan pertama akan menjadi kategori utama</div>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </span>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragStart={onDragStart}
-          onDragEnd={onDragEnd}>
-          <Dropdown placement="bottom-start">
-            <DropdownTrigger>
-              <div
-                className={cn(
-                  errors.categories?.root ? "border-danger" : "border-slate-200 ",
-                  "w-full py-1 rounded-xl border-1 h-fit focus:ring-2 focus:ring-blue-100 flex items-center justify-between focus-visible:outline-0",
-                )}>
-                <span className="flex gap-x-1.5 px-1.5 overflow-x-scroll scrollbar-hide">
-                  <SortableContext items={ids} strategy={horizontalListSortingStrategy}>
-                    {fields.length > 0 ? (
-                      fields.map((c, i) => <SortableChip id={c.id} name={c.name} key={c.id} index={i} />)
-                    ) : (
-                      <p
-                        className={cn(
-                          errors.categories?.root ? "text-danger" : "text-slate-400",
-                          "text-sm py-1 px-1.5",
-                        )}>
-                        Choose Categories
-                      </p>
-                    )}
-                  </SortableContext>
-                </span>
-                <span className="pr-1.5 pl-1 flex rounded-r-xl">
-                  <LuChevronDown className="text-slate-300 text-xl my-auto" />
-                </span>
-                {dragState && (
-                  <DragOverlay>
-                    <span style={{ width: dragState.width, height: dragState.height }}>
-                      <Chip
-                        size="md"
-                        radius="sm"
-                        color="primary"
-                        variant={fields.findIndex(c => c.id == dragState.id) == 0 ? "solid" : "flat"}>
-                        {categories[categories.findIndex(c => c.id == dragState.id)]["name"]}
-                      </Chip>
-                    </span>
-                  </DragOverlay>
-                )}
-              </div>
-            </DropdownTrigger>
-            <DropdownMenu
-              selectionMode="multiple"
-              selectedKeys={selectedKeys}
-              closeOnSelect={false}
-              classNames={{ list: "" }}
-              onAction={handleSelectionChange}>
-              {categories.map(c => (
-                <DropdownItem key={c.id}>{c.name}</DropdownItem>
+      {showPublished ? (
+        <Fragment>
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-slate-700">Tags</p>
+            <div className="w-full px-2 py-1.5 rounded-xl border-1 h-fit focus:ring-2 focus:ring-blue-100 flex items-center gap-x-1.5 focus-visible:outline-0 border-slate-200">
+              {publishedTags?.map(({ name, slug }) => (
+                <Chip variant="bordered" color="primary" key={slug}>
+                  {name}
+                </Chip>
               ))}
-            </DropdownMenu>
-          </Dropdown>
-        </DndContext>
-        {errors.categories?.root ? (
-          <p className="mt-0.5 text-xs text-rose-600">{errors.categories.root?.message}</p>
-        ) : null}
-      </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-y-1">
+            <span className="text-sm font-medium flex items-center gap-x-1">
+              Categories
+              <Popover showArrow>
+                <PopoverTrigger>
+                  <span className="">
+                    <LuInfo />
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <div className="px-1 py-2">
+                    <div className="text-sm font-semibold text-slate-700">Drag untuk mengurutkan kategori</div>
+                    <div className="text-sm text-slate-600">Kategori urutan pertama akan menjadi kategori utama</div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </span>
+            <div className="w-full px-2 py-1.5 rounded-xl border-1 h-fit focus:ring-2 focus:ring-blue-100 flex items-center gap-x-1.5 focus-visible:outline-0 border-slate-200">
+              {publishedCategories?.map((c, index) => (
+                <Chip size="md" key={c.id} radius="sm" color="primary" variant={index == 0 ? "solid" : "flat"}>
+                  {c.name}
+                </Chip>
+              ))}
+            </div>
+          </div>
+        </Fragment>
+      ) : (
+        <Fragment>
+          <div className="flex flex-col gap-3">
+            <TextField
+              error={errors.tags?.message}
+              classNames={{ wrapper: "flex flex-col" }}
+              id="tags"
+              label="Tags"
+              value={tagInput}
+              onChange={e => setTagInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTag())}
+              placeholder="add tag and press enter"
+            />
+            <span className="flex flex-wrap gap-3">
+              {tags.map(({ name, slug }) => (
+                <Chip
+                  className="mb-1"
+                  variant="bordered"
+                  color="primary"
+                  key={slug}
+                  onClose={() => removeTag({ slug: slug, title: name })}>
+                  {name}
+                </Chip>
+              ))}
+            </span>
+          </div>
 
+          <div className="flex flex-col gap-y-1">
+            <span className="text-sm font-medium flex items-center gap-x-1">
+              Categories
+              <Popover showArrow>
+                <PopoverTrigger>
+                  <span className="">
+                    <LuInfo />
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <div className="px-1 py-2">
+                    <div className="text-sm font-semibold text-slate-700">Drag untuk mengurutkan kategori</div>
+                    <div className="text-sm text-slate-600">Kategori urutan pertama akan menjadi kategori utama</div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </span>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}>
+              <Dropdown placement="bottom-start">
+                <DropdownTrigger>
+                  <div
+                    className={cn(
+                      errors.categories?.root ? "border-danger" : "border-slate-200 ",
+                      "w-full py-1 rounded-xl border-1 h-fit focus:ring-2 focus:ring-blue-100 flex items-center justify-between focus-visible:outline-0",
+                    )}>
+                    <span className="flex gap-x-1.5 px-1.5 overflow-x-scroll scrollbar-hide">
+                      <SortableContext items={ids} strategy={horizontalListSortingStrategy}>
+                        {fields.length > 0 ? (
+                          fields.map((c, i) => <SortableChip id={c.id} name={c.name} key={c.id} index={i} />)
+                        ) : (
+                          <p
+                            className={cn(
+                              errors.categories?.root ? "text-danger" : "text-slate-400",
+                              "text-sm py-1 px-1.5",
+                            )}>
+                            Choose Categories
+                          </p>
+                        )}
+                      </SortableContext>
+                    </span>
+                    <span className="pr-1.5 pl-1 flex rounded-r-xl">
+                      <LuChevronDown className="text-slate-300 text-xl my-auto" />
+                    </span>
+                    {dragState && (
+                      <DragOverlay>
+                        <span style={{ width: dragState.width, height: dragState.height }}>
+                          <Chip
+                            size="md"
+                            radius="sm"
+                            color="primary"
+                            variant={fields.findIndex(c => c.id == dragState.id) == 0 ? "solid" : "flat"}>
+                            {categories[categories.findIndex(c => c.id == dragState.id)]["name"]}
+                          </Chip>
+                        </span>
+                      </DragOverlay>
+                    )}
+                  </div>
+                </DropdownTrigger>
+                <DropdownMenu
+                  selectionMode="multiple"
+                  selectedKeys={selectedKeys}
+                  closeOnSelect={false}
+                  classNames={{ list: "" }}
+                  onAction={handleSelectionChange}>
+                  {categories.map(c => (
+                    <DropdownItem key={c.id}>{c.name}</DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            </DndContext>
+            {errors.categories?.root ? (
+              <p className="mt-0.5 text-xs text-rose-600">{errors.categories.root?.message}</p>
+            ) : null}
+          </div>
+        </Fragment>
+      )}
       {(["tags", "categories"] as const).some(key => hasDirty(dirtyFields?.[key])) && (
         <Button color="danger" onPress={reset} className="h-9" variant="flat" radius="sm">
           <LuUndo2 /> Reset

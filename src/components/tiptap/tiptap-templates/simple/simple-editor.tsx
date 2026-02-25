@@ -1,7 +1,9 @@
 "use client";
 
-import type { Content, JSONContent } from "@tiptap/core";
+import { Button as HeroUIBtn } from "@heroui/react";
+import type { JSONContent } from "@tiptap/core";
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
+import fastDeepEqual from "fast-deep-equal/es6";
 import * as React from "react";
 
 // --- Tiptap Core Extensions ---
@@ -17,10 +19,10 @@ import { Selection } from "@tiptap/extensions";
 import { StarterKit } from "@tiptap/starter-kit";
 
 // --- UI Primitives ---
+import { useSimpleEditorLayoutContext } from "@/components/layouts/SimpleEditorLayout/simple-editor-layout.context";
 import { Button } from "@/components/tiptap/tiptap-ui-primitive/button";
 import { Spacer } from "@/components/tiptap/tiptap-ui-primitive/spacer";
 import { Toolbar, ToolbarGroup, ToolbarSeparator } from "@/components/tiptap/tiptap-ui-primitive/toolbar";
-import { useSimpleEditorLayoutContext } from "@/components/layouts/SimpleEditorLayout/simple-editor-layout.context";
 
 // --- Tiptap Node ---
 import { HorizontalRule } from "@/components/tiptap/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
@@ -54,10 +56,17 @@ import { useIsMobile } from "@/hooks/tiptap/use-mobile";
 
 // --- Lib ---
 import { cn, handleImageUpload, MAX_FILE_SIZE } from "@/libs/tiptap/tiptap-utils";
+import ccn from "@/libs/utils/cn";
 
 // --- Icons (external) ---
+import { MySwitch } from "@/components/commons/CustomHeroui/MySwitch";
+import { TiptapViewer } from "@/components/commons/TiptapViewer/TiptapViewer";
+import { useLessonEditorContext } from "@/libs/context/LessonEditorContext";
+import { normalizeTiptapContent } from "@/libs/utils/course";
+import { StateType } from "@/types/Helper";
 import { addToast } from "@heroui/react";
 import { IoContractOutline, IoExpandOutline, IoSaveOutline } from "react-icons/io5";
+import { LuBookmark, LuGlobe, LuInfo } from "react-icons/lu";
 
 // --- Styles ---
 
@@ -69,6 +78,9 @@ const MainToolbarContent = ({
   isSaveDisabled,
   onToggleFullscreen,
   isFullscreen,
+  onPublish,
+  showContentLiveState: [showPublished, setShowPublished],
+  isDirty,
 }: {
   onHighlighterClick: () => void;
   onLinkClick: () => void;
@@ -77,12 +89,45 @@ const MainToolbarContent = ({
   isSaveDisabled: boolean;
   onToggleFullscreen: () => void;
   isFullscreen: boolean;
+  showContentLiveState: StateType<boolean>;
+  onPublish: () => void;
+  isDirty: boolean;
 }) => {
+  const SwitchMode = () => (
+    <span className={ccn("flex items-center gap-x-1.5 py-1 px-1.5 rounded-full")}>
+      <MySwitch
+        classNames={{ wrapper: ccn(showPublished ? "bg-success" : "bg-primary", "transition-background") }}
+        color="white"
+        defaultSelected
+        thumbIcon={({ isSelected, className }) =>
+          isSelected ? (
+            <LuGlobe
+              {...{
+                className: ccn([className, "text-success"]),
+              }}
+            />
+          ) : (
+            <LuBookmark
+              {...{
+                className: ccn([className, "text-primary"]),
+              }}
+            />
+          )
+        }
+        isSelected={showPublished}
+        onValueChange={setShowPublished}
+        endContent={<LuGlobe color="white" />}
+        size="md"
+        startContent={<LuBookmark color="white" />}
+      />
+      <p className="text-slate-700 text-sm mr-2 ml-1 text-nowrap">{showPublished ? "Live content" : "Draft content"}</p>
+    </span>
+  );
   return (
     <>
-      {/* <ToolbarGroup>
-        <ThemeToggle />
-      </ToolbarGroup> */}
+      <ToolbarGroup>
+        <SwitchMode />
+      </ToolbarGroup>
 
       <Spacer size={isMobile ? "0.5rem" : undefined} />
 
@@ -137,8 +182,17 @@ const MainToolbarContent = ({
       <Spacer size={isMobile ? "0.5rem" : undefined} />
 
       <ToolbarGroup className="space-x-2">
+        <HeroUIBtn
+          onPress={onPublish}
+          color="success"
+          className="reset-button px-2.5 py-1.5 space-x-1 text-white"
+          isIconOnly
+          aria-label="Publish editor content">
+          <LuGlobe />
+          <span>{isDirty && "Save & "}Publish draft</span>
+        </HeroUIBtn>
         <Button
-          data-style="ghost"
+          // data-style="ghost"
           className="text-nowrap"
           onClick={onToggleFullscreen}
           tooltip={isFullscreen ? "Exit fullscreen mode" : "Enter fullscreen mode"}
@@ -186,11 +240,16 @@ const MobileToolbarContent = ({ type, onBack }: { type: "highlighter" | "link"; 
 );
 
 type SimpleEditorProps = {
-  onSave?: (data: { html: string; json: JSONContent }) => void;
-  content?: Content;
+  onSave?: (data: { json: JSONContent; onSuccess?: () => void }) => void;
+  onPublish?: (props: { newDraft?: JSONContent; onSuccess?: () => void }) => void;
+  lessonContent: LessonContent;
 };
 
-export function SimpleEditor({ onSave, content }: SimpleEditorProps) {
+export function SimpleEditor({
+  onPublish,
+  onSave,
+  lessonContent: { contentDraft: content, contentLive },
+}: SimpleEditorProps) {
   const layoutContext = useSimpleEditorLayoutContext();
   const isCompactBreakpoint = useIsMobile(1024);
   const isCompact = layoutContext ? !layoutContext.isDesktop : isCompactBreakpoint;
@@ -199,8 +258,13 @@ export function SimpleEditor({ onSave, content }: SimpleEditorProps) {
   const originalBodyOverflow = React.useRef<string>("");
   const toolbarRef = React.useRef<HTMLDivElement>(null);
   const [toolbarHeight, setToolbarHeight] = React.useState(0);
+  const showContentLiveState = React.useState(false);
+  const {
+    currentDirtyState: [isDirty, setIsDirty],
+  } = useLessonEditorContext();
 
   const editor = useEditor({
+    editable: !showContentLiveState[0],
     immediatelyRender: false,
     shouldRerenderOnTransaction: false,
     editorProps: {
@@ -264,12 +328,30 @@ export function SimpleEditor({ onSave, content }: SimpleEditorProps) {
     if (!payload) return;
 
     if (onSave) {
-      onSave(payload);
+      onSave({
+        json: payload.json,
+        onSuccess() {
+          setIsDirty(false);
+        },
+      });
       return;
     }
-
-    console.info("SimpleEditor save", payload);
   }, [getEditorPayload, onSave]);
+
+  const handlePublish = React.useCallback(() => {
+    const payload = getEditorPayload();
+    if (!payload) return;
+
+    if (onPublish) {
+      onPublish({
+        newDraft: isDirty ? payload.json : undefined,
+        onSuccess() {
+          setIsDirty(false);
+        },
+      });
+      return;
+    }
+  }, [getEditorPayload, onPublish, isDirty]);
 
   const handleToggleFullscreen = React.useCallback(() => {
     setIsFullscreen(prev => !prev);
@@ -281,18 +363,21 @@ export function SimpleEditor({ onSave, content }: SimpleEditorProps) {
   });
 
   React.useEffect(() => {
-    if (!editor || !content) {
-      return;
+    if (!editor) return;
+    const checkDirty = () => !fastDeepEqual(normalizeTiptapContent(editor.getJSON()), normalizeTiptapContent(content));
+    const updateHandler = () => {
+      setIsDirty(checkDirty());
+    };
+    if (checkDirty()) {
+      editor.commands.setContent(content);
+      setIsDirty(false);
     }
+    editor.on("update", updateHandler);
 
-    const editorJSON = editor.getJSON();
-
-    console.log(editorJSON, " === ", content);
-
-    if (JSON.stringify(editorJSON) !== JSON.stringify(content)) {
-      editor.commands.setContent(content, undefined);
-    }
-  }, [content, editor]);
+    return () => {
+      editor.off("update", updateHandler);
+    };
+  }, [editor, content]);
 
   React.useEffect(() => {
     const updateHeight = () => {
@@ -372,6 +457,11 @@ export function SimpleEditor({ onSave, content }: SimpleEditorProps) {
     <div
       className={cn("simple-editor-wrapper", isFullscreen && "is-fullscreen")}
       style={isFullscreen ? ({ "--tt-toolbar-offset": "0px" } as React.CSSProperties) : undefined}>
+      <span
+        hidden={!showContentLiveState[0]}
+        className="lg:-mt-2 mb-0.5 -mt-6 text-center bg-danger-50 py-0.5 px-2 rounded-md text-danger flex items-center justify-center gap-x-1 text-sm font-medium">
+        <LuInfo /> <p>Currently view live lesson content switch to draft mode to start editing</p>
+      </span>
       <EditorContext.Provider value={{ editor }}>
         <Toolbar
           ref={toolbarRef}
@@ -385,9 +475,12 @@ export function SimpleEditor({ onSave, content }: SimpleEditorProps) {
               onLinkClick={() => setMobileView("link")}
               isMobile={isCompact}
               onSave={handleSave}
-              isSaveDisabled={!editor}
+              isSaveDisabled={!editor || !isDirty}
               onToggleFullscreen={handleToggleFullscreen}
               isFullscreen={isFullscreen}
+              showContentLiveState={showContentLiveState}
+              onPublish={handlePublish}
+              isDirty={isDirty}
             />
           ) : (
             <MobileToolbarContent
@@ -396,8 +489,11 @@ export function SimpleEditor({ onSave, content }: SimpleEditorProps) {
             />
           )}
         </Toolbar>
-
-        <EditorContent editor={editor} role="presentation" className="simple-editor-content" />
+        {showContentLiveState[0] ? (
+          <TiptapViewer json={contentLive} />
+        ) : (
+          <EditorContent editor={editor} role="presentation" className="simple-editor-content" />
+        )}
       </EditorContext.Provider>
     </div>
   );

@@ -1,97 +1,44 @@
 import { getErrorMessage } from "@/libs/axios/error";
-import { useEditCourseContext } from "@/libs/context/EditCourseContext";
+import { hasTrue } from "@/libs/utils/boolean";
 import { voidFn } from "@/libs/utils/function";
-import courseLessonService, {
-  MutateLesson,
-  MutateReorderLessons,
-  MutateUpdateLesson,
-} from "@/services/course-lesson.service";
+import courseQueries from "@/queries/course-queries";
+import courseLessonService, { MutateUpdateLesson } from "@/services/course-lesson.service";
 import { AppAxiosError } from "@/types/axios";
 import { addToast } from "@heroui/react";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
-import { useEffect } from "react";
-
-type TQueryLesson = {
-  createdAt: Date;
-  updatedAt: Date;
-  id: number;
-  title: string;
-  slug: string;
-  position: number;
-  sectionId: number;
-  summary: string | null;
-  durationSec: number | null;
-  isPreview: boolean;
-};
-type TUseEditLesson = {
-  sectionId: number;
-  onCreateLessonSuccess?: VoidFn;
-  onReorderLessonSuccess?: VoidFn;
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNProgress } from "../use-nProgress";
+import { useQueryError } from "../use-query-error";
+type Props = {
+  idsPath: { courseId: number; sectionId: number; lessonId: number };
   onRemoveLessonSuccess?: VoidFn;
-  onBatchRemoveLessonSuccess?: VoidFn;
-  onUpdateLessonSuccess?: (variables: { lesson: MutateUpdateLesson; lessonId: number }) => void;
+  onUpdateLessonSuccess?: (variable: MutateUpdateLesson) => void;
+  enableQueryContent?: boolean;
+  onPublishContentDraftSuccess?: VoidFn;
 };
-export default function useEditLesson({
-  sectionId,
-  onCreateLessonSuccess = voidFn,
+export const useEditLesson = ({
+  idsPath,
   onRemoveLessonSuccess = voidFn,
-  onReorderLessonSuccess = voidFn,
-  onBatchRemoveLessonSuccess = voidFn,
   onUpdateLessonSuccess = voidFn,
-}: TUseEditLesson) {
-  const { courseId } = useEditCourseContext();
+  onPublishContentDraftSuccess = voidFn,
+  enableQueryContent,
+}: Props) => {
   const qc = useQueryClient();
-  const ids = { courseId, sectionId };
   const invalidateQueries = () =>
     qc.invalidateQueries({
-      queryKey: ["sectionLesson", sectionId],
+      queryKey: ["section-lessons", idsPath.sectionId],
     });
-  const {
-    isLoading,
-    data: queryLessons,
-    refetch,
-    isError,
-    error,
-  } = useQuery<TQueryLesson[]>({
-    queryKey: ["sectionLesson", sectionId],
-    queryFn: () =>
-      courseLessonService
-        .list(ids)
-        .then(res => res.data)
-        .catch(err => {
-          if (isAxiosError(err) && err.status == 404) return [];
-          throw new Error(err.message);
-        }),
-    enabled: false,
-    placeholderData: keepPreviousData,
-  });
-  useEffect(() => {
-    if (isError && error)
-      addToast({
-        color: "danger",
-        title: "Error",
-        description: isAxiosError(error) ? getErrorMessage(error) : error.message,
-      });
-  }, [isError, error]);
-  const { mutate: createLessons, isPending: createLessonPending } = useMutation({
-    mutationFn: (lessons: MutateLesson[]) => courseLessonService.create({ ...ids, lessons }),
-    onError: error => {
-      addToast({
-        title: "Add lesson Error",
-        color: "danger",
-        description: getErrorMessage(error as AppAxiosError),
-      });
-    },
-    onSuccess() {
-      onCreateLessonSuccess();
-      addToast({ color: "success", title: "Success", description: "Success create new lesson" });
-      invalidateQueries();
-    },
-  });
 
+  const {
+    data: lessonContent,
+    error,
+    isError,
+    isLoading: isPendingQuery,
+    refetch,
+  } = useQuery(courseQueries.options.getLessonContent(idsPath, enableQueryContent));
+
+  useQueryError({ isError, error });
   const { mutate: removeLesson, isPending: removeLessonPending } = useMutation({
-    mutationFn: (lessonId: number) => courseLessonService.delete({ lessonId, sectionId, courseId }),
+    mutationFn: () => courseLessonService.delete(idsPath),
     onError: error => {
       addToast({
         title: "Remove Lesson Error",
@@ -106,41 +53,30 @@ export default function useEditLesson({
     },
   });
 
-  const { mutate: reorderLessons, isPending: reorderLessonsPending } = useMutation({
-    mutationFn: (list: MutateReorderLessons) => courseLessonService.reorder({ list, sectionId, courseId }),
+  const { mutate: publishDraft, isPending: isPendingPublishDraft } = useMutation({
+    mutationFn: ({ newDraft }: { newDraft?: JSONContent }) =>
+      courseLessonService.publishDraft({ ...idsPath, newDraft }),
     onError: error => {
       addToast({
-        title: "Reorder Lessons Error",
+        title: "Publish Draft Content Error",
         color: "danger",
         description: getErrorMessage(error as AppAxiosError),
       });
     },
-    onSuccess() {
-      onReorderLessonSuccess();
-      addToast({ color: "success", title: "Success", description: "Success reorder lessons" });
-      invalidateQueries();
-    },
-  });
-
-  const { mutate: batchRemoveLesson, isPending: batchRemoveLessonPending } = useMutation({
-    mutationFn: (lessonIds: number[]) => courseLessonService.deleteMany({ sectionId, courseId, lessonIds }),
-    onError: error => {
+    onSuccess({ data }) {
       addToast({
-        title: "Batch Remove Lessons Error",
-        color: "danger",
-        description: getErrorMessage(error as AppAxiosError),
+        color: "success",
+        title: "Success",
+        description: data.message ?? "Success publish draft content lessons",
       });
-    },
-    onSuccess() {
-      onBatchRemoveLessonSuccess();
-      addToast({ color: "success", title: "Success", description: "Success batch remove lessons" });
-      invalidateQueries();
+      // invalidateQueries();
+      refetch();
+      onPublishContentDraftSuccess();
     },
   });
 
   const { mutate: updateLesson, isPending: updateLessonPending } = useMutation({
-    mutationFn: (props: { lesson: MutateUpdateLesson; lessonId: number }) =>
-      courseLessonService.update({ courseId, sectionId, ...props }),
+    mutationFn: (lesson: MutateUpdateLesson) => courseLessonService.update({ ...idsPath, lesson }),
     onError: error => {
       addToast({
         title: "Update Lessons Error",
@@ -154,22 +90,18 @@ export default function useEditLesson({
       invalidateQueries();
     },
   });
-
-  return {
-    isLoading: {
-      isLoading,
-      createLessonPending,
-      removeLessonPending,
-      reorderLessonsPending,
-      batchRemoveLessonPending,
-      updateLessonPending,
-    },
-    queryLessons,
-    createLessons,
-    refetch,
-    removeLesson,
-    reorderLessons,
-    batchRemoveLesson,
-    updateLesson,
+  const pending = {
+    isPendingQuery,
+    updateLessonPending,
+    removeLessonPending,
+    isPendingPublishDraft,
   };
-}
+  useNProgress(hasTrue(pending));
+  return {
+    lessonContent,
+    pending,
+    updateLesson,
+    removeLesson,
+    publishDraft,
+  };
+};

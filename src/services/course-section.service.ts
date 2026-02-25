@@ -13,6 +13,8 @@ const courseSectionService = {
     api.patch(`${endpoint.MY_COURSE}/${courseId}/sections/${sectionId}`, { title }),
   deleteMany: ({ courseId, sectionIds }: { courseId: number; sectionIds: number[] }) =>
     api.delete(`${endpoint.MY_COURSE}/${courseId}/sections/delete-many`, { data: { ids: sectionIds } }),
+  publish: ({ courseId, sectionId }: { courseId: number; sectionId: number }) =>
+    api.patch(`${endpoint.MY_COURSE}/${courseId}/sections/${sectionId}/publish`),
 };
 
 export default courseSectionService;

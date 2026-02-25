@@ -5,4 +5,7 @@ export const endpoint = {
   COURSE: "/courses",
   PUBLISH_COURSE: "/courses/publish-requests",
   COURSE_CATEGORY: "/course-categories",
+  PAYMENT: "/payment",
+  ENROLLMENT: "/me/enrollments",
+  LEARN: "/me/learn",
 };

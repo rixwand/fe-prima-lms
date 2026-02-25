@@ -41,6 +41,7 @@ export default function CurriculumPage({ id }: { id: number }) {
   const { data, isPending, isFetching, isError, error } = useQuery(courseQueries.options.getCourse(id));
   const lessonState = useState<Lesson | null>(null);
   const [activeLesson] = lessonState;
+  const currentDirtyState = useState(false);
 
   const contextValue = useMemo(() => {
     if (activeLesson) {
@@ -50,6 +51,7 @@ export default function CurriculumPage({ id }: { id: number }) {
           sectionId: activeLesson.sectionId,
           lessonId: activeLesson.id,
         },
+        activeLesson,
       };
     }
     return undefined;
@@ -67,9 +69,6 @@ export default function CurriculumPage({ id }: { id: number }) {
   if (!data) {
     return null;
   }
-
-  const { sections } = data;
-
   const hasNoContent =
     !data.sections || data.sections.length === 0 || data.sections.every(s => !s.lessons || s.lessons.length === 0);
 
@@ -85,7 +84,7 @@ export default function CurriculumPage({ id }: { id: number }) {
   }
 
   return (
-    <LessonEditorContext.Provider value={contextValue}>
+    <LessonEditorContext.Provider value={{ ...contextValue, currentDirtyState, courseId: id }}>
       <PageHead title="Edit Course" />
       <SimpleEditorLayout
         courseTitle={data.metaDraft.title || ""}
