@@ -145,6 +145,8 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess: boolean }) => 
   useNProgress(hasPending);
   return {
     queryPending: isPending,
+    queryError: error,
+    queryIsError: isError,
     hasPending,
     updateCourse,
     course,

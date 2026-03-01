@@ -1,5 +1,5 @@
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
-import NormalCkbox from "@/components/commons/NoResult/NormalCkbox";
+import NormalCkbox from "@/components/commons/NormalCkbox";
 import { OnSelect } from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree/FolderTree";
 import { CourseSectionForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import { useEditLesson } from "@/hooks/course/useEditLesson";

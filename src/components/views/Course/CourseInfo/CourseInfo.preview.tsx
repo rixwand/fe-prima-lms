@@ -10,7 +10,6 @@ import { getYouTubeEmbedUrl } from "@/libs/utils/string";
 import courseQueries from "@/queries/course-queries";
 import { Accordion, AccordionItem, Button, Card, Chip, Skeleton, Tab, Tabs } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -28,9 +27,7 @@ export default function CourseInfo({ slug }: { slug: string }) {
   useNProgress(isPending);
   useQueryError({ isError, error });
   if (isPending) return <CourseDetailSkeleton />;
-  if (!data && !isPending && error && isError && isAxiosError(error))
-    return <NotFound code={error.status} message={error.message} />;
-  if (!data) return null;
+  if (!data && !isPending) return <NotFound error={error} />;
   const {
     metaApproved: { descriptionJson, shortDescription, coverImage, isFree, priceAmount, title, previewVideo },
     sections,

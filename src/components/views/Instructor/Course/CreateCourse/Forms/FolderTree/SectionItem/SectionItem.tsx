@@ -1,5 +1,5 @@
 import useModalAddLessons from "@/components/commons/Forms/AddLessonsForm/useModalAddLesson";
-import NormalCkbox from "@/components/commons/NoResult/NormalCkbox";
+import NormalCkbox from "@/components/commons/NormalCkbox";
 import CourseLessonItem from "@/components/views/Instructor/Course/CreateCourse/Forms/FolderTree/SectionItem/LessonItem";
 import { useFolderTreeContext } from "@/libs/context/FolderTreeContext";
 import cn from "@/libs/utils/cn";

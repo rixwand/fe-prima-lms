@@ -256,6 +256,7 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
           <div className="p-6 grid">
             <UserCourseCard
               course={{
+                slug: toSlug(title),
                 metaApproved: {
                   coverImage: preview || "/images/thumbnail-placeholder.svg",
                   priceAmount: price,

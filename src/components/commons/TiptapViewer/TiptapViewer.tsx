@@ -1,4 +1,5 @@
 import ImageUploadNode from "@/components/tiptap/tiptap-node/image-upload-node/image-upload-node-extension";
+import { cn } from "@/libs/tiptap/tiptap-utils";
 import { JSONContent, generateHTML } from "@tiptap/core";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Image } from "@tiptap/extension-image";
@@ -12,7 +13,7 @@ import { StarterKit } from "@tiptap/starter-kit";
 // import your custom node if your JSON uses it:
 import DOMPurify from "dompurify";
 
-export function TiptapViewer({ json }: { json: JSONContent }) {
+export function TiptapViewer({ json, className = "simple-editor-content" }: { json: JSONContent; className?: string }) {
   const html = DOMPurify.sanitize(
     generateHTML(json, [
       StarterKit,
@@ -38,7 +39,7 @@ export function TiptapViewer({ json }: { json: JSONContent }) {
   );
 
   return (
-    <div className="simple-editor-content px-3">
+    <div className={cn(className)}>
       <div className="tiptap ProseMirror simple-editor" dangerouslySetInnerHTML={{ __html: html }} />
     </div>
   );

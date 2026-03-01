@@ -1,12 +1,25 @@
-import NProgress from "nprogress";
+import { NProgress } from "@/libs/loader/nprogress-setup";
 import { useEffect } from "react";
-
-export function useNProgress(isPending: boolean) {
+export function useNProgress(isLoading: boolean) {
   useEffect(() => {
-    if (isPending) NProgress.start();
-    else NProgress.done();
+    let startTimeout: NodeJS.Timeout;
+    let doneTimeout: NodeJS.Timeout;
+
+    if (isLoading) {
+      startTimeout = setTimeout(() => {
+        console.log("nprogress start");
+        NProgress.start();
+      }, 100); // don't show for micro fetches
+    } else {
+      doneTimeout = setTimeout(() => {
+        console.log("nprogress done");
+        NProgress.done();
+      }, 200);
+    }
+
     return () => {
-      NProgress.done();
+      clearTimeout(startTimeout);
+      clearTimeout(doneTimeout);
     };
-  }, [isPending]);
+  }, [isLoading]);
 }

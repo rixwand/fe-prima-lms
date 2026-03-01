@@ -9,7 +9,10 @@ import { IoSearch } from "react-icons/io5";
 
 export default function CourseSection() {
   const { push } = useRouter();
-  const { courses, isLoading } = useEnrollments();
+  const {
+    courses: { data, meta },
+    isLoading,
+  } = useEnrollments();
   return (
     <section className="@container space-y-5 my-2">
       <div className="flex justify-between items-center">
@@ -37,7 +40,7 @@ export default function CourseSection() {
             <LearningCardSkeleton />
             <LearningCardSkeleton />
           </Fragment>
-        ) : !courses || courses.length == 0 ? (
+        ) : !data || data.length == 0 ? (
           <NoResult
             className="col-span-12"
             title="Kursus tidak ditemukan"
@@ -45,8 +48,11 @@ export default function CourseSection() {
           />
         ) : (
           <Fragment>
-            {courses.map(c => (
-              <CourseCardProgress slug={c.slug} key={c.id} meta={c.metaApproved} />
+            {data.map(c => (
+              <CourseCardProgress
+                key={c.enrollmentId}
+                {...{ ...c, progress: c.total > 0 ? Math.round(c.completed / c.total) * 100 : 0 }}
+              />
             ))}
           </Fragment>
         )}

@@ -1,6 +1,6 @@
 "use client";
 import useModalAddSections from "@/components/commons/Forms/AddSectionsForm/useModalAddSections";
-import NormalCkbox from "@/components/commons/NoResult/NormalCkbox";
+import NormalCkbox from "@/components/commons/NormalCkbox";
 import FolderTree from "@/components/views/Instructor/Course/CreateCourse/Forms/FolderTree";
 import { useStickySentinel } from "@/hooks/use-sticky-shadow";
 import { FolderTreeContext, LessonPathIds } from "@/libs/context/FolderTreeContext";

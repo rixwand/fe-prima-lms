@@ -16,13 +16,13 @@ import { LuCircleX, LuGlobe } from "react-icons/lu";
 export default function ReviewChanges({ courseId }: { courseId: number }) {
   const router = useRouter();
   const redirect = () => router.push("/admin/dashboard/course");
-  const { course, queryPending } = useCourse(courseId);
+  const { course, queryPending, queryError } = useCourse(courseId);
   const { approveCourse, rejectCourse } = usePublishCourses({
     onApproveSuccess: redirect,
     onRejectSuccess: redirect,
   });
   const notesMethods = useForm<NotesForm>();
-  if (!course && !queryPending) return <NotFound />;
+  if (!course && !queryPending) return <NotFound error={queryError} />;
   if (queryPending)
     return (
       <section>

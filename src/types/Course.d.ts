@@ -3,7 +3,7 @@
 
 // =======================
 type DiscountType = "FIXED" | "PERCENTAGE";
-type LessonProgressStatus = "PENDING" | "CURRENT" | "COMPLETED";
+type LessonProgressStatus = "PENDING" | "COMPLETED";
 
 // =======================
 // Shared base models
@@ -217,9 +217,19 @@ interface CourseCurriculum {
     Pick<CourseSection, "id" | "courseId" | "title" | "position" | "publishedAt" | "removedAt"> & {
       lessons: Array<
         Pick<Lesson, "id" | "isPreview" | "slug" | "sectionId" | "title" | "durationSec"> & {
-          lessonProgress: { status: LessonProgressStatus };
+          lessonProgress: [{ status: LessonProgressStatus }];
         }
       >;
     }
   >;
+}
+
+interface QueryEnrollmentItem {
+  enrollmentId: string;
+  courseId: number;
+  slug: string;
+  title: string;
+  coverImage: string;
+  total: number;
+  completed: number;
 }

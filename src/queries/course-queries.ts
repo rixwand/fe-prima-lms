@@ -3,7 +3,6 @@ import coursePublishService from "@/services/course-publish.service";
 import courseSectionService from "@/services/course-section.service";
 import courseService from "@/services/course.service";
 import enrollmentService from "@/services/enrollment.service";
-import learnService from "@/services/learn.service";
 import { AppAxiosError } from "@/types/axios";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
@@ -19,7 +18,6 @@ function retry(failureCount: number, error: unknown) {
 const courseQueries = {
   keys: {
     getCourse: (id: number) => ["course-preview", id],
-    getLearningCurriculum: (slug: string) => ["learning-curriculum", slug],
     listEnrolled: (search?: string) => (search ? ["enrolled-courses", search] : ["enrolled-course"]),
     listCourses: (params?: ListCourseParams) => (params ? ["course-list", params] : ["course-list"]),
     listSections: (id: number) => ["course-sections", id],
@@ -155,22 +153,16 @@ const courseQueries = {
         placeholderData: keepPreviousData,
       }),
     listEnrolled: (search?: string) =>
-      queryOptions<(BaseCourse & { metaApproved: MetaCourse })[]>({
+      queryOptions<{ meta: MetaData | null; courses: QueryEnrollmentItem[] }>({
         queryKey: courseQueries.keys.listEnrolled(search),
         queryFn: () =>
           enrollmentService
             .list(search)
             .then(res => res.data)
             .catch(err => {
-              if (isAxiosError(err) && err.status == 404) return [];
+              if (isAxiosError(err) && err.status == 404) return { courses: [], meta: null };
               throw new Error(err.message);
             }),
-        placeholderData: keepPreviousData,
-      }),
-    getLearningCurriculum: (slug: string) =>
-      queryOptions<CourseCurriculum>({
-        queryKey: courseQueries.keys.getLearningCurriculum(slug),
-        queryFn: () => learnService.getCurriculum(slug).then(res => res.data),
         placeholderData: keepPreviousData,
       }),
   },

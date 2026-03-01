@@ -3,7 +3,6 @@ import AdminCourseInfo from "@/components/views/Admin/Courses/CourseInfo";
 import { useNProgress } from "@/hooks/use-nProgress";
 import courseQueries from "@/queries/course-queries";
 import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { GetStaticPaths } from "next";
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -25,13 +24,11 @@ export default function CoursePage({ id }: { id: number }) {
   useNProgress(isPending);
 
   if (isError) {
-    return isAxiosError(error) ? (
-      <NotFound code={error.status} message={error.response?.statusText} />
-    ) : (
-      <NotFound message="Course Not Found." />
-    );
+    return <NotFound error={error} />;
   }
   if (data) {
     return <AdminCourseInfo course={data} />;
   }
+
+  return <NotFound error={error} />;
 }

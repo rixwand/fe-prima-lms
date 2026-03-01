@@ -6,7 +6,6 @@ import { useNProgress } from "@/hooks/use-nProgress";
 import courseQueries from "@/queries/course-queries";
 import courseService from "@/services/course.service";
 import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { Fragment } from "react";
 
 export async function getStaticPaths() {
@@ -31,11 +30,7 @@ export default function CoursePage({ id }: { id: number }) {
   useNProgress(isPending);
 
   if (isError) {
-    return isAxiosError(error) ? (
-      <NotFound code={error.status} message={error.response?.statusText} />
-    ) : (
-      <NotFound message="Course Not Found." />
-    );
+    return <NotFound error={error} />;
   }
   if (data) {
     return (
@@ -46,4 +41,6 @@ export default function CoursePage({ id }: { id: number }) {
       </Fragment>
     );
   }
+
+  return <NotFound error={error} />;
 }

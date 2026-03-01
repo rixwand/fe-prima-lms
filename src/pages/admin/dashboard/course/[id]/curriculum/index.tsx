@@ -6,7 +6,6 @@ import { useNProgress } from "@/hooks/use-nProgress";
 import { CurriculumViewContext, LessonPathIds } from "@/libs/context/CurriculumViewContext";
 import courseQueries from "@/queries/course-queries";
 import { QueryClient, dehydrate, useQuery } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { useEffect, useState } from "react";
 
@@ -57,11 +56,7 @@ export default function CurriculumPagePreview({ id }: { id: number }) {
   }, [data]);
 
   if (isError || !data) {
-    return isAxiosError(error) ? (
-      <NotFound code={error.status} message={error.response?.statusText} />
-    ) : (
-      <NotFound message="Course Not Found." />
-    );
+    return <NotFound error={error} />;
   }
 
   if (hasNoContent) {

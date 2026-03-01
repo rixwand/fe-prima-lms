@@ -8,8 +8,8 @@ import { Button, Code, Image, Skeleton } from "@heroui/react";
 import { Fragment, ReactNode } from "react";
 import { LuGlobe, LuTrash2 } from "react-icons/lu";
 export default function ReviewChanges({ courseId }: { courseId: number }) {
-  const { course, queryPending, applyDraft } = useCourse(courseId);
-  if (!course && !queryPending) return <NotFound />;
+  const { course, queryPending, queryError, applyDraft } = useCourse(courseId);
+  if (!course && !queryPending) return <NotFound error={queryError} />;
   if (queryPending)
     return (
       <section>

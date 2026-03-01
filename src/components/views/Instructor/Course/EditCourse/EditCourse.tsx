@@ -313,6 +313,7 @@ export default function EditCourse({
               <div className="p-6 grid">
                 <UserCourseCard
                   course={{
+                    slug: toSlug(title),
                     metaApproved: {
                       ...metaDraft,
                       title,

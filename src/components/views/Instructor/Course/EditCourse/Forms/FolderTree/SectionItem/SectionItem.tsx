@@ -1,6 +1,6 @@
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import useModalAddLessons from "@/components/commons/Forms/AddLessonsForm/useModalAddLesson";
-import NormalCkbox from "@/components/commons/NoResult/NormalCkbox";
+import NormalCkbox from "@/components/commons/NormalCkbox";
 import { OnSelect } from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree/FolderTree";
 import CourseLessonItem from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree/SectionItem/LessonItem";
 import { CourseSectionForm, EditCourseForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";

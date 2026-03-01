@@ -1,10 +1,23 @@
-import { Button } from "@heroui/react";
-import { ReactNode } from "react";
+import { TiptapViewer } from "@/components/commons/TiptapViewer/TiptapViewer";
+import useDump from "@/hooks/use-dump";
+import { useQueryError } from "@/hooks/use-query-error";
+import learnQueries from "@/queries/learn-queries";
+import { Button, Skeleton } from "@heroui/react";
+import { useQuery } from "@tanstack/react-query";
 import { FaInfo, FaUserSecret } from "react-icons/fa6";
 import { LuBookOpen, LuClipboardCheck, LuFileCheck2, LuVideo } from "react-icons/lu";
 
-export default function LearnCourse({ children }: { children: ReactNode }) {
-  return <h1 className="w-full text-center">{children}</h1>;
+export default function LearnCourse(id: { lessonId: number; sectionId: number; slug: string }) {
+  const { data, isLoading, isError, error } = useQuery(learnQueries.options.getLearningContent(id));
+  useDump(data);
+  useQueryError({ isError, error });
+  if (isLoading) return <ContentLoader />;
+  if (!data) return <h1 className="w-full text-center">Lesosn not found</h1>;
+  return (
+    <div className="w-full flex justify-center">
+      <TiptapViewer className="px-0 max-w-[min(960px,100%)]" json={data.contentLive} />
+    </div>
+  );
 }
 
 export function LearnCourseIntro() {
@@ -144,3 +157,55 @@ export function LearnCourseIntro() {
     </article>
   );
 }
+
+const ContentLoader = () => (
+  <div className="simple-editor-content px-3 space-y-10">
+    <div className="space-y-4">
+      <Skeleton className="h-10 w-3/4 rounded-2xl" />
+      <Skeleton className="h-4 w-1/4 rounded-lg" />
+    </div>
+
+    {/* Paragraph 1 */}
+    <div className="space-y-3">
+      <Skeleton className="h-4 w-full rounded-lg" />
+      <Skeleton className="h-4 w-full rounded-lg" />
+      <Skeleton className="h-4 w-5/6 rounded-lg" />
+      <Skeleton className="h-4 w-2/3 rounded-lg" />
+    </div>
+
+    {/* Paragraph 2 */}
+    <div className="space-y-3">
+      <Skeleton className="h-4 w-full rounded-lg" />
+      <Skeleton className="h-4 w-4/5 rounded-lg" />
+      <Skeleton className="h-4 w-3/4 rounded-lg" />
+    </div>
+
+    {/* Paragraph 3 */}
+    <div className="space-y-3">
+      <Skeleton className="h-4 w-full rounded-lg" />
+      <Skeleton className="h-4 w-full rounded-lg" />
+      <Skeleton className="h-4 w-2/3 rounded-lg" />
+    </div>
+
+    {/* Paragraph 4 */}
+    <div className="space-y-3">
+      <Skeleton className="h-4 w-full rounded-lg" />
+      <Skeleton className="h-4 w-5/6 rounded-lg" />
+      <Skeleton className="h-4 w-3/5 rounded-lg" />
+    </div>
+
+    {/* Paragraph 5 */}
+    <div className="space-y-3">
+      <Skeleton className="h-4 w-full rounded-lg" />
+      <Skeleton className="h-4 w-4/5 rounded-lg" />
+      <Skeleton className="h-4 w-1/2 rounded-lg" />
+    </div>
+
+    {/* Paragraph 6 */}
+    <div className="space-y-3">
+      <Skeleton className="h-4 w-full rounded-lg" />
+      <Skeleton className="h-4 w-3/4 rounded-lg" />
+      <Skeleton className="h-4 w-2/3 rounded-lg" />
+    </div>
+  </div>
+);

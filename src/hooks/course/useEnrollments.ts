@@ -4,10 +4,10 @@ import { useNProgress } from "../use-nProgress";
 import { useQueryError } from "../use-query-error";
 
 export default (search?: string) => {
-  const { data: courses, isLoading, error, isError } = useQuery(courseQueries.options.listEnrolled(search));
+  const { data, isLoading, error, isError } = useQuery(courseQueries.options.listEnrolled(search));
 
-  useNProgress(true);
+  useNProgress(isLoading);
   useQueryError({ isError, error });
 
-  return { courses, isLoading };
+  return { courses: { meta: data?.meta, data: data?.courses }, isLoading };
 };

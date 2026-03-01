@@ -1,12 +1,34 @@
+import { useNProgress } from "@/hooks/use-nProgress";
+import { useQueryError } from "@/hooks/use-query-error";
+import learnQueries from "@/queries/learn-queries";
 import { Card, CardBody, CardFooter, Progress, Skeleton } from "@heroui/react";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/router";
 
-export default function CourseCardProgress({ meta: { title, coverImage }, slug }: { meta: MetaCourse; slug: string }) {
+export default function CourseCardProgress({
+  title,
+  coverImage,
+  slug,
+  progress,
+}: {
+  title: string;
+  coverImage: string;
+  slug: string;
+  progress: number;
+}) {
   const router = useRouter();
+  const { refetch, isError, error, isFetching } = useQuery(learnQueries.options.startCourse(slug));
+  const handleClick = async () => {
+    const { data } = await refetch();
+    if (!data?.slug) return;
+    router.push(`/learn/${slug}/${data?.slug}`);
+  };
+  useNProgress(isFetching);
+  useQueryError({ isError, error });
   return (
     <Card
-      onPress={() => router.push(`/learn/${slug}`)}
+      onPress={handleClick}
       className="text-sm 2xl:text-base shadow-none border border-gray-300"
       radius="lg"
       isPressable>
@@ -19,9 +41,9 @@ export default function CourseCardProgress({ meta: { title, coverImage }, slug }
         <p className="font-semibold text-start w-full line-clamp-2">{title}</p>
         <span className="flex justify-between mt-2 w-full">
           <p>Progress</p>
-          <p>30%</p>
+          <p>{progress}%</p>
         </span>
-        <Progress aria-label="Progress" size="sm" value={30} />
+        <Progress aria-label="Progress" size="sm" value={progress} />
       </CardFooter>
     </Card>
   );

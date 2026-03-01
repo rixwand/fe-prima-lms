@@ -2,7 +2,7 @@
 import { ToggleSwitch } from "@/components/commons/CustomHeroui/ToggleSwitch";
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import useModalAddSections from "@/components/commons/Forms/AddSectionsForm/useModalAddSections";
-import NormalCkbox from "@/components/commons/NoResult/NormalCkbox";
+import NormalCkbox from "@/components/commons/NormalCkbox";
 import { TiptapViewer } from "@/components/commons/TiptapViewer/TiptapViewer";
 import FolderTree from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree";
 import useEditSection from "@/hooks/course/useEditSection";

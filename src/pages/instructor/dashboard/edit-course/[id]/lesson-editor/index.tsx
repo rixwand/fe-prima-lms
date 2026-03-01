@@ -63,7 +63,7 @@ export default function CurriculumPage({ id }: { id: number }) {
     console.log(data);
   }, [data]);
   if (!data && !isPending && !isFetching) {
-    return <NotFound message="Course Not Found." />;
+    return <NotFound error={error} />;
   }
 
   if (!data) {

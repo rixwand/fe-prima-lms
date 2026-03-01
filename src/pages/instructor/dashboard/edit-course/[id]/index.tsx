@@ -87,7 +87,7 @@ export default function EditCoursePage({ id }: { id: number }) {
 
   useNProgress(isPending);
 
-  if (!data && !isPending) return <NotFound />;
+  if (!data && !isPending) return <NotFound error={error} />;
   if (data) {
     return (
       <InstructorLayout

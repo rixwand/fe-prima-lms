@@ -1,4 +1,4 @@
-import NormalCkbox from "@/components/commons/NoResult/NormalCkbox";
+import NormalCkbox from "@/components/commons/NormalCkbox";
 import { cn } from "@/libs/tiptap/tiptap-utils";
 import { toRoundedMinutes } from "@/libs/utils/string";
 import { useSortable } from "@dnd-kit/sortable";
