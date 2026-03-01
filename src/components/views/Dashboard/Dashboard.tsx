@@ -27,7 +27,10 @@ const incomingCourse = [
 ];
 
 export default function Dashboard() {
-  const { courses, isLoading } = useEnrollments();
+  const {
+    courses: { data: courses, meta },
+    isLoading,
+  } = useEnrollments();
   return (
     <section className="flex flex-wrap gap-4 2xl:gap-6 @container text-sm 2xl:text-base pb-3">
       <div className="@6xl:max-w-8/12 w-full">
@@ -126,7 +129,10 @@ export default function Dashboard() {
                 ) : (
                   <Fragment>
                     {courses.map(c => (
-                      <CourseCardProgress key={c.id} meta={c.metaApproved} slug={c.slug} />
+                      <CourseCardProgress
+                        key={c.enrollmentId}
+                        {...{ ...c, progress: c.total > 0 ? Math.round(c.completed / c.total) * 100 : 0 }}
+                      />
                     ))}
                   </Fragment>
                 )}
