@@ -18,7 +18,7 @@ const UserCourseCard = ({ course: { metaApproved }, course }: Props) => {
       isPressable
       onPress={() => router.push("/course/preview/" + course.slug)}>
       <div>
-        <div className="relative w-full h-fit bg-red-50 aspect-video">
+        <div className="relative w-full h-fit aspect-video">
           <Image fill className="object-cover rounded-t-md" src={metaApproved!.coverImage} alt="Course Image" />
           {/* <Chip className="absolute"></Chip> */}
         </div>
