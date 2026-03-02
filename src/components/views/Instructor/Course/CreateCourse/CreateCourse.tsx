@@ -255,6 +255,7 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
           </div>
           <div className="p-6 grid">
             <UserCourseCard
+              disabled
               course={{
                 slug: toSlug(title ?? ""),
                 metaApproved: {

@@ -9,13 +9,14 @@ type Props = {
   course: Pick<PublicCourseListItem, "owner" | "discounts" | "slug"> & {
     metaApproved: Pick<MetaCourse, "coverImage" | "priceAmount" | "title">;
   };
+  disabled?: boolean;
 };
-const UserCourseCard = ({ course: { metaApproved }, course }: Props) => {
+const UserCourseCard = ({ course: { metaApproved }, course, disabled = false }: Props) => {
   const router = useRouter();
   return (
     <Card
       className="rounded-xl overflow-hidden justify-between"
-      isPressable
+      isPressable={!disabled}
       onPress={() => router.push("/course/preview/" + course.slug)}>
       <div>
         <div className="relative w-full h-fit aspect-video">

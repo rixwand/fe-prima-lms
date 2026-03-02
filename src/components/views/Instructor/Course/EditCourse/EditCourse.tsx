@@ -312,6 +312,7 @@ export default function EditCourse({
               </div>
               <div className="p-6 grid">
                 <UserCourseCard
+                  disabled
                   course={{
                     slug: toSlug(title),
                     metaApproved: {
