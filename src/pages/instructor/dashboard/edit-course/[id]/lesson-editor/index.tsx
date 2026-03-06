@@ -26,7 +26,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   const queryClient = new QueryClient();
 
-  await queryClient.prefetchQuery(courseQueries.options.listSections(courseId));
+  await queryClient.prefetchQuery(courseQueries.options.getCourse(courseId));
 
   return {
     props: {

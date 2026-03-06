@@ -19,9 +19,11 @@ export async function getStaticProps({ params }: { params: { id: string } }) {
 }
 
 export default function CoursePage({ id }: { id: number }) {
-  const { data, isPending, isError, error } = useQuery(courseQueries.options.getCourse(id));
+  const { data, isPending, isFetching, isError, error } = useQuery(courseQueries.options.getCourse(id));
 
-  useNProgress(isPending);
+  useNProgress(isPending || isFetching);
+
+  if (isPending || isFetching) return null;
 
   if (isError) {
     return <NotFound error={error} />;

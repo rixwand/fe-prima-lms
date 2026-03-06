@@ -41,6 +41,8 @@ export default function CoursesList({
                 ...{ ...c, ...metaDraft },
                 status: getCourseStatus({ ...c }),
                 publishedRequestStatus: c.publishRequest?.status,
+                requestType: c.publishRequest?.type,
+                roles: "INSTRUCTOR",
               }}
               onPress={e => {
                 router.push(`/instructor/dashboard/course/${c.id}`);

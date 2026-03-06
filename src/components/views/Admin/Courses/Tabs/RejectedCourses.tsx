@@ -3,7 +3,9 @@ import NoResult from "../../../../commons/NoResult/NoResult";
 import CoursesList from "../CoursesList";
 
 export default function RejectedCourses() {
-  const { isQueryLoading, queryCourses } = useCourses({ queryParams: { status: "REJECTED", limit: 12, page: 1 } });
+  const { isQueryLoading, queryCourses } = useCourses({
+    queryParams: { status: "REJECTED", type: "NEW", limit: 12, page: 1 },
+  });
   return (
     <CoursesList
       {...{ isLoading: isQueryLoading, courses: queryCourses?.courses || [] }}

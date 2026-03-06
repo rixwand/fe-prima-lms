@@ -1,10 +1,10 @@
 import DashboardLayout from "@/components/layouts/DashboardLayout/DashboardLayout";
-import CourseSection from "@/components/views/Dashboard/Course";
+import Transaction from "@/components/views/Dashboard/Transaction";
 
 export default function CourseSectionPage() {
   return (
     <DashboardLayout title="Prima | Transaksi">
-      <CourseSection />
+      <Transaction />
     </DashboardLayout>
   );
 }

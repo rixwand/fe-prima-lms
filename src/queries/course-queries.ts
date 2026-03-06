@@ -49,14 +49,14 @@ const courseQueries = {
             .catch(error => {
               console.log("query list course error: ", error);
               if (isAxiosError(error) && error.status == 404) return { courses: [], meta: null };
-              else throw new Error(error.message);
+              else throw error;
             }),
         placeholderData: keepPreviousData,
         retry,
       }),
     listSections: (id: number) =>
       queryOptions<CourseSection[]>({
-        queryKey: ["courseSections", id],
+        queryKey: courseQueries.keys.listSections(id),
         queryFn: () =>
           courseSectionService
             .list(id)
@@ -64,7 +64,7 @@ const courseQueries = {
             .catch(error => {
               console.log("query course sections error: ", error);
               if (isAxiosError(error) && error.status == 404) return [];
-              else throw new Error(error.message);
+              else throw error;
             }),
         enabled: Boolean(id),
         placeholderData: keepPreviousData,
@@ -80,7 +80,7 @@ const courseQueries = {
             .catch(error => {
               console.log("query list publish course error: ", error);
               if (isAxiosError(error) && error.status == 404) return { courses: [], meta: null };
-              else throw new Error(error.message);
+              else throw error;
             }),
         placeholderData: keepPreviousData,
         retry,
@@ -94,7 +94,7 @@ const courseQueries = {
             .catch(error => {
               console.log("query public course error: ", error);
               if (isAxiosError(error) && error.status == 404) return { courses: [], meta: null };
-              else throw new Error(error.message);
+              else throw error;
             }),
         placeholderData: keepPreviousData,
         retry,
@@ -108,7 +108,7 @@ const courseQueries = {
             .catch(error => {
               console.log("query list public course tags error: ", error);
               if (isAxiosError(error) && error.status == 404) return { tags: [], meta: null };
-              else throw new Error(error.message);
+              else throw error;
             }),
         retry,
       }),
@@ -121,7 +121,7 @@ const courseQueries = {
             .catch(error => {
               console.log("query list course categories error: ", error);
               if (isAxiosError(error) && error.status == 404) return { categories: [], meta: null };
-              else throw new Error(error.message);
+              else throw error;
             }),
         retry,
       }),
@@ -134,7 +134,7 @@ const courseQueries = {
             .then(res => res.data)
             .catch(err => {
               if (isAxiosError(err) && err.status == 404) return [];
-              throw new Error(err.message);
+              else throw err;
             }),
         enabled: false,
         placeholderData: keepPreviousData,
@@ -161,7 +161,7 @@ const courseQueries = {
             .then(res => res.data)
             .catch(err => {
               if (isAxiosError(err) && err.status == 404) return { courses: [], meta: null };
-              throw new Error(err.message);
+              else throw err;
             }),
         placeholderData: keepPreviousData,
       }),

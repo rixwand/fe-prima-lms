@@ -1,4 +1,5 @@
 type PublishCourseStatus = "PENDING" | "APPROVED" | "REJECTED";
+type PublishCourseType = "NEW" | "UPDATE";
 type QueryPublishCourse = {
   id: number;
   status: PublishCourseStatus;
@@ -27,6 +28,7 @@ type QueryPublishCourse = {
 };
 
 type PublishCourseListParams = {
+  type?: PublishCourseType;
   status?: PublishCourseStatus;
   page?: number;
   limit?: number;

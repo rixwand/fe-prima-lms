@@ -15,7 +15,7 @@ export default function LearnCourse(id: { lessonId: number; sectionId: number; s
   if (!data) return <h1 className="w-full text-center">Lesosn not found</h1>;
   return (
     <div className="w-full flex justify-center">
-      <TiptapViewer className="px-0 max-w-[min(960px,100%)]" json={data.contentLive} />
+      <TiptapViewer className="px-5 max-w-[min(960px,100%)]" json={data.contentLive} />
     </div>
   );
 }

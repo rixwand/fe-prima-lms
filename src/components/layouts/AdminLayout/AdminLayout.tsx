@@ -4,21 +4,28 @@ import { NavStruct } from "@/components/commons/Sidebar/Sidebar";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { Fragment, ReactNode, useState } from "react";
-import { HiOutlineCreditCard, HiOutlineUsers } from "react-icons/hi";
-import { HiOutlineCog6Tooth, HiOutlineDocumentChartBar, HiOutlineSquares2X2 } from "react-icons/hi2";
-import { LuBookOpen } from "react-icons/lu";
-import { VscMortarBoard } from "react-icons/vsc";
+import { HiOutlineSquares2X2 } from "react-icons/hi2";
+import {
+  LuChartSpline,
+  LuCog,
+  LuFileClock,
+  LuFileText,
+  LuReceiptText,
+  LuSquareUserRound,
+  LuUsers,
+} from "react-icons/lu";
 
 const prefix = "/admin/dashboard";
 
 const navLinks: NavStruct = [
   { label: "Overview", Icon: HiOutlineSquares2X2, link: prefix },
-  { label: "Analytics", Icon: HiOutlineDocumentChartBar, link: prefix + "/analytic" },
-  { label: "Courses", Icon: LuBookOpen, link: prefix + "/course" },
-  { label: "Instructor", Icon: VscMortarBoard, link: prefix + "/instructor" },
-  { label: "Customers", Icon: HiOutlineUsers, link: prefix + "/customer" },
-  { label: "Payouts", Icon: HiOutlineCreditCard, link: prefix + "/payout" },
-  { label: "Setting", Icon: HiOutlineCog6Tooth, link: prefix + "/setting" },
+  { label: "Analytics", Icon: LuChartSpline, link: prefix + "/analytic" },
+  { label: "Courses", Icon: LuFileText, link: prefix + "/course" },
+  { label: "Instructor", Icon: LuSquareUserRound, link: prefix + "/instructor" },
+  { label: "Users", Icon: LuUsers, link: prefix + "/customer" },
+  { label: "Invoices", Icon: LuReceiptText, link: prefix + "/invoices" },
+  { label: "Orders", Icon: LuFileClock, link: prefix + "/orders" },
+  { label: "Setting", Icon: LuCog, link: prefix + "/setting" },
 ] as const;
 
 export default function AdminLayout({

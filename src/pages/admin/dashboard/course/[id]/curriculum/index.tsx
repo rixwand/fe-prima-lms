@@ -1,4 +1,5 @@
 import NotFound from "@/components/commons/NotFound";
+import LearnLayout from "@/components/layouts/LearnLayout";
 import CurriculumNav from "@/components/views/Admin/Courses/CurriculumView/CurriculumNav";
 import Lessonview from "@/components/views/Admin/Courses/CurriculumView/LessonView";
 import NoLessonMessage from "@/components/views/Instructor/Course/EditCourse/NoLessonMessage";
@@ -36,7 +37,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 };
 
 export default function CurriculumPagePreview({ id }: { id: number }) {
-  const { data, isPending, isError, error } = useQuery(courseQueries.options.listSections(id));
+  const { data, isPending, isFetching, isError, error } = useQuery(courseQueries.options.listSections(id));
   const hasNoContent = !data || data.length === 0 || data.every(s => !s.lessons || s.lessons.length === 0);
   const [activeLesson, setActiveLesson] = useState<LessonPathIds | null>(null);
   const onSelect = (section: CourseSection, lesson: Lesson) => {
@@ -46,16 +47,22 @@ export default function CurriculumPagePreview({ id }: { id: number }) {
   useNProgress(isPending);
   // useQueryError({ isError, error });
   useEffect(() => {
-    if (data && data && data.length > 0) {
-      setActiveLesson({
-        courseId: id,
-        lessonId: data[0].lessons[0].id,
-        sectionId: data[0].id,
-      });
-    }
-  }, [data]);
+    if (!data?.length) return;
 
-  if (isError || !data) {
+    const sectionWithLesson = data.find(section => section.lessons?.length > 0);
+
+    if (!sectionWithLesson) return;
+
+    const firstLesson = sectionWithLesson.lessons[0];
+
+    setActiveLesson({
+      courseId: id,
+      sectionId: sectionWithLesson.id,
+      lessonId: firstLesson.id,
+    });
+  }, [data, id]);
+  if (isFetching || isPending) return null;
+  if (isError) {
     return <NotFound error={error} />;
   }
 
@@ -64,10 +71,12 @@ export default function CurriculumPagePreview({ id }: { id: number }) {
   }
 
   return (
-    <CurriculumViewContext.Provider value={{ activeLesson, setActiveLesson, onSelect }}>
-      <CurriculumNav courseId={id} sections={data}>
-        {activeLesson != null ? <Lessonview activeLesson={activeLesson} /> : <p>Select a lesson</p>}
-      </CurriculumNav>
-    </CurriculumViewContext.Provider>
+    <LearnLayout title="Preview Kursus">
+      <CurriculumViewContext.Provider value={{ activeLesson, setActiveLesson, onSelect }}>
+        <CurriculumNav courseId={id} sections={data}>
+          {activeLesson != null ? <Lessonview activeLesson={activeLesson} /> : <p>Select a lesson</p>}
+        </CurriculumNav>
+      </CurriculumViewContext.Provider>
+    </LearnLayout>
   );
 }

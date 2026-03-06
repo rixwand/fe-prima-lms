@@ -113,7 +113,7 @@ const InstructorListBoxAction = ({ courseStatus, courseId }: { courseStatus: str
             onPress={onPublish}
             key="request-approval"
             startContent={<LuFileUp />}
-            hidden={course?.metaDraft.requiresApproval != true}>
+            hidden={(course?.metaDraft.requiresApproval ?? []).length == 0}>
             Request Approval
           </ListboxItem>
           <ListboxItem

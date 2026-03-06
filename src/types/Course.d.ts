@@ -4,6 +4,7 @@
 // =======================
 type DiscountType = "FIXED" | "PERCENTAGE";
 type LessonProgressStatus = "PENDING" | "COMPLETED";
+type ApprovalTarget = "META" | "TAGS" | "CATEGORY";
 
 // =======================
 // Shared base models
@@ -28,7 +29,7 @@ interface DraftMetaCourse extends MetaCourse {
   draftTags: Tag[];
   draftCategories: Category[];
   draftDiscounts?: Discount[];
-  requiresApproval: boolean;
+  requiresApproval: ApprovalTarget[];
 }
 
 interface BaseCourse {
@@ -204,6 +205,7 @@ type PublishRequest = {
   id: number;
   notes: string | null;
   status: PublishCourseStatus;
+  type?: PublishCourseType;
 };
 
 type QueryLessonItem = {

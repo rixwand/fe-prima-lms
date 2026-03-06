@@ -16,8 +16,11 @@ export default function Lessonview({ activeLesson }: { activeLesson: LessonPathI
     }
   }, [lessonContent]);
   return (
-    <article className="mx-auto w-full [@media(min-width:480px)]:-mt-8 md:!-mt-16 mb-16 max-w-3xl text-zinc-800">
-      <TiptapViewer json={(blockPreview as JSONContent) || { type: "doc", content: [] }} />
-    </article>
+    <div className="w-full flex justify-center">
+      <TiptapViewer
+        className="px-5 max-w-[min(960px,100%)]"
+        json={(blockPreview as JSONContent) || { type: "doc", content: [] }}
+      />
+    </div>
   );
 }

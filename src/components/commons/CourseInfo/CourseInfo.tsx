@@ -177,7 +177,11 @@ const PreviewTab = ({ url }: { url: string }) => {
   );
 };
 
-const SyllabusTab = ({ sections }: { sections: { title: string; lessons?: Lesson[] }[] }) => {
+const SyllabusTab = ({
+  sections,
+}: {
+  sections: { title: string; lessons?: Lesson[]; publishedAt: string | null }[];
+}) => {
   return (
     <div className="space-y-3 w-full lg:w-4/5 text-gray-500 2xl:text-lg">
       <h3 className="w-full lg:ml-3 font-medium 2xl:text-lg">Materi yang akan dipelajari pada kursus ini :</h3>
@@ -188,11 +192,15 @@ const SyllabusTab = ({ sections }: { sections: { title: string; lessons?: Lesson
         }}
         variant="splitted">
         {sections.map((item, index) => (
-          <AccordionItem key={index} aria-label={`Accordion ${index}`} title={item.title}>
+          <AccordionItem
+            hidden={item.publishedAt == null}
+            key={index}
+            aria-label={`Accordion ${index}`}
+            title={item.title}>
             <ul className="text-gray-500 mb-4 -mt-2 list-disc space-y-2">
               {item.lessons &&
                 item.lessons.map((list, index) => (
-                  <li key={index} className="ml-6">
+                  <li hidden={list.publishedAt == null} key={index} className="ml-6">
                     {list.title}
                   </li>
                 ))}

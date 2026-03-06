@@ -6,7 +6,7 @@ import { Avatar, Button, Card, Chip, Popover, PopoverContent, PopoverTrigger, Pr
 import { OverlayTriggerState, useOverlayTriggerState } from "@react-stately/overlays";
 import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import { ComponentType, ReactNode } from "react";
+import { ComponentType, Fragment, ReactNode } from "react";
 import { IconType } from "react-icons";
 import { FiMoreHorizontal } from "react-icons/fi";
 import {
@@ -41,10 +41,11 @@ type CourseCardData = {
   students?: number;
   rating?: number;
   canApplyTierB?: boolean;
-  requiresApproval?: boolean;
+  requiresApproval?: ApprovalTarget[];
   requestType?: "NEW" | "UPDATE";
   publishedAt?: string;
   publishedRequestStatus?: CourseStatus;
+  roles: "ADMIN" | "INSTRUCTOR";
 };
 
 type CourseStatus = "PENDING" | "APPROVED" | "PUBLISHED" | "DRAFT" | "REJECTED";
@@ -147,26 +148,33 @@ export function CourseCard({
             </Popover>
           </div>
         </div>
-        {data.canApplyTierB && (
-          <div className="px-4 flex gap-x-2 mb-2 text-xs items-center">
-            <span className="w-2.5 h-2.5 bg-warning rounded-full"></span>
-            <span>[Major Change] Action required</span>
-          </div>
-        )}
-        {data.requiresApproval && (
-          <div className="px-4 flex gap-x-2 mb-2 text-xs items-center">
-            <span className="w-2.5 h-2.5 bg-danger rounded-full"></span>
-            <span>
-              [Critical Change]{" "}
-              {data.publishedRequestStatus == "PENDING" && data.publishedAt
-                ? "Pending Approval"
-                : data.publishedRequestStatus == "REJECTED" && data.publishedAt
-                  ? "Update Rejected"
-                  : "Requires Approval"}
-            </span>
-          </div>
-        )}
-        {data.status == "PENDING" && data.requestType == "NEW" ? (
+        {data.roles == "INSTRUCTOR" ? (
+          <Fragment>
+            {data.canApplyTierB && (
+              <div className="px-4 flex gap-x-2 mb-2 text-xs items-center">
+                <span className="w-2.5 h-2.5 bg-warning rounded-full"></span>
+                <span>[Major Change] Action required</span>
+              </div>
+            )}
+            {data.requestType == "UPDATE" && data.publishedRequestStatus == "REJECTED" && (
+              <div className="px-4 flex gap-x-2 mb-2 text-xs items-center">
+                <span className="w-2.5 h-2.5 bg-danger rounded-full"></span>
+                <span>[Critical Change] Update Rejected</span>
+              </div>
+            )}
+            {(data.requiresApproval ?? []).length > 0 && (
+              <div className="px-4 flex gap-x-2 mb-2 text-xs items-center">
+                <span className="w-2.5 h-2.5 bg-danger rounded-full"></span>
+                <span>
+                  [Critical Change]{" "}
+                  {data.publishedRequestStatus == "PENDING" && data.publishedAt
+                    ? "Pending Approval"
+                    : "Requires Approval"}
+                </span>
+              </div>
+            )}
+          </Fragment>
+        ) : data.status == "PENDING" && data.requestType == "NEW" ? (
           <div className="px-4 flex gap-x-2 mb-2 text-sm items-center">
             <span className="w-2.5 h-2.5 bg-success rounded-full"></span>
             <span>[New Course] Requires approval</span>

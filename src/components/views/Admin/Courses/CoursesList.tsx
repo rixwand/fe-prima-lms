@@ -51,11 +51,12 @@ export default function CoursesList({
                   status: getCourseStatus({ ...c.course, publishRequest: { id: c.id, notes: "", status: c.status } }),
                   requestType: c.type,
                   publishedRequestStatus: c.status,
+                  roles: "ADMIN",
                 }}
                 onPress={() => {
-                  return c.type == "NEW"
-                    ? router.push(`/admin/dashboard/course/${c.courseId}`)
-                    : router.push(`/admin/dashboard/course/${c.courseId}/review-changes`);
+                  return c.type == "UPDATE" && c.status == "PENDING"
+                    ? router.push(`/admin/dashboard/course/${c.courseId}/review-changes`)
+                    : router.push(`/admin/dashboard/course/${c.courseId}`);
                 }}
                 LisBoxActions={
                   <AdminListBoxAction
@@ -66,7 +67,7 @@ export default function CoursesList({
                   />
                 }
                 owner={c.course.owner}
-                unPressable={c.status == "REJECTED"}
+                unPressable={c.status == "REJECTED" && c.type == "NEW"}
               />
             ))}
           </div>

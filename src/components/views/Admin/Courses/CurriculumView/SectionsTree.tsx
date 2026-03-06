@@ -1,6 +1,5 @@
 import * as React from "react";
 import { IoChevronDown, IoChevronForward, IoDocumentTextOutline } from "react-icons/io5";
-import { LuChevronsRight } from "react-icons/lu";
 
 import { cn } from "@/libs/tiptap/tiptap-utils";
 
@@ -11,7 +10,7 @@ export type FolderTreeProps = {
 };
 
 export const SectionsTree: React.FC<FolderTreeProps> = ({ courseSections, activeLessonId, onSelect }) => (
-  <ul className="m-0 flex list-none flex-col gap-2 p-0" role="tree">
+  <ul className="m-0 flex list-none flex-col gap-1 p-0" role="tree">
     {courseSections.map(section => (
       <CourseSectionItem key={section.id} section={section} activeLessonId={activeLessonId} onSelect={onSelect} />
     ))}
@@ -25,7 +24,7 @@ const CourseSectionItem: React.FC<{
 }> = ({ section, activeLessonId, onSelect }) => {
   const containsActiveLesson = React.useMemo(
     () => section.lessons.some(lesson => lesson.id === activeLessonId),
-    [section.lessons, activeLessonId]
+    [section.lessons, activeLessonId],
   );
   const [isOpen, setIsOpen] = React.useState(containsActiveLesson);
 
@@ -52,17 +51,14 @@ const CourseSectionItem: React.FC<{
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tt-theme-text-muted)] focus-visible:ring-offset-0 focus-visible:border-none",
           // containsActiveLesson
           //   ? "dark:bg-[var(--tt-gray-dark-a-200)] border border-blue-400 text-blue-500" :
-          "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)] border-abu text-[var(--tt-theme-text)]"
+          "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)] border-abu",
+          containsActiveLesson ? "text-primary" : "text-[var(--tt-theme-text-muted)]",
         )}
         onClick={handleToggle}>
-        <span
-          className={cn(
-            "flex h-4 w-4 shrink-0 items-center justify-center",
-            containsActiveLesson ? "" : "text-[var(--tt-theme-text-muted)]"
-          )}>
+        <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center")}>
           {isOpen ? <IoChevronDown /> : <IoChevronForward />}
         </span>
-        <span className="flex-1 truncate text-sm text-zinc-700 font-semibold text-left">{section.title}</span>
+        <span className="flex-1 truncate text-sm font-medium text-left">{section.title}</span>
       </button>
 
       {isOpen ? (
@@ -82,20 +78,14 @@ const CourseSectionItem: React.FC<{
                 <button
                   type="button"
                   className={cn(
-                    "flex w-full items-center gap-1 rounded-lg border-l-2 border-transparent px-2 py-1.5 pl-3 text-left text-[var(--tt-theme-text)] transition-colors duration-150",
+                    "flex w-full items-center gap-1 rounded-lg border-l-2 border-transparent pl-2.5 px-2 py-1.5 text-left text-[var(--tt-theme-text)] transition-colors duration-150",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tt-theme-text-muted)] focus-visible:ring-offset-0",
                     isActiveLesson
-                      ? "border-[var(--tt-brand-color-500)] bg-[var(--tt-brand-color-50)] text-prime font-medium dark:border-[var(--tt-brand-color-400)] dark:bg-[rgba(91,126,238,0.2)]"
-                      : "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)]"
+                      ? // ? "bg-[var(--tt-gray-light-a-100)] dark:bg-[var(--tt-gray-dark-a-100)]"
+                        "bg-primary-400 text-white dark:bg-[var(--tt-gray-dark-a-100)]"
+                      : "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)]",
                   )}
                   onClick={handleSelectLesson}>
-                  {isActiveLesson ? (
-                    <span className="text-blue-600 dark:text-blue-400">
-                      <LuChevronsRight size={16} />
-                    </span>
-                  ) : (
-                    <span className="block h-4 w-4 shrink-0 rounded-full" />
-                  )}
                   <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--tt-theme-brand-color-600)]">
                     <IoDocumentTextOutline />
                   </span>

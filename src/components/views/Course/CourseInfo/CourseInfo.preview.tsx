@@ -1,5 +1,5 @@
 import NotFound from "@/components/commons/NotFound";
-import usePayment from "@/hooks/payment/use-payment";
+import useOrder from "@/hooks/transaction/useOrder";
 import useDump from "@/hooks/use-dump";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { useQueryError } from "@/hooks/use-query-error";
@@ -21,7 +21,7 @@ import { Rating } from "react-simple-star-rating";
 export default function CourseInfo({ slug }: { slug: string }) {
   const { isError, error, isPending, data } = useQuery(courseQueries.options.getCourseBySlug(slug));
   useDump(data);
-  const { purchase } = usePayment();
+  const { createOrder } = useOrder();
   const { status } = useSession();
   const router = useRouter();
   useNProgress(isPending);
@@ -40,7 +40,7 @@ export default function CourseInfo({ slug }: { slug: string }) {
     if (status == "unauthenticated") {
       const callbackUrl = router.asPath;
       router.push({ pathname: "/auth/login", query: { callbackUrl } });
-    } else purchase({ courseId: data.id });
+    } else createOrder({ courseId: data.id });
   };
   return (
     <section className={cn([inter.className, "2xl:container xl:px-12 2xl:mx-auto px-6 my-12"])}>

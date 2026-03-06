@@ -12,7 +12,7 @@ export default function NoLessonMessage({
 }) {
   const router = useRouter();
   return (
-    <div className="flex items-center justify-center h-full">
+    <div className="flex items-center justify-center h-screen">
       <div className="text-center">
         <h2 className="text-xl font-semibold text-gray-700">{title || "This course has no lessons yet."}</h2>
         <p className="mt-2 text-gray-600">{desc || "Create a new lesson to get started."}</p>

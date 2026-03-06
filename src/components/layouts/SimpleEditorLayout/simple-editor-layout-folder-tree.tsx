@@ -146,7 +146,8 @@ const CourseSectionItem: React.FC<{
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tt-theme-text-muted)] focus-visible:ring-offset-0",
                     isActiveLesson
                       ? //  "border-[var(--tt-brand-color-500)] bg-[var(--tt-brand-color-50)] text-blue-600 font-medium dark:border-[var(--tt-brand-color-400)] dark:bg-[rgba(91,126,238,0.2)]"
-                        "bg-[var(--tt-gray-light-a-100)] dark:bg-[var(--tt-gray-dark-a-100)]"
+                        // "bg-[var(--tt-gray-light-a-100)] dark:bg-[var(--tt-gray-dark-a-100)]"
+                        "bg-primary-400 text-white dark:bg-[var(--tt-gray-dark-a-100)]"
                       : "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)]",
                     !lesson.publishedAt && "text-primary",
                   )}
