@@ -277,7 +277,9 @@ export default function EditCourse({
               </Tab>
               <Tab key="pricing" title="Pricing">
                 <PricingPanel
-                  publishedValues={{ priceAmount: metaApproved.priceAmount, discounts: approvedDiscounts }}
+                  publishedValues={
+                    metaApproved && { priceAmount: metaApproved.priceAmount, discounts: approvedDiscounts }
+                  }
                   discountId={discounts[0]?.id}
                   courseId={id}
                 />

@@ -5,18 +5,16 @@ import { NavStruct } from "@/components/commons/Sidebar/Sidebar";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { Fragment, ReactNode, useState } from "react";
-import { HiOutlineCreditCard } from "react-icons/hi";
-import { HiOutlineCog6Tooth, HiOutlineDocumentChartBar, HiOutlineSquares2X2 } from "react-icons/hi2";
-import { LuBookOpen } from "react-icons/lu";
+import { LuChartSpline, LuFileText, LuLayoutGrid, LuSettings2, LuWalletMinimal } from "react-icons/lu";
 
 const prefix = "/instructor/dashboard";
 
 const navLinks: NavStruct = [
-  { label: "Overview", Icon: HiOutlineSquares2X2, link: prefix },
-  { label: "My Courses", Icon: LuBookOpen, link: prefix + "/course" },
-  { label: "Analytics", Icon: HiOutlineDocumentChartBar, link: prefix + "/report" },
-  { label: "Payouts", Icon: HiOutlineCreditCard, link: prefix + "/payout" },
-  { label: "Setting", Icon: HiOutlineCog6Tooth, link: prefix + "/setting" },
+  { label: "Overview", Icon: LuLayoutGrid, link: prefix },
+  { label: "My Courses", Icon: LuFileText, link: prefix + "/course" },
+  { label: "Analytics", Icon: LuChartSpline, link: prefix + "/report" },
+  { label: "Payouts", Icon: LuWalletMinimal, link: prefix + "/payout" },
+  { label: "Settings", Icon: LuSettings2, link: prefix + "/setting" },
 ] as const;
 
 type Nav = { customNav: ReactNode; navTitle?: undefined } | { customNav?: undefined; navTitle: string };

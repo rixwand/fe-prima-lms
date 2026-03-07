@@ -58,7 +58,9 @@ export default function EditCoursePage({ id }: { id: number }) {
         customNav={
           <CustomNav
             title="Edit Course"
-            endContent={data.publishedAt && <VisibilitySwitch {...{ showPublished, setShowPublished }} />}
+            endContent={
+              <VisibilitySwitch {...{ showPublished, setShowPublished, disabled: data.publishedAt == null }} />
+            }
           />
         }
         active="My Courses">

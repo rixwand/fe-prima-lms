@@ -7,10 +7,10 @@ import { Fragment, ReactNode, useState } from "react";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
 import {
   LuChartSpline,
-  LuCog,
   LuFileClock,
   LuFileText,
   LuReceiptText,
+  LuSettings2,
   LuSquareUserRound,
   LuUsers,
 } from "react-icons/lu";
@@ -25,7 +25,7 @@ const navLinks: NavStruct = [
   { label: "Users", Icon: LuUsers, link: prefix + "/customer" },
   { label: "Invoices", Icon: LuReceiptText, link: prefix + "/invoices" },
   { label: "Orders", Icon: LuFileClock, link: prefix + "/orders" },
-  { label: "Setting", Icon: LuCog, link: prefix + "/setting" },
+  { label: "Setting", Icon: LuSettings2, link: prefix + "/setting" },
 ] as const;
 
 export default function AdminLayout({

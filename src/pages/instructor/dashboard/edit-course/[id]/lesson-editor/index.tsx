@@ -74,12 +74,12 @@ export default function CurriculumPage({ id }: { id: number }) {
 
   if (data && !isPending && !isFetching && hasNoContent) {
     return (
-      <>
+      <LessonEditorContext.Provider value={{ ...contextValue, currentDirtyState, courseId: id }}>
         <PageHead title="Edit Course" />
         <SimpleEditorLayout courseTitle={data.metaDraft.title} lessonState={[null, () => {}]} structure={[]}>
           <NoLessonMessage courseId={id} />
         </SimpleEditorLayout>
-      </>
+      </LessonEditorContext.Provider>
     );
   }
 

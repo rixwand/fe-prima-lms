@@ -71,7 +71,7 @@ export default function CoursePreview({
               </Tab>
               {sections && sections.length > 0 && (
                 <Tab key="sylabus" title="Silabus">
-                  <SyllabusTab sections={sections} />
+                  <SyllabusTab showPublished={showPublished} sections={sections} />
                 </Tab>
               )}
               {validUrlPreview && (
@@ -175,8 +175,10 @@ const PreviewTab = ({ url }: { url: string }) => {
 
 const SyllabusTab = ({
   sections,
+  showPublished,
 }: {
   sections: { title: string; lessons?: Lesson[]; publishedAt: string | null }[];
+  showPublished: boolean;
 }) => {
   return (
     <div className="space-y-3 w-full lg:w-4/5 text-gray-500 2xl:text-lg">
@@ -189,14 +191,14 @@ const SyllabusTab = ({
         variant="splitted">
         {sections.map((item, index) => (
           <AccordionItem
-            hidden={item.publishedAt == null}
+            hidden={showPublished && item.publishedAt == null}
             key={index}
             aria-label={`Accordion ${index}`}
             title={item.title}>
             <ul className="text-gray-500 mb-4 -mt-2 list-disc space-y-2">
               {item.lessons &&
                 item.lessons.map((list, index) => (
-                  <li hidden={list.publishedAt == null} key={index} className="ml-6">
+                  <li hidden={showPublished && list.publishedAt == null} key={index} className="ml-6">
                     {list.title}
                   </li>
                 ))}
