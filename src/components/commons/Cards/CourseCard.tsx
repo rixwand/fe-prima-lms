@@ -1,5 +1,5 @@
 import cn from "@/libs/utils/cn";
-import { finalPrice } from "@/libs/utils/currency";
+import { applyDiscounts } from "@/libs/utils/currency";
 import { formatDate } from "@/libs/utils/string";
 import courseService from "@/services/course.service";
 import { Avatar, Button, Card, Chip, Popover, PopoverContent, PopoverTrigger, PressEvent } from "@heroui/react";
@@ -236,7 +236,7 @@ export function CourseCard({
           <div className="flex items-center gap-4 text-medium text-slate-800 font-medium">
             <span className="inline-flex items-center gap-1">
               {(data.draftDiscounts && data.draftDiscounts.length > 0
-                ? finalPrice(data.priceAmount, data.draftDiscounts[0].value, data.draftDiscounts[0].type)
+                ? applyDiscounts(data.priceAmount, data.draftDiscounts)
                 : data.priceAmount
               ).toLocaleString("id-ID", {
                 style: "currency",
@@ -327,7 +327,7 @@ export function CourseCard({
         </div>
         <div className="col-span-6 @2xl:col-span-3 @5xl:col-span-2 @3xl:justify-center flex items-center text-medium text-slate-800 font-medium justify-self-end justify-end">
           {(data.draftDiscounts && data.draftDiscounts.length > 0
-            ? finalPrice(data.priceAmount, data.draftDiscounts[0].value, data.draftDiscounts[0].type)
+            ? applyDiscounts(data.priceAmount, data.draftDiscounts)
             : data.priceAmount
           ).toLocaleString("id-ID", {
             style: "currency",

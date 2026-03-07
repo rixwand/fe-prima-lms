@@ -14,17 +14,22 @@ export const formatRupiah = (n: number): string => {
   }
 };
 
-export function finalPrice(price: number, discount: number = 0, type: "PERCENTAGE" | "FIXED" = "PERCENTAGE") {
-  let p = price;
+export function applyDiscounts(price: number, discounts: Discount[]) {
+  let current = price;
 
-  if (type === "PERCENTAGE") {
-    const pct = Math.min(Math.max(discount, 0), 100);
-    p = price * (1 - pct / 100);
-  } else {
-    p = Math.max(0, price - discount);
+  for (const d of discounts) {
+    if (!d.isActive) continue;
+    if (d.type === "PERCENTAGE") {
+      const pct = Math.min(d.value, 100);
+      current -= current * (pct / 100);
+    } else {
+      current -= d.value;
+    }
+
+    current = Math.max(0, current);
   }
 
-  return p;
+  return current;
 }
 
 export const convertLocal = (num: number) =>

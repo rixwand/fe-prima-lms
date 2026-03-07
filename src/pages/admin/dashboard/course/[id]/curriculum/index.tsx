@@ -5,6 +5,7 @@ import Lessonview from "@/components/views/Admin/Courses/CurriculumView/LessonVi
 import NoLessonMessage from "@/components/views/Instructor/Course/EditCourse/NoLessonMessage";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { CurriculumViewContext, LessonPathIds } from "@/libs/context/CurriculumViewContext";
+import { findFirstSelectableLesson } from "@/libs/utils/course";
 import courseQueries from "@/queries/course-queries";
 import { QueryClient, dehydrate, useQuery } from "@tanstack/react-query";
 import type { GetStaticPaths, GetStaticProps } from "next";
@@ -48,17 +49,12 @@ export default function CurriculumPagePreview({ id }: { id: number }) {
   // useQueryError({ isError, error });
   useEffect(() => {
     if (!data?.length) return;
-
-    const sectionWithLesson = data.find(section => section.lessons?.length > 0);
-
-    if (!sectionWithLesson) return;
-
-    const firstLesson = sectionWithLesson.lessons[0];
-
+    const active = findFirstSelectableLesson(data);
+    if (!active) return;
     setActiveLesson({
       courseId: id,
-      sectionId: sectionWithLesson.id,
-      lessonId: firstLesson.id,
+      sectionId: active.section.id,
+      lessonId: active.lesson.id,
     });
   }, [data, id]);
   if (isFetching || isPending) return null;

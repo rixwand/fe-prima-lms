@@ -229,7 +229,17 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
                   <span className="inline-flex items-center gap-1">
                     <PiMoneyWavyLight size={16} />{" "}
                     {(discount && discountActive
-                      ? finalPrice(price, discount, discountType)
+                      ? applyDiscounts(price, [
+                          {
+                            id: 0,
+                            courseId: 0,
+                            type: discountType,
+                            value: discount,
+                            isActive: true,
+                            startAt: null,
+                            endAt: null,
+                          },
+                        ])
                       : price || 0
                     ).toLocaleString("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 })}
                   </span>

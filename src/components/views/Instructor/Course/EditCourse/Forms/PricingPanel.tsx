@@ -3,7 +3,7 @@ import TextField from "@/components/commons/TextField";
 import useCourse from "@/hooks/course/useCourse";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import cn from "@/libs/utils/cn";
-import { convertLocal, finalPrice } from "@/libs/utils/currency";
+import { applyDiscounts, convertLocal } from "@/libs/utils/currency";
 import { hasDirty } from "@/libs/utils/rhf";
 import { Button, DatePicker, Select, SelectItem, Switch } from "@heroui/react";
 import { parseAbsoluteToLocal } from "@internationalized/date";
@@ -370,7 +370,17 @@ export default function PricingPanel({
                 Final price
                 <span className="font-semibold">
                   {(discount?.isActive && discount.value
-                    ? finalPrice(price, discount.value, discount.type)
+                    ? applyDiscounts(price, [
+                        {
+                          id: 0,
+                          courseId: 0,
+                          type: discount.type,
+                          value: discount.value,
+                          isActive: discount.isActive,
+                          startAt: null,
+                          endAt: null,
+                        },
+                      ])
                     : price
                   ).toLocaleString("id-ID", {
                     style: "currency",

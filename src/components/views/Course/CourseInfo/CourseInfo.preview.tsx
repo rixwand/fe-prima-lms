@@ -5,7 +5,7 @@ import { useNProgress } from "@/hooks/use-nProgress";
 import { useQueryError } from "@/hooks/use-query-error";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
-import { finalPrice } from "@/libs/utils/currency";
+import { applyDiscounts } from "@/libs/utils/currency";
 import { getYouTubeEmbedUrl } from "@/libs/utils/string";
 import courseQueries from "@/queries/course-queries";
 import { Accordion, AccordionItem, Button, Card, Chip, Skeleton, Tab, Tabs } from "@heroui/react";
@@ -155,7 +155,7 @@ export default function CourseInfo({ slug }: { slug: string }) {
             <span className="text-sm font-semibold text-slate-700">Harga Akhir</span>
             <span className="text-xl font-bold tracking-tight text-slate-900">
               {(discounts && discounts.length > 0 && discounts[0].isActive
-                ? finalPrice(priceAmount, discounts[0].value, discounts[0].type)
+                ? applyDiscounts(priceAmount, discounts)
                 : priceAmount
               ).toLocaleString("id-ID", {
                 style: "currency",

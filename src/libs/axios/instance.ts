@@ -52,11 +52,12 @@ api.interceptors.response.use(
           await updateSession({ accessToken });
           return api(original);
         } else {
+          alert("Should Call SignOut cause no access token return");
           await signOut({ redirect: true, callbackUrl: "/auth/login" });
           return Promise.reject(error);
         }
       } catch (err) {
-        getErrorMessage(err as AppAxiosError);
+        alert(`Should Call SignOut cause "${getErrorMessage(err as AppAxiosError)}"`);
         await signOut({ redirect: true, callbackUrl: "/auth/login" });
         return Promise.reject(error);
       }

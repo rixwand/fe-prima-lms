@@ -1,5 +1,5 @@
 import cn from "@/libs/utils/cn";
-import { finalPrice } from "@/libs/utils/currency";
+import { applyDiscounts } from "@/libs/utils/currency";
 import { Avatar, Card, Chip, Skeleton } from "@heroui/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -88,11 +88,7 @@ const UserCourseCard = ({ course: { metaApproved }, course, disabled = false }: 
           </span>
           {course.discounts && course.discounts.length > 0 && course.discounts[0].isActive && (
             <span className="inline-flex items-center gap-1">
-              {finalPrice(
-                metaApproved!.priceAmount,
-                course.discounts[0].value,
-                course.discounts[0].type,
-              ).toLocaleString("id-ID", {
+              {applyDiscounts(metaApproved!.priceAmount, course.discounts).toLocaleString("id-ID", {
                 style: "currency",
                 currency: "IDR",
                 maximumFractionDigits: 0,

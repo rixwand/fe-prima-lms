@@ -20,10 +20,18 @@ import {
 type NotesForm = { notes: string };
 
 const InstructorListBoxAction = ({ courseStatus, courseId }: { courseStatus: string; courseId: number }) => {
-  const { publishCourse, course, cancelPublishReq, hasPending, deleteCourse } = useCourse(courseId);
+  const { publishCourse, course, cancelPublishReq, hasPending, deleteCourse, queryPending } = useCourse(courseId);
   const { state: menuState } = usePopoverContext();
   const notesMethods = useForm<NotesForm>();
   const router = useRouter();
+  // if (queryPending)
+  //   return (
+  //     <Listbox variant="light" color="primary" aria-label="Actions" onAction={menuState.close}>
+  //       <ListboxItem className="text-center">
+  //         <Spinner />
+  //       </ListboxItem>
+  //     </Listbox>
+  //   );
   const PublishCourseForm = ({ methods: { register } }: { methods: UseFormReturn<NotesForm> }) => {
     return (
       <div className="space-y-4">
@@ -79,7 +87,7 @@ const InstructorListBoxAction = ({ courseStatus, courseId }: { courseStatus: str
             Publish
           </ListboxItem>
           <ListboxItem
-            onPress={() => router.push(`/instructor/dashboard/edit-course/${course?.id}`)}
+            onPress={() => router.push(`/instructor/dashboard/edit-course/${courseId}`)}
             startContent={<LuPencilLine />}
             key="edit">
             Edit

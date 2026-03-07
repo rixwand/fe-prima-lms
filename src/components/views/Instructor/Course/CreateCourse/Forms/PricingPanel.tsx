@@ -1,6 +1,6 @@
 import TextField from "@/components/commons/TextField";
 import cn from "@/libs/utils/cn";
-import { finalPrice } from "@/libs/utils/currency";
+import { applyDiscounts } from "@/libs/utils/currency";
 import { Button, DatePicker, Select, SelectItem, Switch } from "@heroui/react";
 import { Fragment } from "react";
 import { Controller, useFormContext } from "react-hook-form";
@@ -196,7 +196,17 @@ export default function PricingPanel() {
                 Final price
                 <span className="font-semibold">
                   {(discount?.isActive && discount.value
-                    ? finalPrice(price, discount.value, discount.type)
+                    ? applyDiscounts(price, [
+                        {
+                          id: 0,
+                          courseId: 0,
+                          type: discount.type,
+                          value: discount.value,
+                          isActive: discount.isActive,
+                          startAt: null,
+                          endAt: null,
+                        },
+                      ])
                     : price
                   ).toLocaleString("id-ID", {
                     style: "currency",
