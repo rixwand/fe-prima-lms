@@ -13,7 +13,7 @@ const headers = {
 const api = axios.create({
   baseURL: API_URL,
   headers,
-  timeout: 60 * 1000,
+  timeout: 150 * 1000,
   withCredentials: true,
 });
 
@@ -23,7 +23,7 @@ api.interceptors.request.use(
     if (session && session.accessToken) config.headers["Authorization"] = "Bearer " + session.accessToken;
     return config;
   },
-  error => Promise.reject(error)
+  error => Promise.reject(error),
 );
 
 api.interceptors.response.use(
@@ -62,7 +62,7 @@ api.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
