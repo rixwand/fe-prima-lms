@@ -1,9 +1,7 @@
 import { endpoint } from "@/config/endpoint";
-import { AppAxiosError } from "@/types/axios";
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { getSession, signOut } from "next-auth/react";
 import { API_URL } from "../../config/env";
-import { getErrorMessage } from "./error";
 import { updateSession } from "./session-updater";
 
 const headers = {
@@ -17,10 +15,71 @@ const api = axios.create({
   withCredentials: true,
 });
 
+let refreshPromise: Promise<string | null> | null = null;
+
+function getAuthHeader(config: InternalAxiosRequestConfig) {
+  const hdr = config.headers as Record<string, unknown> & { get?: (name: string) => string | undefined };
+  if (typeof hdr?.get === "function") return hdr.get("Authorization");
+  return (hdr?.Authorization ?? hdr?.authorization) as string | undefined;
+}
+
+function setAuthHeader(config: InternalAxiosRequestConfig, accessToken: string) {
+  const value = "Bearer " + accessToken;
+  const hdr = config.headers as Record<string, unknown> & { set?: (name: string, value: string) => void };
+  if (typeof hdr?.set === "function") {
+    hdr.set("Authorization", value);
+    return;
+  }
+  (config.headers as Record<string, unknown>).Authorization = value;
+}
+
+function isRefreshAuthError(error: unknown) {
+  if (!axios.isAxiosError(error)) return false;
+  return error.response?.status === 401 || error.response?.status === 403;
+}
+
+function isTransientRefreshError(error: unknown) {
+  if (!axios.isAxiosError(error)) return false;
+  if (!error.response) return true;
+  return ["ECONNABORTED", "ETIMEDOUT", "ERR_NETWORK"].includes(error.code ?? "");
+}
+
+async function safeUpdateSession(accessToken: string) {
+  try {
+    await updateSession({ accessToken });
+  } catch (error) {
+    // Session bridge can be unavailable during app bootstrap. Keep request flow alive.
+    console.warn(
+      "Failed to sync refreshed access token to session:",
+      error instanceof Error ? error.message : String(error),
+    );
+  }
+}
+
+async function getRefreshedAccessToken() {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = axios({
+    url: API_URL + endpoint.AUTH + "/refresh",
+    method: "POST",
+    withCredentials: true,
+  })
+    .then(res => (res.data?.data?.accessToken as string | undefined) ?? null)
+    .catch(error => {
+      if (isRefreshAuthError(error)) return null;
+      throw error;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+}
+
 api.interceptors.request.use(
   async config => {
     const session = await getSession();
-    if (session && session.accessToken) config.headers["Authorization"] = "Bearer " + session.accessToken;
+    if (session?.accessToken) setAuthHeader(config, session.accessToken);
     return config;
   },
   error => Promise.reject(error),
@@ -37,27 +96,26 @@ api.interceptors.response.use(
     return res;
   },
   async (error: AxiosError) => {
-    const original = error.config as InternalAxiosRequestConfig & { _retry: boolean };
-    if (error.response?.status == 401 && !original._retry && original.headers.Authorization) {
+    const original = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
+    if (!original) return Promise.reject(error);
+    if (error.response?.status === 401 && !original._retry && getAuthHeader(original)) {
       original._retry = true;
       try {
-        const res = await axios({
-          url: API_URL + endpoint.AUTH + "/refresh",
-          method: "POST",
-          withCredentials: true,
-        });
-        const accessToken = res.data.data.accessToken as string;
-        if (accessToken) {
-          original.headers.Authorization = "Bearer " + accessToken;
-          await updateSession({ accessToken });
-          return api(original);
-        } else {
-          alert("Should Call SignOut cause no access token return");
+        const accessToken = await getRefreshedAccessToken();
+        if (!accessToken) {
           await signOut({ redirect: true, callbackUrl: "/auth/login" });
           return Promise.reject(error);
         }
-      } catch (err) {
-        alert(`Should Call SignOut cause "${getErrorMessage(err as AppAxiosError)}"`);
+
+        setAuthHeader(original, accessToken);
+        await safeUpdateSession(accessToken);
+        return api(original);
+      } catch (refreshError) {
+        if (isTransientRefreshError(refreshError)) {
+          // Don't force logout on temporary network timeout/failure.
+          return Promise.reject(error);
+        }
+
         await signOut({ redirect: true, callbackUrl: "/auth/login" });
         return Promise.reject(error);
       }
