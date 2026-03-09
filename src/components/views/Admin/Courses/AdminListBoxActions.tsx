@@ -4,7 +4,7 @@ import { informationDialog } from "@/components/commons/Dialog/informationDialog
 import RejectCourseForm, { NotesForm } from "@/components/commons/Forms/RejectCourseForm/RejectCourseForm";
 import usePublishCourses from "@/hooks/course/useListPublishRequest";
 import { Listbox, ListboxItem, usePopoverContext } from "@heroui/react";
-import { Fragment, useEffect, useRef } from "react";
+import { Fragment } from "react";
 import { useForm } from "react-hook-form";
 import { LuCircleX, LuFileCheck2, LuFileText, LuGlobeLock } from "react-icons/lu";
 
@@ -19,22 +19,15 @@ const AdminListBoxAction = ({
   notes?: string | null;
   reqStatus: PublishCourseStatus;
 }) => {
-  const { rejectCourse, approveCourse, pending } = usePublishCourses();
+  const { rejectCourseAsync, approveCourseAsync } = usePublishCourses();
   const notesMethods = useForm<NotesForm>();
-  const rejectPendingRef = useRef(pending.isPendingRejectCourse);
-  const approvePendingRef = useRef(pending.isPendingApproveCourse);
-  useEffect(() => {
-    rejectPendingRef.current = pending.isPendingRejectCourse;
-    approvePendingRef.current = pending.isPendingApproveCourse;
-  }, [pending.isPendingApproveCourse, pending.isPendingRejectCourse]);
   // const { course } = useCourse(courseId);
   const { state: menuState } = usePopoverContext();
   const onCourseReject = () =>
     FormWrapperDialog({
       title: "Decline Course Publish Request",
       content: <RejectCourseForm methods={notesMethods} courseTitle={courseTitle} />,
-      onSubmit: () => rejectCourse({ notes: notesMethods.getValues("notes"), reqId }),
-      isLoading: () => rejectPendingRef.current,
+      onSubmit: () => rejectCourseAsync({ notes: notesMethods.getValues("notes"), reqId }),
     });
 
   const onShowNotes = () => informationDialog({ title: "Course Publish Request Notes", desc: notes || "" });
@@ -43,10 +36,7 @@ const AdminListBoxAction = ({
     confirmDialog({
       title: "Approve Course Publish Request",
       desc: "Are you sure you want to approve the course publish request?\nOnce approved, the course will be published and made visible to learners.",
-      onConfirmed() {
-        approveCourse(reqId);
-      },
-      isLoading: () => approvePendingRef.current,
+      onConfirmed: () => approveCourseAsync(reqId),
     });
 
   return (

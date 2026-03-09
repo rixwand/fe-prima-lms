@@ -6,7 +6,7 @@ import AddLessonsForm from "./";
 export default function useModalAddLessons({
   createLessons,
 }: {
-  createLessons: (newLessons: { title: string }[]) => void;
+  createLessons: (newLessons: { title: string }[]) => void | Promise<unknown>;
 }) {
   const addLessonsMethods = useForm<AddLessonsFormRhf>();
   const opneAddLessonModal = () => {

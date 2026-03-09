@@ -95,15 +95,11 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
   const { setSentinelRef: sentinelPreviewRef, stuck: previewStuck } = useStickySentinel(previewParentRef);
   const { setSentinelRef: sentinelFormRef, stuck: formStuck } = useStickySentinel(parentFormRef);
 
-  const { isPending, reorderSection, removeManySections, createSection } = useEditSection({
+  const { isPending, reorderSection, removeManySectionsAsync, createSectionAsync } = useEditSection({
     onReorderSectionSuccess() {
       setEditMode(false);
     },
   });
-  const removeSectionPendingRef = useRef(isPending.removeSectionPending);
-  useEffect(() => {
-    removeSectionPendingRef.current = isPending.removeSectionPending;
-  }, [isPending.removeSectionPending]);
 
   const resetSections = () => {
     replace(defaultValue);
@@ -125,10 +121,7 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
       title: "Remove batch Sections",
       desc: `This action will permananently delete "${selectState[0].size}" section`,
       isDestructive: true,
-      onConfirmed() {
-        return removeManySections({ courseId, sectionIds: [...selectState[0]] });
-      },
-      isLoading: () => removeSectionPendingRef.current,
+      onConfirmed: () => removeManySectionsAsync({ courseId, sectionIds: [...selectState[0]] }),
     });
   };
 
@@ -150,7 +143,7 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
     }
   }, [lessonContent, showPublished, showContentLive]);
 
-  const { openAddSectionsModal } = useModalAddSections({ createSection, isPending: isPending.createSectionPendig });
+  const { openAddSectionsModal } = useModalAddSections({ createSection: createSectionAsync });
 
   useNProgress(hasTrue({ isPendingGetLessonContent, isLoading }));
 

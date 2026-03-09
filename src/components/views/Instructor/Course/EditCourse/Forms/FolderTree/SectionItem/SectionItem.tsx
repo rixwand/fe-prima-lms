@@ -156,7 +156,7 @@ const CourseSectionItem: FC<{
     });
   };
 
-  const { createLessons, isLoading, reorderLessons, batchRemoveLesson } = useEditLessonList({
+  const { createLessons, createLessonsAsync, isLoading, reorderLessons, batchRemoveLessonAsync } = useEditLessonList({
     sectionId: section.id!,
     onCreateLessonSuccess() {
       setNewLesson(null);
@@ -168,11 +168,6 @@ const CourseSectionItem: FC<{
       setEditLesson(false);
     },
   });
-  const batchRemoveLessonPendingRef = useRef(isLoading.batchRemoveLessonPending);
-  useEffect(() => {
-    batchRemoveLessonPendingRef.current = isLoading.batchRemoveLessonPending;
-  }, [isLoading.batchRemoveLessonPending]);
-
   const handleSubmitLesson = () => {
     if (!newLesson) return;
     return createLessons([{ title: newLesson }]);
@@ -201,12 +196,11 @@ const CourseSectionItem: FC<{
       title: "Remove Lessons ?",
       desc: `This action will permananently remove ${selectedLesson.size} lesson${selectedLesson.size > 1 ? "s" : ""}`,
       isDestructive: true,
-      isLoading: () => batchRemoveLessonPendingRef.current,
-      onConfirmed: () => batchRemoveLesson([...selectedLesson]),
+      onConfirmed: () => batchRemoveLessonAsync([...selectedLesson]),
     });
   };
 
-  const { opneAddLessonModal } = useModalAddLessons({ createLessons });
+  const { opneAddLessonModal } = useModalAddLessons({ createLessons: createLessonsAsync });
   useNProgress(hasTrue(isPending) || hasTrue(isLoading));
 
   return (

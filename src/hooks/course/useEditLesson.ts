@@ -44,7 +44,11 @@ export const useEditLesson = ({
   } = useQuery(courseQueries.options.getLessonContent(idsPath, enableQueryContent));
 
   useQueryError({ isError, error });
-  const { mutate: removeLesson, isPending: removeLessonPending } = useMutation({
+  const {
+    mutate: removeLesson,
+    mutateAsync: removeLessonAsync,
+    isPending: removeLessonPending,
+  } = useMutation({
     mutationFn: () => courseLessonService.delete(idsPath),
     onError: error => {
       addToast({
@@ -60,7 +64,11 @@ export const useEditLesson = ({
     },
   });
 
-  const { mutate: publishDraft, isPending: isPendingPublishDraft } = useMutation({
+  const {
+    mutate: publishDraft,
+    mutateAsync: publishDraftMutateAsync,
+    isPending: isPendingPublishDraft,
+  } = useMutation({
     mutationFn: ({ newDraft }: { newDraft?: JSONContent }) =>
       courseLessonService.publishDraft({ ...idsPath, newDraft }),
     onError: error => {
@@ -76,13 +84,17 @@ export const useEditLesson = ({
         title: "Success",
         description: data.message ?? "Success publish draft content lessons",
       });
-      // invalidateQueries();
+      invalidateQueries();
       refetch();
       onPublishContentDraftSuccess();
     },
   });
 
-  const { mutate: updateLesson, isPending: updateLessonPending } = useMutation({
+  const {
+    mutate: updateLesson,
+    mutateAsync: updateLessonAsync,
+    isPending: updateLessonPending,
+  } = useMutation({
     mutationFn: (lesson: MutateUpdateLesson) => courseLessonService.update({ ...idsPath, lesson }),
     onError: error => {
       addToast({
@@ -104,11 +116,29 @@ export const useEditLesson = ({
     isPendingPublishDraft,
   };
   useNProgress(hasTrue(pending));
+
+  const publishDraftAsync = async (
+    variables: { newDraft?: JSONContent },
+    options?: { onSuccess?: VoidFn; onError?: (error: unknown) => void },
+  ) => {
+    try {
+      const result = await publishDraftMutateAsync(variables);
+      options?.onSuccess?.();
+      return result;
+    } catch (error) {
+      options?.onError?.(error);
+      throw error;
+    }
+  };
+
   return {
     lessonContent,
     pending,
     updateLesson,
+    updateLessonAsync,
     removeLesson,
+    removeLessonAsync,
     publishDraft,
+    publishDraftAsync,
   };
 };

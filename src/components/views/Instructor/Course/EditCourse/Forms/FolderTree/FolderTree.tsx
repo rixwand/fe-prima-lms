@@ -99,25 +99,18 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
 
   const { courseId, showPublished } = useEditCourseContext();
 
-  const { createSection, removeSection, isPending } = useEditSection({
+  const { createSection, removeSectionAsync, isPending } = useEditSection({
     onCreateSectionSuccess() {
       setNewSection(null);
     },
   });
-  const removeSectionPendingRef = React.useRef(isPending.removeSectionPending);
-  React.useEffect(() => {
-    removeSectionPendingRef.current = isPending.removeSectionPending;
-  }, [isPending.removeSectionPending]);
 
   const handleRemoveSection = (id: number, title: string) => {
     return confirmDialog({
       title: "Remove Section",
       desc: `This action will permananently delete "${title}" section`,
       isDestructive: true,
-      onConfirmed() {
-        removeSection({ courseId, sectionId: id });
-      },
-      isLoading: () => removeSectionPendingRef.current,
+      onConfirmed: () => removeSectionAsync({ courseId, sectionId: id }),
     });
   };
 

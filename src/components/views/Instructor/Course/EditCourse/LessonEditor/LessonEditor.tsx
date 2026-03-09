@@ -7,7 +7,6 @@ import { hasTrue } from "@/libs/utils/boolean";
 import { StateType } from "@/types/Helper";
 import { Spinner } from "@heroui/react";
 import { JSONContent } from "@tiptap/core";
-import { useEffect, useRef } from "react";
 
 type LessonEditorProps = {
   lessonState: StateType<Lesson | null>;
@@ -15,11 +14,7 @@ type LessonEditorProps = {
 export default function LessonEditor({ lessonState }: LessonEditorProps) {
   const { ids } = useLessonEditorContext();
 
-  const { lessonContent, updateLesson, pending, publishDraft } = useEditLesson({ idsPath: ids! });
-  const publishDraftPendingRef = useRef(pending.isPendingPublishDraft);
-  useEffect(() => {
-    publishDraftPendingRef.current = pending.isPendingPublishDraft;
-  }, [pending.isPendingPublishDraft]);
+  const { lessonContent, updateLesson, pending, publishDraftAsync } = useEditLesson({ idsPath: ids! });
 
   // useEffect(() => {
   //   console.log(activeLesson?.title, " ", lessonContent);
@@ -31,8 +26,8 @@ export default function LessonEditor({ lessonState }: LessonEditorProps) {
     confirmDialog({
       title: "Publish Draft",
       desc: "The content in the draft will be published",
-      onConfirmed() {
-        publishDraft(
+      onConfirmed: () =>
+        publishDraftAsync(
           { newDraft },
           {
             onSuccess,
@@ -40,9 +35,7 @@ export default function LessonEditor({ lessonState }: LessonEditorProps) {
               console.log("publishDraft error: ", e);
             },
           },
-        );
-      },
-      isLoading: () => publishDraftPendingRef.current,
+        ),
     });
 
   useNProgress(hasTrue(pending));

@@ -10,24 +10,18 @@ import { convertLocal } from "@/libs/utils/currency";
 import { formatDate } from "@/libs/utils/string";
 import { Button, Chip, Skeleton, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/react";
 import { useRouter } from "next/router";
-import { Fragment, ReactNode, useEffect, useMemo, useRef } from "react";
+import { Fragment, ReactNode, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { LuCircleX, LuGlobe } from "react-icons/lu";
 export default function ReviewChanges({ courseId }: { courseId: number }) {
   const router = useRouter();
   const redirect = () => router.push("/admin/dashboard/course");
   const { course, queryPending, queryError } = useCourse(courseId);
-  const { approveCourse, rejectCourse, pending } = usePublishCourses({
+  const { approveCourseAsync, rejectCourseAsync } = usePublishCourses({
     onApproveSuccess: redirect,
     onRejectSuccess: redirect,
   });
   const notesMethods = useForm<NotesForm>();
-  const rejectPendingRef = useRef(pending.isPendingRejectCourse);
-  const approvePendingRef = useRef(pending.isPendingApproveCourse);
-  useEffect(() => {
-    rejectPendingRef.current = pending.isPendingRejectCourse;
-    approvePendingRef.current = pending.isPendingApproveCourse;
-  }, [pending.isPendingApproveCourse, pending.isPendingRejectCourse]);
   if (!course && !queryPending) return <NotFound error={queryError} />;
   if (queryPending)
     return (
@@ -80,16 +74,14 @@ export default function ReviewChanges({ courseId }: { courseId: number }) {
           description="The Changes will be rejected, and published course remain unchange"
         />
       ),
-      onSubmit: () => rejectCourse({ notes: notesMethods.getValues("notes"), reqId: course?.publishRequest?.id as number }),
-      isLoading: () => rejectPendingRef.current,
+      onSubmit: () => rejectCourseAsync({ notes: notesMethods.getValues("notes"), reqId: course?.publishRequest?.id as number }),
     });
 
   const onSaveChanges = () =>
     confirmDialog({
       title: "Publish Changes",
       desc: "The Changes will be publish",
-      onConfirmed: () => approveCourse(course?.publishRequest?.id as number),
-      isLoading: () => approvePendingRef.current,
+      onConfirmed: () => approveCourseAsync(course?.publishRequest?.id as number),
     });
   return (
     <section>

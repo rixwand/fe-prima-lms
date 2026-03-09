@@ -27,7 +27,7 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
   };
 
   useQueryError({ isError, error });
-  const { mutate: updateCourse, isPending: isPendingUpdate } = useMutation({
+  const { mutate: updateCourse, mutateAsync: updateCourseAsync, isPending: isPendingUpdate } = useMutation({
     mutationFn: courseService.update,
     onError: e => {
       console.log(e);
@@ -39,7 +39,7 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
     },
   });
 
-  const { mutate: updateTags, isPending: isPendingTags } = useMutation({
+  const { mutate: updateTags, mutateAsync: updateTagsAsync, isPending: isPendingTags } = useMutation({
     mutationFn: courseService.updateTags,
     onError: e => {
       addToast({ title: "Erorr", description: e.message, color: "danger" });
@@ -50,7 +50,7 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
     },
   });
 
-  const { mutate: updateCategories, isPending: isPendingCategories } = useMutation({
+  const { mutate: updateCategories, mutateAsync: updateCategoriesAsync, isPending: isPendingCategories } = useMutation({
     mutationFn: courseService.updateCategories,
     onError: e => {
       addToast({ title: "Erorr", description: e.message, color: "danger" });
@@ -61,7 +61,7 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
     },
   });
 
-  const { mutate: deleteCourse, isPending: deleteCoursePending } = useMutation({
+  const { mutate: deleteCourse, mutateAsync: deleteCourseAsync, isPending: deleteCoursePending } = useMutation({
     mutationFn: courseService.delete,
     onSuccess() {
       addToast({ title: "Success deleted course", color: "success" });
@@ -78,6 +78,7 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
 
   const {
     mutate: deleteDiscount,
+    mutateAsync: deleteDiscountAsync,
     isPending: isPendingDeleteDiscount,
     isSuccess: isSuccessDeleteDiscount,
   } = useMutation({
@@ -91,7 +92,11 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
     },
   });
 
-  const { mutate: publishCourse, isPending: publishCoursePending } = useMutation({
+  const {
+    mutate: publishCourse,
+    mutateAsync: publishCourseAsync,
+    isPending: publishCoursePending,
+  } = useMutation({
     mutationFn: courseService.publish,
     onSuccess() {
       addToast({ title: "Request for publish course success", color: "success" });
@@ -106,7 +111,11 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
     },
   });
 
-  const { mutate: cancelPublishReq, isPending: isPendingCancelPublishReq } = useMutation({
+  const {
+    mutate: cancelPublishReq,
+    mutateAsync: cancelPublishReqAsync,
+    isPending: isPendingCancelPublishReq,
+  } = useMutation({
     mutationFn: courseService.cancelPublishReq,
     onSuccess() {
       addToast({ title: "Request for course publish has been canceled", color: "success" });
@@ -121,7 +130,7 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
     },
   });
 
-  const { mutate: applyDraft, isPending: isPendingApplyDraft } = useMutation({
+  const { mutate: applyDraft, mutateAsync: applyDraftAsync, isPending: isPendingApplyDraft } = useMutation({
     mutationFn: () => courseService.applyDraft(id),
     onSuccess() {
       addToast({ title: "Publish course changes success", color: "success" });
@@ -155,17 +164,25 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
     queryIsError: isError,
     hasPending,
     updateCourse,
+    updateCourseAsync,
     course,
     updateTags,
+    updateTagsAsync,
     deleteDiscount,
+    deleteDiscountAsync,
     isSuccessDeleteDiscount,
     publishCourse,
     cancelPublishReq,
+    cancelPublishReqAsync,
     deleteCourse,
+    deleteCourseAsync,
     applyDraft,
+    applyDraftAsync,
     updateCategories,
+    updateCategoriesAsync,
     refetch,
     pending,
+    publishCourseAsync,
   };
 };
 export default useCourse;

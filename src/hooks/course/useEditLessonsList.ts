@@ -48,7 +48,7 @@ export default function useEditLessonList({
       });
   }, [isError, error]);
 
-  const { mutate: createLessons, isPending: createLessonPending } = useMutation({
+  const { mutate: createLessons, mutateAsync: createLessonsAsync, isPending: createLessonPending } = useMutation({
     mutationFn: (lessons: MutateLesson[]) => courseLessonService.create({ courseId, sectionId, lessons }),
     onError: error => {
       addToast({
@@ -64,7 +64,7 @@ export default function useEditLessonList({
     },
   });
 
-  const { mutate: reorderLessons, isPending: reorderLessonsPending } = useMutation({
+  const { mutate: reorderLessons, mutateAsync: reorderLessonsAsync, isPending: reorderLessonsPending } = useMutation({
     mutationFn: (list: MutateReorderLessons) => courseLessonService.reorder({ list, sectionId, courseId }),
     onError: error => {
       addToast({
@@ -80,7 +80,11 @@ export default function useEditLessonList({
     },
   });
 
-  const { mutate: batchRemoveLesson, isPending: batchRemoveLessonPending } = useMutation({
+  const {
+    mutate: batchRemoveLesson,
+    mutateAsync: batchRemoveLessonAsync,
+    isPending: batchRemoveLessonPending,
+  } = useMutation({
     mutationFn: (lessonIds: number[]) => courseLessonService.deleteMany({ sectionId, courseId, lessonIds }),
     onError: error => {
       addToast({
@@ -104,9 +108,12 @@ export default function useEditLessonList({
       createLessonPending,
     },
     createLessons,
+    createLessonsAsync,
     queryLessons,
     refetch,
     reorderLessons,
+    reorderLessonsAsync,
     batchRemoveLesson,
+    batchRemoveLessonAsync,
   };
 }

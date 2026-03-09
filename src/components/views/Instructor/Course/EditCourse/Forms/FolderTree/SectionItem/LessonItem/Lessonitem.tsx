@@ -81,25 +81,20 @@ const CourseLessonItem = ({
     border: 1,
   } as CSSProperties;
   const { courseId } = useEditCourseContext();
-  const { pending, removeLesson, updateLesson } = useEditLesson({
+  const { pending, removeLessonAsync, updateLesson } = useEditLesson({
     idsPath: { courseId, lessonId: lesson.id!, sectionId: section.id! },
     onUpdateLessonSuccess(variant) {
       setEditLesson(null);
     },
     enableQueryContent: false,
   });
-  const removeLessonPendingRef = useRef(pending.removeLessonPending);
-  useEffect(() => {
-    removeLessonPendingRef.current = pending.removeLessonPending;
-  }, [pending.removeLessonPending]);
 
   const handleDeleteLesson = () => {
     return confirmDialog({
       title: "Remove lesson ?",
       desc: `This action will permanently remove "${lesson.title}" lesson`,
       isDestructive: true,
-      isLoading: () => removeLessonPendingRef.current,
-      onConfirmed: () => removeLesson(),
+      onConfirmed: () => removeLessonAsync(),
     });
   };
 

@@ -5,14 +5,10 @@ import useCourse from "@/hooks/course/useCourse";
 import cn from "@/libs/utils/cn";
 import { getYouTubeEmbedUrl } from "@/libs/utils/string";
 import { Button, Code, Image, Skeleton } from "@heroui/react";
-import { Fragment, ReactNode, useEffect, useRef } from "react";
+import { Fragment, ReactNode } from "react";
 import { LuGlobe, LuTrash2 } from "react-icons/lu";
 export default function ReviewChanges({ courseId }: { courseId: number }) {
-  const { course, queryPending, queryError, applyDraft, pending } = useCourse(courseId);
-  const applyDraftPendingRef = useRef(pending.isPendingApplyDraft);
-  useEffect(() => {
-    applyDraftPendingRef.current = pending.isPendingApplyDraft;
-  }, [pending.isPendingApplyDraft]);
+  const { course, queryPending, queryError, applyDraftAsync } = useCourse(courseId);
   if (!course && !queryPending) return <NotFound error={queryError} />;
   if (queryPending)
     return (
@@ -43,8 +39,7 @@ export default function ReviewChanges({ courseId }: { courseId: number }) {
     confirmDialog({
       title: "Publish Changes",
       desc: "The Changes will be publish",
-      onConfirmed: () => applyDraft(),
-      isLoading: () => applyDraftPendingRef.current,
+      onConfirmed: () => applyDraftAsync(),
     });
   return (
     <section>

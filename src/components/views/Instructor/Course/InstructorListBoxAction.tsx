@@ -4,7 +4,7 @@ import { informationDialog } from "@/components/commons/Dialog/informationDialog
 import useCourse from "@/hooks/course/useCourse";
 import { Input, Listbox, ListboxItem, Textarea, usePopoverContext } from "@heroui/react";
 import { useRouter } from "next/router";
-import { Fragment, useEffect, useRef } from "react";
+import { Fragment } from "react";
 import { UseFormReturn, useForm } from "react-hook-form";
 import {
   LuBookmark,
@@ -28,18 +28,12 @@ const InstructorListBoxAction = ({
   courseId: number;
   course: CourseListItem;
 }) => {
-  const { publishCourse, cancelPublishReq, hasPending, deleteCourse, pending } = useCourse(courseId, {
+  const { publishCourseAsync, cancelPublishReqAsync, deleteCourseAsync } = useCourse(courseId, {
     immediatlyQuery: false,
   });
   const { state: menuState } = usePopoverContext();
   const notesMethods = useForm<NotesForm>();
   const router = useRouter();
-  const publishPendingRef = useRef(pending.publishCoursePending);
-  const cancelPendingRef = useRef(pending.isPendingCancelPublishReq);
-  useEffect(() => {
-    publishPendingRef.current = pending.publishCoursePending;
-    cancelPendingRef.current = pending.isPendingCancelPublishReq;
-  }, [hasPending, pending.publishCoursePending]);
   // if (queryPending)
   //   return (
   //     <Listbox variant="light" color="primary" aria-label="Actions" onAction={menuState.close}>
@@ -67,8 +61,7 @@ const InstructorListBoxAction = ({
     FormWrapperDialog({
       title: "Publish Course Request",
       content: <PublishCourseForm methods={notesMethods} />,
-      onSubmit: () => publishCourse({ notes: notesMethods.getValues("notes"), id: courseId }),
-      isLoading: () => publishPendingRef.current,
+      onSubmit: async () => publishCourseAsync({ notes: notesMethods.getValues("notes"), id: courseId }),
     });
   };
 
@@ -77,8 +70,7 @@ const InstructorListBoxAction = ({
       title: `Cancel publish request`,
       desc: "This action cannot be undone. You will need to submit a new publish request if you wish to proceed in the future.",
       isDestructive: true,
-      onConfirmed: () => cancelPublishReq(courseId),
-      isLoading: () => cancelPendingRef.current,
+      onConfirmed: () => cancelPublishReqAsync(courseId),
     });
 
   const onDeleteCourse = () =>
@@ -86,8 +78,7 @@ const InstructorListBoxAction = ({
       title: `Delete Course "${course?.metaDraft.title}"`,
       desc: "This action cannot be undone. The entire course sections and lesson will be deleted",
       isDestructive: true,
-      onConfirmed: () => deleteCourse(courseId),
-      isLoading: () => cancelPendingRef.current,
+      onConfirmed: () => deleteCourseAsync(courseId),
     });
 
   const onShowNotes = () =>

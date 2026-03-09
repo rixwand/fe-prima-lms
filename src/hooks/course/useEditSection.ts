@@ -50,7 +50,7 @@ export default function useEditSection({
       });
   }, [isError, error]);
 
-  const { mutate: createSection, isPending: createSectionPendig } = useMutation({
+  const { mutate: createSection, mutateAsync: createSectionAsync, isPending: createSectionPendig } = useMutation({
     mutationFn: ({ courseId: id, sections }: { courseId?: number; sections: string[] }) =>
       courseSectionService.create({ courseId: id || courseId, sections }),
     onError: error => {
@@ -67,7 +67,7 @@ export default function useEditSection({
     },
   });
 
-  const { mutate: removeSection, isPending: removeSectionPending } = useMutation({
+  const { mutate: removeSection, mutateAsync: removeSectionAsync, isPending: removeSectionPending } = useMutation({
     mutationFn: courseSectionService.delete,
     onError: error => {
       addToast({
@@ -83,7 +83,7 @@ export default function useEditSection({
     },
   });
 
-  const { mutate: reorderSection, isPending: reorderSectionPending } = useMutation({
+  const { mutate: reorderSection, mutateAsync: reorderSectionAsync, isPending: reorderSectionPending } = useMutation({
     mutationFn: courseSectionService.reorder,
     onError: error => {
       addToast({
@@ -99,7 +99,7 @@ export default function useEditSection({
     },
   });
 
-  const { mutate: renameSection, isPending: renameSectionPending } = useMutation({
+  const { mutate: renameSection, mutateAsync: renameSectionAsync, isPending: renameSectionPending } = useMutation({
     mutationFn: courseSectionService.rename,
     onError: error => {
       addToast({
@@ -115,7 +115,11 @@ export default function useEditSection({
     },
   });
 
-  const { mutate: removeManySections, isPending: removeManySectionsPending } = useMutation({
+  const {
+    mutate: removeManySections,
+    mutateAsync: removeManySectionsAsync,
+    isPending: removeManySectionsPending,
+  } = useMutation({
     mutationFn: courseSectionService.deleteMany,
     onError: error => {
       addToast({
@@ -133,12 +137,17 @@ export default function useEditSection({
 
   return {
     createSection,
+    createSectionAsync,
     refetch,
     querySections,
     removeSection,
+    removeSectionAsync,
     reorderSection,
+    reorderSectionAsync,
     renameSection,
+    renameSectionAsync,
     removeManySections,
+    removeManySectionsAsync,
     isPending: {
       createSectionPendig,
       refetchPending,

@@ -38,7 +38,7 @@ const CourseSectionItem: React.FC<{
   const isOpen = React.useMemo(() => expanded.has(section.id), [expanded, section.id]);
   const { courseId } = useLessonEditorContext();
   const qc = useQueryClient();
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync: publishSectionAsync, isPending } = useMutation({
     mutationFn: courseSectionService.publish,
     onError: error => {
       addToast({
@@ -58,11 +58,6 @@ const CourseSectionItem: React.FC<{
       });
     },
   });
-  const publishSectionPendingRef = React.useRef(isPending);
-  React.useEffect(() => {
-    publishSectionPendingRef.current = isPending;
-  }, [isPending]);
-
   const containsActiveLesson = React.useMemo(
     () => section.lessons.some(lesson => lesson.id === activeLessonId),
     [section.lessons, activeLessonId],
@@ -79,10 +74,7 @@ const CourseSectionItem: React.FC<{
     confirmDialog({
       title: "Publish Section",
       desc: "Every lesson published underneath this section will visible to student",
-      onConfirmed() {
-        mutate({ courseId, sectionId: section.id });
-      },
-      isLoading: () => publishSectionPendingRef.current,
+      onConfirmed: () => publishSectionAsync({ courseId, sectionId: section.id }),
     });
   React.useEffect(() => {
     if (containsActiveLesson) {
