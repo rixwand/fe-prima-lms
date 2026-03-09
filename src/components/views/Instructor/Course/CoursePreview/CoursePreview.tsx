@@ -228,7 +228,7 @@ const DescTab = ({
 function DiscountItem({ discount, priceAmount }: { discount: Discount; priceAmount: number }) {
   if (!discount.isActive) return null;
 
-  const discountAmount = discount.type === "FIXED" ? discount.value : priceAmount * (discount.value / 100);
+  const discountAmount = discount.type === "FIXED" ? Number(discount.value) : priceAmount * (discount.value / 100);
 
   return (
     <div className="mt-2 flex items-center justify-between">
