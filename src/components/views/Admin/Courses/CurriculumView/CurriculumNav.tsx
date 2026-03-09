@@ -7,8 +7,6 @@ import courseQueries from "@/queries/course-queries";
 import {
   Button,
   Link,
-  Listbox,
-  ListboxItem,
   Navbar,
   NavbarContent,
   NavbarItem,
@@ -19,8 +17,9 @@ import {
 import { useOverlayTriggerState } from "@react-stately/overlays";
 import { useQuery } from "@tanstack/react-query";
 import { Fragment, ReactNode, useState } from "react";
-import { LuArrowLeft, LuCircleX, LuEllipsisVertical, LuFileCheck2, LuFileText } from "react-icons/lu";
+import { LuArrowLeft, LuEllipsisVertical } from "react-icons/lu";
 import { RiMenuFold4Line, RiMenuUnfold4Line } from "react-icons/ri";
+import AdminListBoxAction from "../AdminListBoxActions";
 import { SectionsTree } from "./SectionsTree";
 
 type Props = {
@@ -53,8 +52,8 @@ export default function CurriculumNav({ children, sections, courseId }: Props) {
               </Link>
             </NavbarItem>
           </NavbarContent>
-          <NavbarContent justify="center" className="">
-            <p className="font-semibold text-slate-700 truncate max-w-52 flex-1">{course?.metaDraft.title}</p>
+          <NavbarContent justify="center" className="max-w-[65%]">
+            <p className="font-semibold text-slate-700 truncate  flex-1">{course?.metaDraft.title}</p>
           </NavbarContent>
           <NavbarContent justify="end" className="max-w-1/2">
             <NavbarItem className="md:hidden">
@@ -73,7 +72,7 @@ export default function CurriculumNav({ children, sections, courseId }: Props) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="p-2 w-44">
-                  <Listbox variant="light" color="primary" aria-label="Actions" onAction={menuState.close}>
+                  {/* <Listbox variant="light" color="primary" aria-label="Actions" onAction={menuState.close}>
                     <ListboxItem onPress={e => {}} startContent={<LuFileCheck2 />} key="approve">
                       Approve
                     </ListboxItem>
@@ -88,7 +87,20 @@ export default function CurriculumNav({ children, sections, courseId }: Props) {
                       key="decline">
                       Decline
                     </ListboxItem>
-                  </Listbox>
+                  </Listbox> */}
+                  {course && course.publishRequest && (
+                    <AdminListBoxAction
+                      {...{
+                        courseTitle:
+                          course.publishRequest.status == "APPROVED"
+                            ? course.metaApproved.title
+                            : course.metaDraft.title,
+                        reqId: course.publishRequest.id,
+                        reqStatus: course.publishRequest.status,
+                        notes: course.publishRequest.notes,
+                      }}
+                    />
+                  )}
                 </PopoverContent>
               </Popover>
             </NavbarItem>

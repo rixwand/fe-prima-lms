@@ -1,9 +1,10 @@
 import { getErrorMessage } from "@/libs/axios/error";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
+import courseQueries from "@/queries/course-queries";
 import courseSectionService from "@/services/course-section.service";
 import { AppAxiosError } from "@/types/axios";
 import { addToast } from "@heroui/react";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { useEffect } from "react";
 
@@ -13,34 +14,32 @@ export default function useEditSection({
   onReorderSectionSuccess = () => {},
   onRenameSectionSuccess = () => {},
   onRemoveManySectionsSuccess = () => {},
+  immediatlyFetch = false,
 }: {
   onCreateSectionSuccess?: () => void;
   onRemoveSectionSuccess?: () => void;
   onReorderSectionSuccess?: () => void;
   onRenameSectionSuccess?: (variables: { courseId: number; sectionId: number; title: string }) => void;
   onRemoveManySectionsSuccess?: () => void;
+  immediatlyFetch?: boolean;
 }) {
   const { courseId } = useEditCourseContext();
   const qc = useQueryClient();
-  const invalidateQueries = () =>
+  const invalidateQueries = () => {
     qc.invalidateQueries({
-      queryKey: ["courseSections", courseId],
+      queryKey: courseQueries.keys.listSections(courseId),
     });
+    qc.invalidateQueries({
+      queryKey: courseQueries.keys.getCourse(courseId),
+    });
+  };
   const {
     data: querySections,
     refetch,
     isLoading: refetchPending,
     isError,
     error,
-  } = useQuery<{ courseTitle: string; sections: CourseSection[] }>({
-    queryKey: ["courseSections", courseId],
-    queryFn: () =>
-      courseSectionService.list(courseId).then(res => {
-        return res.data;
-      }),
-    enabled: false,
-    placeholderData: keepPreviousData,
-  });
+  } = useQuery({ ...courseQueries.options.listSections(courseId), enabled: immediatlyFetch });
 
   useEffect(() => {
     if (isError && error)

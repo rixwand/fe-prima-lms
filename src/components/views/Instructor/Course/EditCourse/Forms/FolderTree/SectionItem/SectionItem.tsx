@@ -16,7 +16,16 @@ import { StateType } from "@/types/Helper";
 import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button, Listbox, ListboxItem, Popover, PopoverContent, PopoverTrigger, addToast } from "@heroui/react";
+import {
+  Button,
+  Listbox,
+  ListboxItem,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Spinner,
+  addToast,
+} from "@heroui/react";
 import { useOverlayTriggerState } from "@react-stately/overlays";
 import { CSSProperties, FC, Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -86,7 +95,7 @@ const CourseSectionItem: FC<{
   } as CSSProperties;
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
-  const { control, getValues, setValue } = useFormContext<EditCourseForm>();
+  const { control, getValues } = useFormContext<EditCourseForm>();
   const idIdx = getValues("sections")!.findIndex(s => s.id == section.id);
   const { fields, move, replace } = useFieldArray({
     control,
@@ -147,7 +156,7 @@ const CourseSectionItem: FC<{
     });
   };
 
-  const { createLessons, isLoading, queryLessons, reorderLessons, batchRemoveLesson } = useEditLessonList({
+  const { createLessons, isLoading, reorderLessons, batchRemoveLesson } = useEditLessonList({
     sectionId: section.id!,
     onCreateLessonSuccess() {
       setNewLesson(null);
@@ -159,19 +168,17 @@ const CourseSectionItem: FC<{
       setEditLesson(false);
     },
   });
-
+  const batchRemoveLessonPendingRef = useRef(isLoading.batchRemoveLessonPending);
   useEffect(() => {
-    if (queryLessons) {
-      setValue(`sections.${idIdx}.lessons`, queryLessons);
-    }
-  }, [queryLessons]);
+    batchRemoveLessonPendingRef.current = isLoading.batchRemoveLessonPending;
+  }, [isLoading.batchRemoveLessonPending]);
 
   const handleSubmitLesson = () => {
     if (!newLesson) return;
     return createLessons([{ title: newLesson }]);
   };
   const handleSubmitReorderLesson = () => {
-    const base = queryLessons || defaultLessons;
+    const base = defaultLessons;
     const changes = fields.map(({ fieldId: _fId, position: _pos, ...v }, i) => ({ position: i + 1, ...v }));
     const reorderList = diffList(base, changes as Lesson[], { props: ["position"] });
     if (reorderList.length == 0) return setEditLesson(false);
@@ -193,7 +200,8 @@ const CourseSectionItem: FC<{
     return confirmDialog({
       title: "Remove Lessons ?",
       desc: `This action will permananently remove ${selectedLesson.size} lesson${selectedLesson.size > 1 ? "s" : ""}`,
-      isLoading: isLoading.batchRemoveLessonPending,
+      isDestructive: true,
+      isLoading: () => batchRemoveLessonPendingRef.current,
       onConfirmed: () => batchRemoveLesson([...selectedLesson]),
     });
   };
@@ -264,10 +272,20 @@ const CourseSectionItem: FC<{
               variant="flat"
               color="primary"
               isIconOnly
-              className="reset-button p-2 rounded-md ml-1"
+              className={cn("reset-button ml-1 rounded-md", isPending.renameSectionPending ? "p-0" : "p-2")}
               size="sm"
               radius="none">
-              <LuCheck />
+              {isPending.renameSectionPending ? (
+                <Spinner
+                  classNames={{
+                    circle1: "w-4 h-4 border-2",
+                    circle2: "w-4 h-4 border-2",
+                    wrapper: "w-7 h-7 p-0 m-0 items-center justify-center",
+                  }}
+                />
+              ) : (
+                <LuCheck />
+              )}
             </Button>
           </span>
         ) : (
@@ -433,10 +451,20 @@ const CourseSectionItem: FC<{
                     variant="flat"
                     color="primary"
                     isIconOnly
-                    className="reset-button p-2 rounded-md"
+                    className={cn("reset-button rounded-md", isLoading.createLessonPending ? "p-0" : "p-2")}
                     size="sm"
                     radius="none">
-                    <LuCheck />
+                    {isLoading.createLessonPending ? (
+                      <Spinner
+                        classNames={{
+                          circle1: "w-4 h-4 border-2",
+                          circle2: "w-4 h-4 border-2",
+                          wrapper: "w-7 h-7 p-0 m-0 items-center justify-center",
+                        }}
+                      />
+                    ) : (
+                      <LuCheck />
+                    )}
                   </Button>
                 </span>
               </li>

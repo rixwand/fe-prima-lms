@@ -5,6 +5,7 @@ type QueryPublishCourse = {
   status: PublishCourseStatus;
   createdAt: string; // ISO date string
   type: "NEW" | "UPDATE";
+  notes: string;
   courseId: number;
   course: {
     slug: string;

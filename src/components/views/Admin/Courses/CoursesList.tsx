@@ -60,10 +60,7 @@ export default function CoursesList({
                 }}
                 LisBoxActions={
                   <AdminListBoxAction
-                    courseTitle={c.course.metaDraft.title}
-                    courseStatus={c.status}
-                    reqId={c.id}
-                    courseId={c.courseId}
+                    {...{ courseTitle: c.course.metaDraft.title, reqId: c.id, reqStatus: c.status, notes: c.notes }}
                   />
                 }
                 owner={c.course.owner}

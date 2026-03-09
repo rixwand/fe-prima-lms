@@ -72,14 +72,16 @@ export default function usePublishCourses({
   });
 
   useQueryError({ isError, error });
-  const hasPending = hasTrue({
+  const pending = {
     isPendingRejectCourse,
     isLoading,
     isPendingApproveCourse,
-  });
+  };
+  const hasPending = hasTrue(pending);
   useNProgress(hasPending);
   return {
     hasPending,
+    pending,
     isQueryLoading: isLoading,
     queryCourses,
     rejectCourse,

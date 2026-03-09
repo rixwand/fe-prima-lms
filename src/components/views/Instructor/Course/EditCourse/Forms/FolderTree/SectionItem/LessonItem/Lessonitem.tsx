@@ -9,7 +9,17 @@ import { cn } from "@/libs/tiptap/tiptap-utils";
 import { toRoundedMinutes } from "@/libs/utils/string";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button, Input, Listbox, ListboxItem, Popover, PopoverContent, PopoverTrigger, addToast } from "@heroui/react";
+import {
+  Button,
+  Input,
+  Listbox,
+  ListboxItem,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Spinner,
+  addToast,
+} from "@heroui/react";
 import { CSSProperties, Fragment, useEffect, useRef, useState } from "react";
 import {
   LuCheck,
@@ -78,12 +88,17 @@ const CourseLessonItem = ({
     },
     enableQueryContent: false,
   });
+  const removeLessonPendingRef = useRef(pending.removeLessonPending);
+  useEffect(() => {
+    removeLessonPendingRef.current = pending.removeLessonPending;
+  }, [pending.removeLessonPending]);
 
   const handleDeleteLesson = () => {
     return confirmDialog({
       title: "Remove lesson ?",
       desc: `This action will permanently remove "${lesson.title}" lesson`,
-      isLoading: pending.removeLessonPending,
+      isDestructive: true,
+      isLoading: () => removeLessonPendingRef.current,
       onConfirmed: () => removeLesson(),
     });
   };
@@ -162,10 +177,20 @@ const CourseLessonItem = ({
               variant="flat"
               color="primary"
               isIconOnly
-              className="reset-button p-2 rounded-md"
+              className={cn("reset-button rounded-md", pending.updateLessonPending ? "p-0" : "p-2")}
               size="sm"
               radius="none">
-              <LuCheck />
+              {pending.updateLessonPending ? (
+                <Spinner
+                  classNames={{
+                    circle1: "w-4 h-4 border-2",
+                    circle2: "w-4 h-4 border-2",
+                    wrapper: "w-7 h-7 p-0 m-0 items-center justify-center",
+                  }}
+                />
+              ) : (
+                <LuCheck />
+              )}
             </Button>
           </Fragment>
         ) : (

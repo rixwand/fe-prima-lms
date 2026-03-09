@@ -8,9 +8,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNProgress } from "../use-nProgress";
 import { useQueryError } from "../use-query-error";
 
-const useCourse = (id: number, option?: { refetchOnMutateSuccess: boolean }) => {
+const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; immediatlyQuery?: boolean }) => {
   const qc = useQueryClient();
-  const { data: course, isError, isPending, error, refetch } = useQuery(courseQueries.options.getCourse(id));
+  const {
+    data: course,
+    isError,
+    isFetching,
+    error,
+    refetch,
+  } = useQuery({ ...courseQueries.options.getCourse(id), enabled: option?.immediatlyQuery ?? false });
   const invalidateCourse = () => {
     qc.invalidateQueries({ queryKey: courseQueries.keys.getCourse(id), refetchType: "active" });
     qc.invalidateQueries({ queryKey: courseQueries.keys.listCourses(), refetchType: "active" });
@@ -129,9 +135,8 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess: boolean }) => 
       });
     },
   });
-
-  const hasPending = hasTrue({
-    isPending,
+  const pending = {
+    isFetching,
     isPendingUpdate,
     isPendingTags,
     isPendingDeleteDiscount,
@@ -140,11 +145,12 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess: boolean }) => 
     deleteCoursePending,
     isPendingApplyDraft,
     isPendingCategories,
-  });
+  };
+  const hasPending = hasTrue(pending);
 
   useNProgress(hasPending);
   return {
-    queryPending: isPending,
+    queryPending: isFetching,
     queryError: error,
     queryIsError: isError,
     hasPending,
@@ -159,6 +165,7 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess: boolean }) => 
     applyDraft,
     updateCategories,
     refetch,
+    pending,
   };
 };
 export default useCourse;

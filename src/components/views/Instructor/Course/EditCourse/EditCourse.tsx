@@ -161,6 +161,7 @@ export default function EditCourse({
     confirmDialog({
       title: "Discard changes?",
       desc: "Unsaved changes will be lost if you leave this tab.",
+      isDestructive: true,
       onConfirmed: () => {
         methods.setValue("tags", undefined, { shouldDirty: true }); // reset RHF form
         if (pendingKeyRef.current != null) {
@@ -316,7 +317,7 @@ export default function EditCourse({
                 <UserCourseCard
                   disabled
                   course={{
-                    slug: toSlug(title),
+                    slug: toSlug(title ?? "course title"),
                     metaApproved: {
                       ...metaDraft,
                       title,

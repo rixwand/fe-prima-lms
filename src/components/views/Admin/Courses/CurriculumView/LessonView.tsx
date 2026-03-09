@@ -16,7 +16,7 @@ export default function Lessonview({ activeLesson }: { activeLesson: LessonPathI
     }
   }, [lessonContent]);
   return (
-    <div className="w-full flex justify-center">
+    <div className="w-full flex justify-center md:mt-0 mt-11">
       <TiptapViewer
         className="px-5 max-w-[min(960px,100%)]"
         json={(blockPreview as JSONContent) || { type: "doc", content: [] }}

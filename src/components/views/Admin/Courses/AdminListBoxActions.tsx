@@ -2,40 +2,42 @@ import FormWrapperDialog from "@/components/commons/Dialog/FormDialog";
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import { informationDialog } from "@/components/commons/Dialog/informationDialog";
 import RejectCourseForm, { NotesForm } from "@/components/commons/Forms/RejectCourseForm/RejectCourseForm";
-import useCourse from "@/hooks/course/useCourse";
 import usePublishCourses from "@/hooks/course/useListPublishRequest";
-import useDump from "@/hooks/use-dump";
 import { Listbox, ListboxItem, usePopoverContext } from "@heroui/react";
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { LuCircleX, LuFileCheck2, LuFileText, LuGlobeLock } from "react-icons/lu";
 
 const AdminListBoxAction = ({
-  courseStatus,
   courseTitle,
   reqId,
-  courseId,
+  reqStatus,
+  notes,
 }: {
-  courseId: number;
-  courseStatus: string;
   courseTitle: string;
   reqId: number;
+  notes?: string | null;
+  reqStatus: PublishCourseStatus;
 }) => {
-  const { rejectCourse, approveCourse } = usePublishCourses();
+  const { rejectCourse, approveCourse, pending } = usePublishCourses();
   const notesMethods = useForm<NotesForm>();
-  const { course } = useCourse(courseId);
-  useDump(course);
+  const rejectPendingRef = useRef(pending.isPendingRejectCourse);
+  const approvePendingRef = useRef(pending.isPendingApproveCourse);
+  useEffect(() => {
+    rejectPendingRef.current = pending.isPendingRejectCourse;
+    approvePendingRef.current = pending.isPendingApproveCourse;
+  }, [pending.isPendingApproveCourse, pending.isPendingRejectCourse]);
+  // const { course } = useCourse(courseId);
   const { state: menuState } = usePopoverContext();
   const onCourseReject = () =>
     FormWrapperDialog({
       title: "Decline Course Publish Request",
       content: <RejectCourseForm methods={notesMethods} courseTitle={courseTitle} />,
-      // TODO: create a context for reqId
-      onSubmit: async () => rejectCourse({ notes: notesMethods.getValues("notes"), reqId }),
+      onSubmit: () => rejectCourse({ notes: notesMethods.getValues("notes"), reqId }),
+      isLoading: () => rejectPendingRef.current,
     });
 
-  const onShowNotes = () =>
-    informationDialog({ title: "Course Publish Request Notes", desc: course?.publishRequest?.notes || "" });
+  const onShowNotes = () => informationDialog({ title: "Course Publish Request Notes", desc: notes || "" });
 
   const onCourseApprove = () =>
     confirmDialog({
@@ -44,11 +46,12 @@ const AdminListBoxAction = ({
       onConfirmed() {
         approveCourse(reqId);
       },
+      isLoading: () => approvePendingRef.current,
     });
 
   return (
     <Listbox variant="light" color="primary" aria-label="Actions" onAction={menuState.close}>
-      {courseStatus == "PENDING" ? (
+      {reqStatus == "PENDING" ? (
         <Fragment>
           <ListboxItem onPress={onCourseApprove} startContent={<LuFileCheck2 />} key="approve">
             Approve

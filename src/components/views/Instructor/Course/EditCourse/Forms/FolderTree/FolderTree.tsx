@@ -19,8 +19,8 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Button, cn } from "@heroui/react";
-import { UseFieldArrayReturn, useFormContext } from "react-hook-form";
+import { Button, Spinner, cn } from "@heroui/react";
+import { UseFieldArrayReturn } from "react-hook-form";
 import { LuCheck, LuListPlus } from "react-icons/lu";
 import CourseSectionItem from "./SectionItem";
 
@@ -44,9 +44,8 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
   newSectionState: [newSection, setNewSection],
   selectState: [selected, setSelected],
   defaultValue,
-  fieldArray: { fields, move },
+  fieldArray: { fields, move, replace },
 }) => {
-  const { control, reset } = useFormContext<EditCourseForm>();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, {
@@ -100,20 +99,25 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
 
   const { courseId, showPublished } = useEditCourseContext();
 
-  const { createSection, querySections, removeSection, isPending } = useEditSection({
+  const { createSection, removeSection, isPending } = useEditSection({
     onCreateSectionSuccess() {
       setNewSection(null);
     },
   });
+  const removeSectionPendingRef = React.useRef(isPending.removeSectionPending);
+  React.useEffect(() => {
+    removeSectionPendingRef.current = isPending.removeSectionPending;
+  }, [isPending.removeSectionPending]);
 
   const handleRemoveSection = (id: number, title: string) => {
     return confirmDialog({
       title: "Remove Section",
       desc: `This action will permananently delete "${title}" section`,
+      isDestructive: true,
       onConfirmed() {
         removeSection({ courseId, sectionId: id });
       },
-      isLoading: isPending.removeSectionPending,
+      isLoading: () => removeSectionPendingRef.current,
     });
   };
 
@@ -124,9 +128,6 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
 
   useNProgress(hasTrue(isPending));
 
-  React.useEffect(() => {
-    if (querySections) reset({ sections: querySections?.sections.map(section => ({ ...section })) });
-  }, [querySections, reset]);
   return (
     <DndContext
       sensors={sensors}
@@ -147,11 +148,7 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
                   expandState={expandedState}
                   onCheck={() => toggleSelect(section.id!)}
                   isChecked={selected.has(section.id!)}
-                  defaultLessons={
-                    querySections
-                      ? querySections.sections.filter(s => s.id == section.id!)[0]?.lessons
-                      : defaultValue.filter(s => s.id == section.id)[0].lessons
-                  }
+                  defaultLessons={defaultValue.filter(s => s.id == section.id)[0]?.lessons ?? []}
                 />
               ),
           )}
@@ -194,10 +191,21 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
                 variant="flat"
                 color="primary"
                 isIconOnly
-                className="reset-button p-2 ml-1 rounded-md"
                 size="sm"
+                disabled={isPending.createSectionPendig}
+                className={cn("reset-button ml-1 rounded-md", isPending.createSectionPendig ? "p-0" : "p-2")}
                 radius="none">
-                <LuCheck />
+                {isPending.createSectionPendig ? (
+                  <Spinner
+                    classNames={{
+                      circle1: "w-4 h-4 border-2",
+                      circle2: "w-4 h-4 border-2",
+                      wrapper: "w-7 h-7 p-0 m-0 items-center justify-center",
+                    }}
+                  />
+                ) : (
+                  <LuCheck />
+                )}
               </Button>
             </span>
           </li>
@@ -213,11 +221,7 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
               onSelect={onSelect}
               expandState={expandedState}
               isChecked={selected.has(activeId)}
-              defaultLessons={
-                querySections
-                  ? querySections.sections.filter(s => s.id == activeId)[0].lessons
-                  : defaultValue.filter(s => s.id == activeId)[0].lessons
-              }
+              defaultLessons={defaultValue.filter(s => s.id == activeId)[0].lessons}
             />
           </div>
         </DragOverlay>

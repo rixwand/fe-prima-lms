@@ -13,6 +13,7 @@ import {
 import { useRouter } from "next/router";
 import { Fragment } from "react";
 import { LuArrowLeft, LuEllipsisVertical } from "react-icons/lu";
+import AdminListBoxAction from "../AdminListBoxActions";
 
 export default function AdminCourseInfo({ course }: { course: Course }) {
   const router = useRouter();
@@ -42,10 +43,17 @@ export default function AdminCourseInfo({ course }: { course: Course }) {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="p-2 w-44">
-                {/* <AdminListBoxAction
-                reqId={}
-                courseTitle={course.title} courseStatus={course.status} courseId={course.id} /> */}
-                <></>
+                {course && course.publishRequest && (
+                  <AdminListBoxAction
+                    {...{
+                      courseTitle:
+                        course.publishRequest.status == "APPROVED" ? course.metaApproved.title : course.metaDraft.title,
+                      reqId: course.publishRequest.id,
+                      reqStatus: course.publishRequest.status,
+                      notes: course.publishRequest.notes,
+                    }}
+                  />
+                )}
               </PopoverContent>
             </Popover>
           </NavbarItem>

@@ -11,6 +11,7 @@ import { useEffect } from "react";
 
 type TUseEditLesson = {
   sectionId: number;
+  immediatlyFetch?: boolean;
   onReorderLessonSuccess?: VoidFn;
   onCreateLessonSuccess?: VoidFn;
   onBatchRemoveLessonSuccess?: VoidFn;
@@ -20,13 +21,23 @@ export default function useEditLessonList({
   onCreateLessonSuccess = voidFn,
   onReorderLessonSuccess = voidFn,
   onBatchRemoveLessonSuccess = voidFn,
+  immediatlyFetch = false,
 }: TUseEditLesson) {
   const { courseId } = useEditCourseContext();
   const qc = useQueryClient();
   const ids = { courseId, sectionId };
-  const invalidateQueries = () =>
+  const invalidateQueries = () => {
     qc.invalidateQueries({ queryKey: courseQueries.keys.listLessons({ sectionId, courseId }) });
-  const { isLoading, data: queryLessons, refetch, isError, error } = useQuery(courseQueries.options.listLessons(ids));
+    qc.invalidateQueries({ queryKey: courseQueries.keys.listSections(courseId) });
+    qc.invalidateQueries({ queryKey: courseQueries.keys.getCourse(courseId) });
+  };
+  const {
+    isLoading,
+    data: queryLessons,
+    refetch,
+    isError,
+    error,
+  } = useQuery({ ...courseQueries.options.listLessons(ids), enabled: immediatlyFetch });
 
   useEffect(() => {
     if (isError && error)

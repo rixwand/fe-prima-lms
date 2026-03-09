@@ -7,7 +7,7 @@ import { applyDiscounts, convertLocal } from "@/libs/utils/currency";
 import { hasDirty } from "@/libs/utils/rhf";
 import { Button, DatePicker, Select, SelectItem, Switch } from "@heroui/react";
 import { parseAbsoluteToLocal } from "@internationalized/date";
-import { Fragment, useMemo, useRef } from "react";
+import { Fragment, useEffect, useMemo, useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { HiSelector } from "react-icons/hi";
 import { LuTrash2, LuUndo2 } from "react-icons/lu";
@@ -41,16 +41,22 @@ export default function PricingPanel({
     resetField("priceAmount");
   };
 
-  const { deleteDiscount, isSuccessDeleteDiscount } = useCourse(courseId);
+  const { deleteDiscount, isSuccessDeleteDiscount, pending } = useCourse(courseId);
+  const deleteDiscountPendingRef = useRef(pending.isPendingDeleteDiscount);
+  useEffect(() => {
+    deleteDiscountPendingRef.current = pending.isPendingDeleteDiscount;
+  }, [pending.isPendingDeleteDiscount]);
 
   const removeDiscount = () => {
     confirmDialog({
       title: "Remove Discount?",
       desc: "This action will remove discount",
+      isDestructive: true,
       onConfirmed: () => {
         if (discountId) deleteDiscount({ id: discountId, courseId });
         if (!discountId || isSuccessDeleteDiscount) setValue("discount", undefined);
       },
+      isLoading: () => deleteDiscountPendingRef.current,
     });
   };
 

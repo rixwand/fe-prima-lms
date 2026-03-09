@@ -16,7 +16,7 @@ export default function useModalAddLessons({
       fieldName: "lessons",
       content: <AddLessonsForm rhfMethods={addLessonsMethods} />,
       title: "Add Lessons",
-      async onSubmit() {
+      onSubmit() {
         const newLessons = addLessonsMethods.getValues().lessons;
         if (newLessons.length == 0) return;
         return createLessons(newLessons);

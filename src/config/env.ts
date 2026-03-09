@@ -6,3 +6,6 @@ export const SUPABASE_ANON_KEY: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_K
 export const SUPABASE_BUCKET: string = process.env.NEXT_PUBLIC_SUPABASE_BUCKET as string;
 
 export const SITE_URL: string = process.env.NEXT_PUBLIC_SITE_URL as string;
+
+const parsedDelay = Number(process.env.NEXT_PUBLIC_AXIOS_SIMULATED_DELAY_MS ?? "3000");
+export const AXIOS_SIMULATED_DELAY_MS: number = Number.isFinite(parsedDelay) ? Math.max(0, parsedDelay) : 3000;

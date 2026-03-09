@@ -5,7 +5,9 @@ import { useNProgress } from "@/hooks/use-nProgress";
 import { useLessonEditorContext } from "@/libs/context/LessonEditorContext";
 import { hasTrue } from "@/libs/utils/boolean";
 import { StateType } from "@/types/Helper";
+import { Spinner } from "@heroui/react";
 import { JSONContent } from "@tiptap/core";
+import { useEffect, useRef } from "react";
 
 type LessonEditorProps = {
   lessonState: StateType<Lesson | null>;
@@ -14,6 +16,10 @@ export default function LessonEditor({ lessonState }: LessonEditorProps) {
   const { ids } = useLessonEditorContext();
 
   const { lessonContent, updateLesson, pending, publishDraft } = useEditLesson({ idsPath: ids! });
+  const publishDraftPendingRef = useRef(pending.isPendingPublishDraft);
+  useEffect(() => {
+    publishDraftPendingRef.current = pending.isPendingPublishDraft;
+  }, [pending.isPendingPublishDraft]);
 
   // useEffect(() => {
   //   console.log(activeLesson?.title, " ", lessonContent);
@@ -25,8 +31,8 @@ export default function LessonEditor({ lessonState }: LessonEditorProps) {
     confirmDialog({
       title: "Publish Draft",
       desc: "The content in the draft will be published",
-      async onConfirmed() {
-        return publishDraft(
+      onConfirmed() {
+        publishDraft(
           { newDraft },
           {
             onSuccess,
@@ -36,11 +42,17 @@ export default function LessonEditor({ lessonState }: LessonEditorProps) {
           },
         );
       },
+      isLoading: () => publishDraftPendingRef.current,
     });
 
   useNProgress(hasTrue(pending));
 
-  if (pending.isPendingQuery) return null;
+  if (pending.isPendingQuery)
+    return (
+      <div className="min-h-full flex justify-center items-center">
+        <Spinner size="lg" />
+      </div>
+    );
   return (
     <SimpleEditor
       onSave={onSave}

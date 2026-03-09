@@ -23,16 +23,23 @@ export const useEditLesson = ({
   enableQueryContent,
 }: Props) => {
   const qc = useQueryClient();
-  const invalidateQueries = () =>
+  const invalidateQueries = () => {
     qc.invalidateQueries({
-      queryKey: ["section-lessons", idsPath.sectionId],
+      queryKey: courseQueries.keys.getLessonContent(idsPath),
     });
+    qc.invalidateQueries({
+      queryKey: courseQueries.keys.listLessons({ sectionId: idsPath.sectionId, courseId: idsPath.courseId }),
+    });
+    qc.invalidateQueries({ queryKey: courseQueries.keys.listSections(idsPath.courseId) });
+    qc.invalidateQueries({ queryKey: courseQueries.keys.getCourse(idsPath.courseId) });
+  };
 
   const {
     data: lessonContent,
     error,
     isError,
-    isLoading: isPendingQuery,
+    isLoading,
+    isFetching,
     refetch,
   } = useQuery(courseQueries.options.getLessonContent(idsPath, enableQueryContent));
 
@@ -91,7 +98,7 @@ export const useEditLesson = ({
     },
   });
   const pending = {
-    isPendingQuery,
+    isPendingQuery: hasTrue({ isFetching, isLoading }),
     updateLessonPending,
     removeLessonPending,
     isPendingPublishDraft,

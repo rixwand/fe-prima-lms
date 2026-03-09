@@ -47,7 +47,13 @@ export default function CoursesList({
               onPress={e => {
                 router.push(`/instructor/dashboard/course/${c.id}`);
               }}
-              LisBoxActions={<InstructorListBoxAction courseId={c.id} courseStatus={getCourseStatus({ ...c })} />}
+              LisBoxActions={
+                <InstructorListBoxAction
+                  course={{ ...c, metaDraft }}
+                  courseId={c.id}
+                  courseStatus={getCourseStatus({ ...c })}
+                />
+              }
             />
           ))}
         </div>

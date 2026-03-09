@@ -1,4 +1,5 @@
 import { endpoint } from "@/config/endpoint";
+import { AXIOS_SIMULATED_DELAY_MS } from "@/config/env";
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { getSession, signOut } from "next-auth/react";
 import { API_URL } from "../../config/env";
@@ -16,6 +17,8 @@ const api = axios.create({
 });
 
 let refreshPromise: Promise<string | null> | null = null;
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 function getAuthHeader(config: InternalAxiosRequestConfig) {
   const hdr = config.headers as Record<string, unknown> & { get?: (name: string) => string | undefined };
@@ -78,6 +81,10 @@ async function getRefreshedAccessToken() {
 
 api.interceptors.request.use(
   async config => {
+    if (AXIOS_SIMULATED_DELAY_MS > 0) {
+      await sleep(AXIOS_SIMULATED_DELAY_MS);
+    }
+
     const session = await getSession();
     if (session?.accessToken) setAuthHeader(config, session.accessToken);
     return config;

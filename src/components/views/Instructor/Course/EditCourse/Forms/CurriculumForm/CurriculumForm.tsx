@@ -95,20 +95,24 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
   const { setSentinelRef: sentinelPreviewRef, stuck: previewStuck } = useStickySentinel(previewParentRef);
   const { setSentinelRef: sentinelFormRef, stuck: formStuck } = useStickySentinel(parentFormRef);
 
-  const { querySections, isPending, reorderSection, removeManySections, createSection } = useEditSection({
+  const { isPending, reorderSection, removeManySections, createSection } = useEditSection({
     onReorderSectionSuccess() {
       setEditMode(false);
     },
   });
+  const removeSectionPendingRef = useRef(isPending.removeSectionPending);
+  useEffect(() => {
+    removeSectionPendingRef.current = isPending.removeSectionPending;
+  }, [isPending.removeSectionPending]);
 
   const resetSections = () => {
-    replace(querySections ? querySections.sections : defaultValue);
+    replace(defaultValue);
   };
 
   const handleSubmitReorder = () => {
     const sections = getValues("sections");
     if (!sections) return setEditMode(false);
-    const base = querySections ? querySections.sections : defaultValue;
+    const base = defaultValue;
     const changes = sections.map(({ position: _, ...section }, i) => ({ position: i + 1, ...section }));
     const dirtyValue = diffList(base, changes as CourseSection[], { props: ["position"] });
     if (dirtyValue.length == 0) return setEditMode(false);
@@ -120,10 +124,11 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
     return confirmDialog({
       title: "Remove batch Sections",
       desc: `This action will permananently delete "${selectState[0].size}" section`,
+      isDestructive: true,
       onConfirmed() {
         return removeManySections({ courseId, sectionIds: [...selectState[0]] });
       },
-      isLoading: isPending.removeSectionPending,
+      isLoading: () => removeSectionPendingRef.current,
     });
   };
 

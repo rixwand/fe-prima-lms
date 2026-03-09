@@ -5,10 +5,14 @@ import useCourse from "@/hooks/course/useCourse";
 import cn from "@/libs/utils/cn";
 import { getYouTubeEmbedUrl } from "@/libs/utils/string";
 import { Button, Code, Image, Skeleton } from "@heroui/react";
-import { Fragment, ReactNode } from "react";
+import { Fragment, ReactNode, useEffect, useRef } from "react";
 import { LuGlobe, LuTrash2 } from "react-icons/lu";
 export default function ReviewChanges({ courseId }: { courseId: number }) {
-  const { course, queryPending, queryError, applyDraft } = useCourse(courseId);
+  const { course, queryPending, queryError, applyDraft, pending } = useCourse(courseId);
+  const applyDraftPendingRef = useRef(pending.isPendingApplyDraft);
+  useEffect(() => {
+    applyDraftPendingRef.current = pending.isPendingApplyDraft;
+  }, [pending.isPendingApplyDraft]);
   if (!course && !queryPending) return <NotFound error={queryError} />;
   if (queryPending)
     return (
@@ -36,7 +40,12 @@ export default function ReviewChanges({ courseId }: { courseId: number }) {
     );
   const { metaApproved, metaDraft } = course!;
   const onSaveChanges = () =>
-    confirmDialog({ title: "Publish Changes", desc: "The Changes will be publish", onConfirmed: () => applyDraft() });
+    confirmDialog({
+      title: "Publish Changes",
+      desc: "The Changes will be publish",
+      onConfirmed: () => applyDraft(),
+      isLoading: () => applyDraftPendingRef.current,
+    });
   return (
     <section>
       <div className="space-y-6 rounded-2xl border border-slate-200 bg-white shadow-sm p-5 @container">

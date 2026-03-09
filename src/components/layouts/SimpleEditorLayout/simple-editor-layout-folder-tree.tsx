@@ -58,6 +58,10 @@ const CourseSectionItem: React.FC<{
       });
     },
   });
+  const publishSectionPendingRef = React.useRef(isPending);
+  React.useEffect(() => {
+    publishSectionPendingRef.current = isPending;
+  }, [isPending]);
 
   const containsActiveLesson = React.useMemo(
     () => section.lessons.some(lesson => lesson.id === activeLessonId),
@@ -78,6 +82,7 @@ const CourseSectionItem: React.FC<{
       onConfirmed() {
         mutate({ courseId, sectionId: section.id });
       },
+      isLoading: () => publishSectionPendingRef.current,
     });
   React.useEffect(() => {
     if (containsActiveLesson) {

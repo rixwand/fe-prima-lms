@@ -62,6 +62,7 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
         confirmDialog({
           title: "Discard changes?",
           desc: "Unsaved changes will be lost if you leave this tab.",
+          isDestructive: true,
           onConfirmed: () => switchLesson(lesson, path),
         });
     },
