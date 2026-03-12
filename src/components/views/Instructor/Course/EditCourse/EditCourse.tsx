@@ -317,6 +317,8 @@ export default function EditCourse({
                 <UserCourseCard
                   disabled
                   course={{
+                    categories: categories.map(({ name }) => ({ name, slug: toSlug(name) })),
+                    tags: tags,
                     slug: toSlug(title ?? "course title"),
                     metaApproved: {
                       ...metaDraft,

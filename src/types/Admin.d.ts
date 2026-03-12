@@ -19,6 +19,7 @@ type QueryPublishCourse = {
       draftTags: Tag[];
       draftCategories: Category[];
     };
+    metaApproved?: { payload: MetaCourse };
     discounts?: Discount[];
     owner: {
       username: string;

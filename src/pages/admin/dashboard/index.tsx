@@ -3,7 +3,7 @@ import Overview from "@/components/views/Admin/Overview";
 
 export default function AdminDashboard() {
   return (
-    <AdminLayout active="Overview">
+    <AdminLayout active="Overview" navTitle="Overview">
       <Overview />
     </AdminLayout>
   );

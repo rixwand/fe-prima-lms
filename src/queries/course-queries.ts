@@ -100,7 +100,7 @@ const courseQueries = {
         retry,
       }),
     listPublicCourseTags: (params?: ListCourseTagsParams) =>
-      queryOptions<{ tags: PublicTagListItem[]; meta: MetaData | null }>({
+      queryOptions<{ tags: PublicTag[]; meta: MetaData | null }>({
         queryKey: courseQueries.keys.listPublicCourseTags(params),
         queryFn: () =>
           courseService.PUBLIC.listTags(params)
@@ -113,7 +113,7 @@ const courseQueries = {
         retry,
       }),
     listCourseCategries: (params?: ListCoursesCategoriesParams) =>
-      queryOptions<{ categories: PublicCategory[]; meta: MetaData | null }>({
+      queryOptions<{ categories: BaseCategory[]; meta: MetaData | null }>({
         queryKey: courseQueries.keys.listCourseCategries(params),
         queryFn: () =>
           courseService.PUBLIC.listCategories(params)

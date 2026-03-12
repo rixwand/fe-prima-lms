@@ -1,34 +1,34 @@
-import CourseInfo from "@/components/commons/CourseInfo";
 import PageHead from "@/components/commons/PageHead";
-import {
-  Button,
-  Link,
-  Navbar,
-  NavbarContent,
-  NavbarItem,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@heroui/react";
+import { inter } from "@/libs/fonts";
+import cn from "@/libs/utils/cn";
+import courseQueries from "@/queries/course-queries";
+import { Button, Navbar, NavbarContent, NavbarItem, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { Fragment } from "react";
-import { LuArrowLeft, LuEllipsisVertical } from "react-icons/lu";
+import { LuChevronLeft, LuEllipsisVertical } from "react-icons/lu";
 import AdminListBoxAction from "../AdminListBoxActions";
+import CoursePreview from "./CoursePreview";
 
 export default function AdminCourseInfo({ course }: { course: Course }) {
   const router = useRouter();
+  const qc = useQueryClient();
+  const prefetch = () => qc.prefetchQuery(courseQueries.options.listSections(course.id));
   return (
     <Fragment>
-      <PageHead title={course.metaDraft.title} />
-      <Navbar isBordered maxWidth="full" className="md:px-2">
+      <PageHead title={course.metaDraft?.title ?? course.metaApproved.title} />
+      <Navbar isBordered maxWidth="full" className={cn("md:px-2", inter.className)}>
         <NavbarContent className="max-w-[calc(50%-64px)]">
           <NavbarItem className="w-[85%]">
-            <Link
-              href="/admin/dashboard/course"
-              className="flex items-center w-full gap-x-3 overflow-hidden text-slate-700">
-              <LuArrowLeft size={20} />
-              <p className="font-semibold hidden md:block text-slate-700 truncate flex-1">Course Preview</p>
-            </Link>
+            <Button
+              isIconOnly
+              onPress={() => router.push(`/admin/dashboard/course`)}
+              disableRipple
+              variant="light"
+              className="reset-button flex data-[hover=true]:bg-transparent items-center w-full overflow-hidden text-slate-700">
+              <LuChevronLeft size={20} />
+              <p className="ml-1 font-semibold hidden md:block text-slate-700 truncate flex-1">Course Preview</p>
+            </Button>
           </NavbarItem>
         </NavbarContent>
         <NavbarContent justify="end" className="max-w-1/2">
@@ -46,8 +46,7 @@ export default function AdminCourseInfo({ course }: { course: Course }) {
                 {course && course.publishRequest && (
                   <AdminListBoxAction
                     {...{
-                      courseTitle:
-                        course.publishRequest.status == "APPROVED" ? course.metaApproved.title : course.metaDraft.title,
+                      courseTitle: course.metaDraft?.title ?? course.metaApproved.title,
                       reqId: course.publishRequest.id,
                       reqStatus: course.publishRequest.status,
                       notes: course.publishRequest.notes,
@@ -59,7 +58,8 @@ export default function AdminCourseInfo({ course }: { course: Course }) {
           </NavbarItem>
         </NavbarContent>
       </Navbar>
-      <CourseInfo
+      <CoursePreview
+        prefetch={prefetch}
         data={course}
         onOpenCurriculum={() => {
           router.push(`/admin/dashboard/course/${course.id}/curriculum`);

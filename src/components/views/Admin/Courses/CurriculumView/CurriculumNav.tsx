@@ -16,6 +16,7 @@ import {
 } from "@heroui/react";
 import { useOverlayTriggerState } from "@react-stately/overlays";
 import { useQuery } from "@tanstack/react-query";
+import NextLink from "next/link";
 import { Fragment, ReactNode, useState } from "react";
 import { LuArrowLeft, LuEllipsisVertical } from "react-icons/lu";
 import { RiMenuFold4Line, RiMenuUnfold4Line } from "react-icons/ri";
@@ -46,6 +47,7 @@ export default function CurriculumNav({ children, sections, courseId }: Props) {
             <NavbarItem className="w-[85%] flex items-center">
               <Link
                 href={`/admin/dashboard/course/${activeLesson?.courseId}`}
+                as={NextLink}
                 className="flex items-center w-full gap-x-3 overflow-hidden text-slate-700">
                 <LuArrowLeft size={20} />
                 <p className="font-semibold hidden md:block truncate flex-1">Curriculum Preview</p>

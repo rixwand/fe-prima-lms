@@ -3,7 +3,7 @@ import Invoices from "@/components/views/Admin/Invoices";
 
 export default function InvoicesPage() {
   return (
-    <AdminLayout active="Invoices">
+    <AdminLayout active="Invoices" navTitle="Invoices">
       <Invoices />
     </AdminLayout>
   );

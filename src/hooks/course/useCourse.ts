@@ -8,7 +8,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNProgress } from "../use-nProgress";
 import { useQueryError } from "../use-query-error";
 
-const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; immediatlyQuery?: boolean }) => {
+const useCourse = (id: number, option: { refetchOnMutateSuccess?: boolean; enabled?: boolean } = { enabled: true }) => {
   const qc = useQueryClient();
   const {
     data: course,
@@ -16,7 +16,10 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
     isFetching,
     error,
     refetch,
-  } = useQuery({ ...courseQueries.options.getCourse(id), enabled: option?.immediatlyQuery ?? false });
+  } = useQuery({
+    ...courseQueries.options.getCourse(id),
+    enabled: option.enabled,
+  });
   const invalidateCourse = () => {
     qc.invalidateQueries({ queryKey: courseQueries.keys.getCourse(id), refetchType: "active" });
     qc.invalidateQueries({ queryKey: courseQueries.keys.listCourses(), refetchType: "active" });
@@ -27,7 +30,11 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
   };
 
   useQueryError({ isError, error });
-  const { mutate: updateCourse, mutateAsync: updateCourseAsync, isPending: isPendingUpdate } = useMutation({
+  const {
+    mutate: updateCourse,
+    mutateAsync: updateCourseAsync,
+    isPending: isPendingUpdate,
+  } = useMutation({
     mutationFn: courseService.update,
     onError: e => {
       console.log(e);
@@ -39,7 +46,11 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
     },
   });
 
-  const { mutate: updateTags, mutateAsync: updateTagsAsync, isPending: isPendingTags } = useMutation({
+  const {
+    mutate: updateTags,
+    mutateAsync: updateTagsAsync,
+    isPending: isPendingTags,
+  } = useMutation({
     mutationFn: courseService.updateTags,
     onError: e => {
       addToast({ title: "Erorr", description: e.message, color: "danger" });
@@ -50,7 +61,11 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
     },
   });
 
-  const { mutate: updateCategories, mutateAsync: updateCategoriesAsync, isPending: isPendingCategories } = useMutation({
+  const {
+    mutate: updateCategories,
+    mutateAsync: updateCategoriesAsync,
+    isPending: isPendingCategories,
+  } = useMutation({
     mutationFn: courseService.updateCategories,
     onError: e => {
       addToast({ title: "Erorr", description: e.message, color: "danger" });
@@ -61,7 +76,11 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
     },
   });
 
-  const { mutate: deleteCourse, mutateAsync: deleteCourseAsync, isPending: deleteCoursePending } = useMutation({
+  const {
+    mutate: deleteCourse,
+    mutateAsync: deleteCourseAsync,
+    isPending: deleteCoursePending,
+  } = useMutation({
     mutationFn: courseService.delete,
     onSuccess() {
       addToast({ title: "Success deleted course", color: "success" });
@@ -130,7 +149,11 @@ const useCourse = (id: number, option?: { refetchOnMutateSuccess?: boolean; imme
     },
   });
 
-  const { mutate: applyDraft, mutateAsync: applyDraftAsync, isPending: isPendingApplyDraft } = useMutation({
+  const {
+    mutate: applyDraft,
+    mutateAsync: applyDraftAsync,
+    isPending: isPendingApplyDraft,
+  } = useMutation({
     mutationFn: () => courseService.applyDraft(id),
     onSuccess() {
       addToast({ title: "Publish course changes success", color: "success" });

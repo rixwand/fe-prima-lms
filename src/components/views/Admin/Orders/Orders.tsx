@@ -21,7 +21,8 @@ function statusColor(status: unknown): "success" | "danger" | "warning" | "defau
 
 export default function Orders() {
   const {
-    orders: { data, meta },
+    orders: { data, meta, isError },
+    pending,
   } = useOrder({ immediatlyFetch: true }, { page: 1, limit: 20 });
   const rows = (data || []).map((order, index) => ({ ...order, __key: String(order.id ?? index) }));
 
@@ -57,8 +58,8 @@ export default function Orders() {
         <TableBody
           items={rows}
           emptyContent={"No orders found"}
-          loadingContent={<Spinner label="Loading orders..." />}
-          loadingState={!data ? "loading" : "idle"}>
+          loadingContent={<Spinner />}
+          loadingState={isError ? "error" : pending.listOrder ? "loading" : "idle"}>
           {order => (
             <TableRow key={order.__key}>
               <TableCell>{order.user?.fullName ?? "-"}</TableCell>

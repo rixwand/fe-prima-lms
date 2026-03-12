@@ -12,12 +12,18 @@ import { GetServerSideProps } from "next";
 export const getServerSideProps = (async ctx => {
   const slugs = ctx.query.slug as string[] | undefined;
   if (!slugs || slugs.length == 0) return { notFound: true };
+  ctx.res.setHeader("Cache-Control", "private, max-age=60, stale-while-revalidate=300");
   const queryClient = new QueryClient();
+  const nextDataHeader = ctx.req.headers["x-nextjs-data"];
+  const isNextDataRequest =
+    nextDataHeader === "1" || (Array.isArray(nextDataHeader) && nextDataHeader.includes("1"));
 
-  try {
-    await queryClient.prefetchQuery(learnQueries.options.getLearningCurriculum(slugs[0]));
-  } catch {
-    return { notFound: true };
+  if (!isNextDataRequest) {
+    try {
+      await queryClient.prefetchQuery(learnQueries.options.getLearningCurriculum(slugs[0]));
+    } catch {
+      return { notFound: true };
+    }
   }
 
   return {

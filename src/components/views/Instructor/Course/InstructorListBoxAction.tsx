@@ -29,7 +29,7 @@ const InstructorListBoxAction = ({
   course: CourseListItem;
 }) => {
   const { publishCourseAsync, cancelPublishReqAsync, deleteCourseAsync } = useCourse(courseId, {
-    immediatlyQuery: false,
+    enabled: false,
   });
   const { state: menuState } = usePopoverContext();
   const notesMethods = useForm<NotesForm>();
@@ -135,13 +135,6 @@ const InstructorListBoxAction = ({
             Request Approval
           </ListboxItem>
           <ListboxItem
-            onPress={() => router.push(`/instructor/dashboard/course/${course?.id}/review-changes`)}
-            key="apply"
-            startContent={<LuFilePen />}
-            hidden={course?.canApplyTierB != true}>
-            Apply Changes
-          </ListboxItem>
-          <ListboxItem
             onPress={() => router.push(`/instructor/dashboard/edit-course/${course?.id}`)}
             startContent={<LuPencilLine />}
             key="edit">
@@ -160,6 +153,13 @@ const InstructorListBoxAction = ({
           </ListboxItem>
         </Fragment>
       )}
+      <ListboxItem
+        onPress={() => router.push(`/instructor/dashboard/course/${course?.id}/review-changes`)}
+        key="apply"
+        startContent={<LuFilePen />}
+        hidden={course?.canApplyTierB != true}>
+        Apply Changes
+      </ListboxItem>
     </Listbox>
   );
 };

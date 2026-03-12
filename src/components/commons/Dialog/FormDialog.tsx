@@ -26,6 +26,8 @@ const ModalBodySections = ({
     try {
       setIsProcessing(true);
       await Promise.resolve(onSubmit());
+    } catch (error) {
+      console.log(error);
     } finally {
       setIsOpen(false);
       close();

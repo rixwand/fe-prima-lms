@@ -309,10 +309,13 @@ const ModuleRow: React.FC<{
       <div className="pt-0.5">
         <StatusIcon status={item.lessonProgress[0].status} isCurrent={item.slug == activeLesson} />
       </div>
-      <a href={`/learn/${activeCourseSlug}/${item.slug}`} className={cn("text-sm hover:underline")} title={item.title}>
+      <Link
+        href={`/learn/${activeCourseSlug}/${item.slug}`}
+        className={cn("text-sm hover:underline")}
+        title={item.title}>
         {item.slug == activeLesson ? <strong>{item.title}</strong> : item.title}
         {item.isPreview ? <SmallFreeTag /> : null}
-      </a>
+      </Link>
     </div>
   );
 };

@@ -27,11 +27,12 @@ export default function useOrder(
       router.push(data.invoiceUrl);
     },
   });
-  useNProgress(hasTrue({ isPendingPurchase, isFetching }));
+  const pending = { purchase: isPendingPurchase, listOrder: isFetching };
+  useNProgress(hasTrue(pending));
   return {
-    orders: { data: data?.orders, meta: data?.meta },
+    pending,
+    orders: { data: data?.orders, meta: data?.meta, isError },
     refetchOrders: refetch,
     createOrder,
-    isPendingPurchase,
   };
 }

@@ -189,17 +189,19 @@ interface Tag {
   slug: string;
 }
 
-interface PublicCategory {
+interface BaseCategory {
   id: number;
   name: string;
   slug: string;
 }
 
-interface Category extends Omit<PublicCategory, "slug"> {
+interface PublicCategory extends Omit<BaseCategory, "id"> {}
+
+interface Category extends Omit<BaseCategory, "slug"> {
   isPrimary: boolean;
 }
 
-type PublicTagListItem = { name: string; slug: string };
+type PublicTag = { name: string; slug: string };
 
 type PublishRequest = {
   id: number;

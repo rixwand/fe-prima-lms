@@ -1,3 +1,4 @@
+import NavbarDashboard from "@/components/commons/Navbar2";
 import PageHead from "@/components/commons/PageHead";
 import Sidebar from "@/components/commons/Sidebar";
 import { NavStruct } from "@/components/commons/Sidebar/Sidebar";
@@ -16,6 +17,7 @@ import {
 } from "react-icons/lu";
 
 const prefix = "/admin/dashboard";
+type Nav = { customNav: ReactNode; navTitle?: undefined } | { customNav?: undefined; navTitle: string };
 
 const navLinks: NavStruct = [
   { label: "Overview", Icon: HiOutlineSquares2X2, link: prefix },
@@ -33,12 +35,12 @@ export default function AdminLayout({
   title = "Admin",
   active,
   customNav,
+  navTitle,
 }: {
   children: ReactNode;
   title?: string;
   active: (typeof navLinks)[number]["label"];
-  customNav?: ReactNode;
-}) {
+} & Nav) {
   const [collapsed, setCollapsed] = useState(false);
   const [open, setOpen] = useState(false);
   return (
@@ -51,7 +53,7 @@ export default function AdminLayout({
           collapsed ? "md:ml-[72px]" : "md:ml-[260px]",
           "min-h-screen bg-gradient-to-br from-gray-50 to-white text-slate-900",
         ])}>
-        {customNav}
+        {customNav ? customNav : <NavbarDashboard {...{ setOpen, setCollapsed, title: navTitle! }} />}
         {/* Content */}
         <section className={cn(["space-y-6 p-5 transition-all duration-200"])}>{children}</section>
       </main>

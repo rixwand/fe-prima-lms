@@ -33,12 +33,13 @@ export default function CoursesList({
           className={cn(
             layout == "grid" ? "grid grid-cols-1 md:grid-cols-2 @7xl:grid-cols-4 @4xl:grid-cols-3 gap-4" : "space-y-2",
           )}>
-          {courses?.map(({ metaDraft, ...c }) => (
+          {courses?.map(({ metaDraft: { draftDiscounts, ...metaDraft }, ...c }) => (
             <CourseCard
               layout={layout}
               key={c.id}
               data={{
                 ...{ ...c, ...metaDraft },
+                discounts: draftDiscounts,
                 status: getCourseStatus({ ...c }),
                 publishedRequestStatus: c.publishRequest?.status,
                 requestType: c.publishRequest?.type,

@@ -1,7 +1,7 @@
 import AuthStatusCard from "@/components/commons/Cards/AuthStatusCard";
 import AuthLayout from "@/components/layouts/AuthLayout";
-import { Link } from "@heroui/react";
 import { GiCheckMark } from "react-icons/gi";
+import Link from "next/link";
 
 export default function PaymentFailed() {
   return (
@@ -14,9 +14,7 @@ export default function PaymentFailed() {
           <p className="text-sm text-slate-600">
             Kami telah mengirim email verifikasi ke alamat Anda. Klik tautan di dalamnya untuk mengaktifkan akun.
           </p>
-          <Link
-            href="/dashboard"
-            className="mt-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+          <Link href="/dashboard" className="mt-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
             Kembali ke Dashboard
           </Link>
         </div>

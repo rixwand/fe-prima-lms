@@ -1,4 +1,4 @@
-import useDump from "@/hooks/use-dump";
+import CheckoutCardDiscountItem from "@/components/commons/CheckoutCardDiscountItem";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { applyDiscounts } from "@/libs/utils/currency";
@@ -6,24 +6,34 @@ import { getYouTubeEmbedUrl } from "@/libs/utils/string";
 import { Accordion, AccordionItem, Button, Chip, Tab, Tabs } from "@heroui/react";
 import Image from "next/image";
 import { FiInfo } from "react-icons/fi";
-import { IoMdTime } from "react-icons/io";
-import { LuSquareArrowOutUpRight, LuUsers } from "react-icons/lu";
-import { Rating } from "react-simple-star-rating";
+import { LuClock4, LuSquareArrowOutUpRight, LuStar, LuUsers } from "react-icons/lu";
 
-export default function CourseInfo({
+export default function CoursePreview({
   data: { metaDraft, metaApproved, ...data },
   onOpenCurriculum = () => {},
+  prefetch,
 }: {
   data: Course;
   onOpenCurriculum?: () => void;
+  prefetch?: () => Promise<void>;
 }) {
   const { previewVideo, coverImage, descriptionJson, priceAmount, shortDescription, title } = {
-    ...metaDraft,
     ...metaApproved,
+    ...(data.publishRequest?.status == "PENDING" && data.publishRequest?.type == "NEW"
+      ? metaDraft
+      : metaDraft
+        ? { priceAmount: metaDraft.priceAmount }
+        : {}),
   };
+  const draft = metaDraft
+    ? {
+        discounts: metaDraft.draftDiscounts,
+        tags: metaDraft.draftTags,
+        categories: metaDraft.draftCategories,
+      }
+    : {};
   const validUrlPreview = previewVideo ? getYouTubeEmbedUrl(previewVideo) : null;
-  const { sections, discounts, tags } = data;
-  useDump(data);
+  const { sections, discounts, tags, categories } = { ...data, ...draft };
   return (
     <section className={cn([inter.className, "2xl:container xl:px-12 2xl:mx-auto px-6 my-12"])}>
       <div className="flex relative max-xl:mx-auto max-xl:container flex-col min-xl:flex-row gap-x-4 gap-y-9 items-start">
@@ -34,6 +44,28 @@ export default function CourseInfo({
             </div>
             <div className="space-y-4">
               <h1 className="font-bold text-xl xl:text-2xl">{title}</h1>
+              <div className="space-y-2">
+                <p className="text-slate-800">Kategori:</p>
+                <span className="flex gap-x-2">
+                  {categories.map((c, index) => (
+                    <Chip size="md" key={c.id} radius="sm" color="primary" variant={index == 0 ? "solid" : "flat"}>
+                      {c.name}
+                    </Chip>
+                  ))}
+                </span>
+              </div>
+              <span className="flex items-center gap-x-3">
+                <p className="text-slate-700 flex items-center gap-x-1">
+                  <LuClock4 size={20} /> <span>20jam</span>
+                </p>
+                <p className="text-slate-700 flex items-center gap-x-1">
+                  <LuUsers size={20} /> <span>1.2rb</span>
+                </p>
+                <p className="flex items-center gap-x-1 text-slate-700">
+                  <LuStar size={20} />
+                  <span>4.5</span>
+                </p>
+              </span>
               <span className="flex items-center gap-x-2">
                 <p className="text-slate-800">Tags:</p>
                 {tags.map(({ name, slug }) => (
@@ -41,16 +73,6 @@ export default function CourseInfo({
                     {name}
                   </Chip>
                 ))}
-              </span>
-              <p className="text-slate-800 flex items-center gap-x-1">
-                <IoMdTime size={24} /> <span>20 Jam Belajar</span>
-              </p>
-              <p className="text-slate-700 flex items-center gap-x-1">
-                <LuUsers size={20} stroke="#3F3F46" /> <span>1.2rb Peserta</span>
-              </p>
-              <span className="flex items-center gap-x-3">
-                <Rating size={24} initialValue={4.5} allowFraction />
-                <p className="text-lg font-semibold mt-1">4.5</p>
               </span>
             </div>
           </div>
@@ -76,7 +98,11 @@ export default function CourseInfo({
           {/* Price Row */}
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-slate-600">Harga Kursus</span>
-            <span className="text-sm font-medium text-slate-400 line-through">
+            <span
+              className={cn(
+                "text-sm font-medium",
+                discounts?.some(d => d.isActive) ? "text-slate-400 line-through" : "text-slate-600",
+              )}>
               {priceAmount.toLocaleString("id-ID", {
                 style: "currency",
                 currency: "IDR",
@@ -85,25 +111,9 @@ export default function CourseInfo({
             </span>
           </div>
 
-          {/* Discountsdiscounts */}
-          {discounts && discounts.length > 0 && discounts[0].isActive && (
-            <div className="mt-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-600">
-                Diskon {discounts[0].type == "PERCENTAGE" && discounts[0].value + "%"}
-              </span>
-              <span className="text-base font-semibold text-emerald-600">
-                -
-                {(discounts[0].type == "FIXED"
-                  ? discounts[0].value
-                  : priceAmount * (discounts[0].value / 100)
-                ).toLocaleString("id-ID", {
-                  style: "currency",
-                  currency: "IDR",
-                  maximumFractionDigits: 0,
-                })}
-              </span>
-            </div>
-          )}
+          {discounts?.map(discount => (
+            <CheckoutCardDiscountItem {...{ discount, priceAmount }} />
+          ))}
 
           {/* Promo Code */}
           <div className="mt-5">
@@ -149,6 +159,8 @@ export default function CourseInfo({
 
           {/* Checkout */}
           <Button
+            onFocus={prefetch}
+            onMouseEnter={prefetch}
             onPress={onOpenCurriculum}
             isIconOnly
             radius="none"

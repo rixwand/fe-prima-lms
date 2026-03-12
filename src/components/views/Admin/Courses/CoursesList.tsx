@@ -45,7 +45,10 @@ export default function CoursesList({
                 key={c.id}
                 data={{
                   ...c.course,
-                  ...c.course.metaDraft,
+                  ...c.course.metaApproved?.payload!,
+                  ...(c.status == "PENDING" && c.type == "NEW"
+                    ? c.course.metaDraft
+                    : { priceAmount: c.course.metaDraft.priceAmount }),
                   id: c.courseId,
                   createdAt: c.createdAt,
                   status: getCourseStatus({ ...c.course, publishRequest: { id: c.id, notes: "", status: c.status } }),

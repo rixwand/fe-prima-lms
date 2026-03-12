@@ -7,7 +7,7 @@ import { useNProgress } from "@/hooks/use-nProgress";
 import { CurriculumViewContext, LessonPathIds } from "@/libs/context/CurriculumViewContext";
 import { findFirstSelectableLesson } from "@/libs/utils/course";
 import courseQueries from "@/queries/course-queries";
-import { QueryClient, dehydrate, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { useEffect, useState } from "react";
 
@@ -23,17 +23,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   if (!Number.isFinite(courseId) || courseId <= 0) {
     return { notFound: true };
   }
-
-  const queryClient = new QueryClient();
-
-  await queryClient.prefetchQuery(courseQueries.options.listSections(courseId));
-
   return {
     props: {
-      dehydratedState: dehydrate(queryClient),
       id: courseId,
     },
-    revalidate: 60,
   };
 };
 

@@ -1,27 +1,71 @@
+import useDump from "@/hooks/use-dump";
 import cn from "@/libs/utils/cn";
 import { applyDiscounts } from "@/libs/utils/currency";
-import { Avatar, Card, Chip, Skeleton } from "@heroui/react";
+import { Avatar, Button, Card, Chip, Popover, PopoverContent, PopoverTrigger, Skeleton } from "@heroui/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { LuSquareArrowOutUpRight, LuStar, LuUsers } from "react-icons/lu";
+import { LuEllipsis, LuSquareArrowOutUpRight, LuStar, LuTags, LuUsers } from "react-icons/lu";
 
 type Props = {
   course: Pick<PublicCourseListItem, "owner" | "discounts" | "slug"> & {
     metaApproved: Pick<MetaCourse, "coverImage" | "priceAmount" | "title">;
+    tags: PublicTag[];
+    categories: PublicCategory[];
   };
+  className?: string;
   disabled?: boolean;
 };
-const UserCourseCard = ({ course: { metaApproved }, course, disabled = false }: Props) => {
+const UserCourseCard = ({ className, course: { metaApproved }, course, disabled = false }: Props) => {
   const router = useRouter();
+  useDump(course);
   return (
     <Card
-      className="rounded-xl overflow-hidden justify-between"
+      className={cn("rounded-xl overflow-hidden justify-between", className)}
       isPressable={!disabled}
       onPress={() => router.push("/course/preview/" + course.slug)}>
       <div>
         <div className="relative w-full h-fit aspect-video">
           <Image fill className="object-cover rounded-t-md" src={metaApproved!.coverImage} alt="Course Image" />
-          {/* <Chip className="absolute"></Chip> */}
+          <span className="absolute left-2 top-2 flex gap-x-1">
+            <Chip
+              endContent={
+                course.categories.length > 1 && (
+                  <Popover placement="right">
+                    <PopoverTrigger>
+                      <Button
+                        isIconOnly
+                        disableRipple
+                        variant="flat"
+                        color="default"
+                        onPress={() => {}}
+                        className="reset-button text-white p-0.5">
+                        <LuEllipsis size={16} />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="flex flex-row bg-white rounded-full gap-x-1 p-1">
+                      {course.categories.map(
+                        (c, i) =>
+                          i > 0 && (
+                            <Chip variant="flat" color="primary" className=" shadow-sm text-sm">
+                              {c.name}
+                            </Chip>
+                          ),
+                      )}
+                    </PopoverContent>
+                  </Popover>
+                )
+              }
+              variant="solid"
+              color="primary"
+              className=" shadow-sm text-sm">
+              {course.categories[0].name}
+            </Chip>
+            {/* {course.categories.length > 1 && (
+              <span className="size-7 rounded-full bg-primary shadow-sm text-white text-xs flex items-center justify-center">
+                +{course.categories.length - 1}
+              </span>
+            )} */}
+          </span>
         </div>
         <h3 className="px-4 mt-4 mb-2.5 font-semibold flex-1 leading-snug text-start min-w-0 line-clamp-2">
           {metaApproved!.title}
@@ -71,6 +115,18 @@ const UserCourseCard = ({ course: { metaApproved }, course, disabled = false }: 
             4.5
           </span>
         </div>
+
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <LuTags size={16} />{" "}
+          <ul className="flex items-center gap-x-1">
+            {course.tags.map((t, i) => (
+              <li className="italic underline">
+                {t.name}
+                {i !== course.tags.length - 1 && ","}
+              </li>
+            ))}
+          </ul>
+        </div>
         <div className="flex items-center gap-4 text-large text-slate-800 font-semibold">
           <span
             className={cn(
@@ -103,9 +159,9 @@ const UserCourseCard = ({ course: { metaApproved }, course, disabled = false }: 
 
 export default UserCourseCard;
 
-export function UserCourseCardSkeleton() {
+export function UserCourseCardSkeleton({ className }: { className?: string }) {
   return (
-    <div className="group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+    <Card className={cn("rounded-xl overflow-hidden justify-between", className)}>
       <div className="relative aspect-[16/9] overflow-hidden">
         <Skeleton className="w-full h-full" />
       </div>
@@ -125,7 +181,7 @@ export function UserCourseCardSkeleton() {
           <Skeleton className="h-6 w-1/2 rounded-full" />
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 

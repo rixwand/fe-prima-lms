@@ -1,7 +1,7 @@
 import cn from "@/libs/utils/cn";
 import { applyDiscounts } from "@/libs/utils/currency";
 import { formatDate } from "@/libs/utils/string";
-import courseService from "@/services/course.service";
+import courseQueries from "@/queries/course-queries";
 import { Avatar, Button, Card, Chip, Popover, PopoverContent, PopoverTrigger, PressEvent } from "@heroui/react";
 import { OverlayTriggerState, useOverlayTriggerState } from "@react-stately/overlays";
 import { useQueryClient } from "@tanstack/react-query";
@@ -36,8 +36,7 @@ type CourseCardData = {
   priceAmount: number;
   // isFree: boolean;
   createdAt: string;
-  discount?: Discount[] | undefined;
-  draftDiscounts?: Discount[] | undefined;
+  discounts?: Discount[] | undefined;
   students?: number;
   rating?: number;
   canApplyTierB?: boolean;
@@ -97,8 +96,7 @@ export function CourseCard({
   unPressable?: boolean;
 }) {
   const qc = useQueryClient();
-  const prefetch = () =>
-    qc.prefetchQuery({ queryKey: ["coursePreview", data.id], queryFn: () => courseService.get(data.id) });
+  const prefetch = () => qc.prefetchQuery(courseQueries.options.getCourse(data.id));
   const status = data.status as CourseStatus;
   const { icon: Icon, color, label } = STATUS_CONFIG[status];
   const menuState = useOverlayTriggerState({ defaultOpen: false });
@@ -109,7 +107,7 @@ export function CourseCard({
         isPressable={!unPressable}
         onPress={onPress}
         onFocus={prefetch}
-        onClick={prefetch}
+        onMouseEnter={prefetch}
         className="group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-lg shadow-slate-100 justify-between max-h-fit">
         <div>
           <div className="relative aspect-[16/9] overflow-hidden">
@@ -235,8 +233,8 @@ export function CourseCard({
           </div>
           <div className="flex items-center gap-4 text-medium text-slate-800 font-medium">
             <span className="inline-flex items-center gap-1">
-              {(data.draftDiscounts && data.draftDiscounts.length > 0
-                ? applyDiscounts(data.priceAmount, data.draftDiscounts)
+              {(data.discounts && data.discounts.length > 0
+                ? applyDiscounts(data.priceAmount, data.discounts)
                 : data.priceAmount
               ).toLocaleString("id-ID", {
                 style: "currency",
@@ -326,8 +324,8 @@ export function CourseCard({
           </span>
         </div>
         <div className="col-span-6 @2xl:col-span-3 @5xl:col-span-2 @3xl:justify-center flex items-center text-medium text-slate-800 font-medium justify-self-end justify-end">
-          {(data.draftDiscounts && data.draftDiscounts.length > 0
-            ? applyDiscounts(data.priceAmount, data.draftDiscounts)
+          {(data.discounts && data.discounts.length > 0
+            ? applyDiscounts(data.priceAmount, data.discounts)
             : data.priceAmount
           ).toLocaleString("id-ID", {
             style: "currency",

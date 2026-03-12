@@ -30,6 +30,8 @@ function ConfirmModal({
     try {
       setIsProcessing(true);
       await Promise.resolve(onConfirmed());
+    } catch (error) {
+      console.log(error);
     } finally {
       setIsOpen(false);
       close();

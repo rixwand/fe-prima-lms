@@ -7,7 +7,7 @@ import { useNProgress } from "@/hooks/use-nProgress";
 import { getErrorMessage } from "@/libs/axios/error";
 import courseQueries from "@/queries/course-queries";
 import { addToast } from "@heroui/react";
-import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -17,17 +17,14 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }: { params: { id: string } }) {
-  const qc = new QueryClient();
-  await qc.prefetchQuery(courseQueries.options.getCourse(Number(params.id)));
   return {
-    props: { dehydratedState: dehydrate(qc), id: params.id },
-    revalidate: 60, // ISR
+    props: { id: params.id },
   };
 }
 
-export default function EditCoursePage({ id }: { id: number }) {
+export default function EditCoursePage({ id }: { id: string }) {
   const [showPublished, setShowPublished] = useState(false);
-  const { data, isPending, isError, error } = useQuery(courseQueries.options.getCourse(id));
+  const { data, isPending, isError, error } = useQuery(courseQueries.options.getCourse(Number(id)));
 
   const router = useRouter();
   const tabsState = useState<EditCourseTabsType>("basic");
@@ -57,6 +54,7 @@ export default function EditCoursePage({ id }: { id: number }) {
       <InstructorLayout
         customNav={
           <CustomNav
+            onClick={() => router.push("/instructor/dashboard/course")}
             title="Edit Course"
             endContent={
               <VisibilitySwitch {...{ showPublished, setShowPublished, disabled: data.publishedAt == null }} />
@@ -64,7 +62,7 @@ export default function EditCoursePage({ id }: { id: number }) {
           />
         }
         active="My Courses">
-        <EditCourse id={id} tabsState={tabsState} showPublished={showPublished} />
+        <EditCourse id={Number(id)} tabsState={tabsState} showPublished={showPublished} />
       </InstructorLayout>
     );
   }

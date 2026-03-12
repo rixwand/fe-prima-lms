@@ -82,7 +82,13 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
     if (isValid) goNext();
   };
 
-  const [title, subtitle, price, discount] = methods.watch(["title", "shortDescription", "priceAmount", "discount"]);
+  const [title, price, discount, categories, tags] = methods.watch([
+    "title",
+    "priceAmount",
+    "discount",
+    "categories",
+    "tags",
+  ]);
 
   const saveCourse = methods.handleSubmit(onSubmit);
 
@@ -194,70 +200,6 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
       </div>
 
       {/* Live Preview / Help */}
-      {/* <aside className="lg:col-span-4 space-y-6">
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-slate-200 flex items-center gap-2">
-            <LuEye className="w-4 h-4" /> Live Preview
-          </div>
-          <div className="p-4">
-            <div className="rounded-xl overflow-hidden border border-slate-200">
-              <div className="relative aspect-video bg-slate-100 grid place-items-center">
-                {preview ? (
-                  <img src={preview} alt="thumb" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="text-slate-400 text-sm flex flex-col items-center">
-                    <LuImage className="w-8 h-8 mb-1" />
-                    Thumbnail
-                  </div>
-                )}
-                <span className="absolute left-3 top-3 text-xs px-2.5 py-1 rounded-full bg-blue-600 text-white">
-                  {status}
-                </span>
-              </div>
-              <div className="p-4 space-y-1">
-                <p className="font-semibold">{title || "Course title"}</p>
-                <p className="text-sm text-slate-600 line-clamp-2">
-                  {subtitle || "Write a compelling subtitle or description."}
-                </p>
-                <div className="flex items-center gap-3 text-xs text-slate-500 pt-1">
-                  <span className="inline-flex items-center gap-1">
-                    <LuStar className="w-3.5 h-3.5" /> 0.0
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <LuUsers className="w-3.5 h-3.5" /> 0
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <PiMoneyWavyLight size={16} />{" "}
-                    {(discount && discountActive
-                      ? applyDiscounts(price, [
-                          {
-                            id: 0,
-                            courseId: 0,
-                            type: discountType,
-                            value: discount,
-                            isActive: true,
-                            startAt: null,
-                            endAt: null,
-                          },
-                        ])
-                      : price || 0
-                    ).toLocaleString("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 })}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-          <p className="text-sm font-medium mb-2">Tips</p>
-          <ul className="text-sm text-slate-600 list-disc pl-5 space-y-1">
-            <li>Use actionable titles (e.g., “Build a REST API with Express & Prisma”).</li>
-            <li>Each lesson should have a clear outcome in 5–10 minutes.</li>
-            <li>Mark 1–2 lessons as preview to attract learners.</li>
-          </ul>
-        </div>
-      </aside> */}
       <aside className="@5xl:col-span-4 space-y-6 grid-cols-12 grid @5xl:grid-cols-1 @container gap-3">
         <div className="rounded-2xl border border-slate-200 max-w-md bg-white shadow-sm overflow-hidden @4xl:col-span-6 col-span-12">
           <div className="p-4 border-b border-slate-200 flex items-center gap-2">
@@ -267,6 +209,8 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
             <UserCourseCard
               disabled
               course={{
+                categories: categories.map(({ name }) => ({ name, slug: toSlug(name) })),
+                tags: tags.map(name => ({ name, slug: toSlug(name) })),
                 slug: toSlug(title ?? ""),
                 metaApproved: {
                   coverImage: preview || "/images/thumbnail-placeholder.svg",

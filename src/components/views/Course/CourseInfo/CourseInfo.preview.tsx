@@ -1,6 +1,5 @@
 import NotFound from "@/components/commons/NotFound";
 import useOrder from "@/hooks/transaction/useOrder";
-import useDump from "@/hooks/use-dump";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { useQueryError } from "@/hooks/use-query-error";
 import { inter } from "@/libs/fonts";
@@ -20,7 +19,6 @@ import { Rating } from "react-simple-star-rating";
 
 export default function CourseInfo({ slug }: { slug: string }) {
   const { isError, error, isPending, data } = useQuery(courseQueries.options.getCourseBySlug(slug));
-  useDump(data);
   const { createOrder } = useOrder();
   const { status } = useSession();
   const router = useRouter();

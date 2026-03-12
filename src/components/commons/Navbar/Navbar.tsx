@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useState } from "react";
 import { FaSearch } from "react-icons/fa";
@@ -40,7 +41,7 @@ export default function Navbar({ showSearch = true }: Props) {
           <NavbarContent className="hidden lg:flex gap-10 mr-4">
             {menuItems.map(val => (
               <NavbarItem key={val.title}>
-                <Link color="foreground" href={val.link}>
+                <Link as={NextLink} color="foreground" href={val.link}>
                   {val.title}
                 </Link>
               </NavbarItem>
@@ -52,7 +53,7 @@ export default function Navbar({ showSearch = true }: Props) {
         <NavbarContent className="hidden lg:flex gap-10 mr-4" justify="center">
           {menuItems.map(val => (
             <NavbarItem key={val.title}>
-              <Link color="foreground" href={val.link}>
+              <Link as={NextLink} color="foreground" href={val.link}>
                 {val.title}
               </Link>
             </NavbarItem>
@@ -101,6 +102,7 @@ export default function Navbar({ showSearch = true }: Props) {
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={item.title}>
             <Link
+              as={NextLink}
               className="w-full"
               color={index === 2 ? "primary" : index === menuItems.length - 1 ? "danger" : "foreground"}
               href={item.link}

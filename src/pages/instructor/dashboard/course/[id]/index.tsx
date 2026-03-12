@@ -5,8 +5,8 @@ import VisibilitySwitch from "@/components/commons/Switch/VisibilitySwitch";
 import CoursePreview from "@/components/views/Instructor/Course/CoursePreview";
 import { useNProgress } from "@/hooks/use-nProgress";
 import courseQueries from "@/queries/course-queries";
-import courseService from "@/services/course.service";
-import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/router";
 import { Fragment, useState } from "react";
 
 export async function getStaticPaths() {
@@ -14,21 +14,19 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }: { params: { id: string } }) {
-  const qc = new QueryClient();
-  await qc.prefetchQuery({
-    queryKey: ["coursePreview", Number(params.id)],
-    queryFn: () => courseService.get(Number(params.id)).then(res => res.data),
-  });
+  const courseId = Number(params.id);
+  if (!Number.isFinite(courseId) || courseId <= 0) {
+    return { notFound: true };
+  }
   return {
-    props: { dehydratedState: dehydrate(qc), id: params.id },
-    revalidate: 60, // ISR
+    props: { id: courseId },
   };
 }
 
 export default function CoursePage({ id }: { id: number }) {
   const [showPublished, setShowPublished] = useState(false);
   const { data, isPending, isFetching, isError, error } = useQuery(courseQueries.options.getCourse(id));
-
+  const router = useRouter();
   useNProgress(isPending);
 
   if (isFetching || isPending) return null;
@@ -41,6 +39,7 @@ export default function CoursePage({ id }: { id: number }) {
       <Fragment>
         <PageHead title={data.metaDraft.title} />
         <CustomNav
+          onClick={() => router.push("/instructor/dashboard/course")}
           title="Course Preview"
           endContent={<VisibilitySwitch {...{ setShowPublished, showPublished, disabled: data.publishedAt == null }} />}
         />

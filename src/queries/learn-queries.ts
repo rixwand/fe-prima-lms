@@ -13,6 +13,7 @@ const learnQueries = {
         queryKey: learnQueries.keys.getLearningCurriculum(slug),
         queryFn: () => learnService.getCurriculum(slug).then(res => res.data),
         placeholderData: keepPreviousData,
+        staleTime: 5 * 60 * 1000,
       }),
     getLearningContent: (id: { slug: string; sectionId: number; lessonId: number }) =>
       queryOptions<Pick<LessonContent, "contentLive">>({

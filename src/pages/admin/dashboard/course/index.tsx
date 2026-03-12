@@ -3,7 +3,7 @@ import Courses from "@/components/views/Admin/Courses";
 
 export default function CoursesPage() {
   return (
-    <AdminLayout active="Courses">
+    <AdminLayout active="Courses" navTitle="Courses">
       <Courses />
     </AdminLayout>
   );
