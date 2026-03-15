@@ -3,7 +3,7 @@ import TextField from "@/components/commons/TextField";
 import useCourse from "@/hooks/course/useCourse";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import cn from "@/libs/utils/cn";
-import { applyDiscounts, convertLocal } from "@/libs/utils/currency";
+import { applyDiscounts, convertLocal, toNumber } from "@/libs/utils/currency";
 import { hasDirty } from "@/libs/utils/rhf";
 import { Button, DatePicker, Select, SelectItem, Switch } from "@heroui/react";
 import { parseAbsoluteToLocal } from "@internationalized/date";
@@ -21,7 +21,7 @@ export default function PricingPanel({
 }: {
   discountId?: number;
   courseId: number;
-  publishedValues?: { priceAmount: number; discounts: Discount[] };
+  publishedValues?: { priceAmount: number | Decimal; discounts: Discount[] };
 }) {
   const { showPublished } = useEditCourseContext();
   const {
@@ -57,12 +57,13 @@ export default function PricingPanel({
     });
   };
 
-  const activeDiscounts = publishedValues?.discounts.filter(d => d.isActive && d.value > 0);
+  const activeDiscounts = publishedValues?.discounts.filter(d => d.isActive && toNumber(d.value) > 0);
 
   const { finalPublishedPrice, breakdown } = useMemo(() => {
-    let current = price;
+    let current = toNumber(price);
     const breakdown = activeDiscounts?.map(d => {
-      const amount = d.type === "FIXED" ? d.value : current * (d.value / 100);
+      const discountValue = toNumber(d.value);
+      const amount = d.type === "FIXED" ? discountValue : current * (discountValue / 100);
       const before = current;
       current = Math.max(0, current - amount);
       return { discount: d, amount, before, after: current };
@@ -181,7 +182,7 @@ export default function PricingPanel({
             {breakdown?.map(({ discount, amount }, _i) => (
               <p key={discount.id} className="text-sm text-slate-700 flex justify-between">
                 Discount {discount.label}
-                {discount.type === "PERCENTAGE" && ` ${discount.value}%`}
+                {discount.type === "PERCENTAGE" && ` ${toNumber(discount.value)}%`}
                 <span className="font-semibold">-{convertLocal(amount)}</span>
               </p>
             ))}
@@ -201,7 +202,7 @@ export default function PricingPanel({
             name="priceAmount"
             rules={{
               required: "Please input course price",
-              min: { value: 1, message: "Price must be greater than 0" },
+              min: { value: 0.01, message: "Price must be greater than 0" },
             }}
             render={({ field, fieldState: { error } }) => (
               <TextField
@@ -212,6 +213,7 @@ export default function PricingPanel({
                 field={field}
                 onChange={e => field.onChange(e.target.valueAsNumber)}
                 type="number"
+                step="0.01"
               />
             )}
           />
@@ -253,7 +255,7 @@ export default function PricingPanel({
                   name="discount.value"
                   rules={{
                     max: discount.type == "PERCENTAGE" ? { value: 100, message: "Cant over 100%" } : undefined,
-                    min: { value: 1, message: "Discount must be greater than 0" },
+                    min: { value: 0.01, message: "Discount must be greater than 0" },
                   }}
                   render={({ field, fieldState: { error } }) => (
                     <TextField
@@ -265,6 +267,7 @@ export default function PricingPanel({
                       label={`Amount (${watch("discount.type") == "FIXED" ? "Rp" : "%"})`}
                       field={field}
                       onChange={e => field.onChange(e.target.valueAsNumber)}
+                      step="0.01"
                     />
                   )}
                 />

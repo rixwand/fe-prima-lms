@@ -15,7 +15,10 @@ type UseCourseOptions = {
 
 const useCourse = (
   id: number,
-  { refetchOnMutateSuccess, enabled, onCreateCourseSuccess = () => {} }: UseCourseOptions,
+  { enabled, onCreateCourseSuccess, refetchOnMutateSuccess }: UseCourseOptions = {
+    refetchOnMutateSuccess: false,
+    onCreateCourseSuccess: () => {},
+  },
 ) => {
   const qc = useQueryClient();
   const {
@@ -31,7 +34,6 @@ const useCourse = (
   const invalidateCourse = () => {
     qc.invalidateQueries({ queryKey: courseQueries.keys.getCourse(id) });
     qc.invalidateQueries({ queryKey: courseQueries.keys.listCourses() });
-    addToast({ title: "Invalidate List Course", color: "secondary" });
     if (refetchOnMutateSuccess == true) {
       console.log("refetch");
       refetch();
@@ -52,11 +54,10 @@ const useCourse = (
     onSuccess: async () => {
       addToast({
         title: "Create Course Succes",
-        description: "Using UseCourse and invalidate listcourse",
         color: "success",
       });
       invalidateCourse();
-      onCreateCourseSuccess();
+      onCreateCourseSuccess?.();
     },
   });
 

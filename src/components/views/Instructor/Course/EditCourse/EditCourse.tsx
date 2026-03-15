@@ -6,6 +6,7 @@ import { useNProgress } from "@/hooks/use-nProgress";
 import { EditCourseContext } from "@/libs/context/EditCourseContext";
 import { storageClient } from "@/libs/supabase/client";
 import cn from "@/libs/utils/cn";
+import { toNumber } from "@/libs/utils/currency";
 import { getDirtyData } from "@/libs/utils/rhf";
 import { toSlug } from "@/libs/utils/string";
 import { StateType } from "@/types/Helper";
@@ -72,6 +73,7 @@ export default function EditCourse({
       ? {
           discount: {
             ...discounts[0],
+            value: toNumber(discounts[0].value),
             startAt: discounts[0].startAt
               ? (parseAbsoluteToLocal(discounts[0].startAt) as unknown as CalendarDate)
               : null,
@@ -83,6 +85,7 @@ export default function EditCourse({
   const defaultValues = {
     ...course,
     ...metaDraft,
+    priceAmount: toNumber(metaDraft.priceAmount),
     ...draftDiscounts,
     sections,
     categories,
@@ -279,7 +282,7 @@ export default function EditCourse({
               <Tab key="pricing" title="Pricing">
                 <PricingPanel
                   publishedValues={
-                    metaApproved && { priceAmount: metaApproved.priceAmount, discounts: approvedDiscounts }
+                    metaApproved && { priceAmount: toNumber(metaApproved.priceAmount), discounts: approvedDiscounts }
                   }
                   discountId={discounts[0]?.id}
                   courseId={id}
@@ -340,7 +343,7 @@ export default function EditCourse({
                         isActive: discount?.isActive == undefined ? discounts[0].isActive : discount.isActive,
                         label: discount?.label || discounts[0].label,
                         type: discount?.type || discounts[0].type,
-                        value: discount?.value || discounts[0].value,
+                        value: discount?.value ?? discounts[0].value,
                       },
                     ],
                   }}

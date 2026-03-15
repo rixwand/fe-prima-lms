@@ -3,18 +3,16 @@ type PublishCourseType = "NEW" | "UPDATE";
 type QueryPublishCourse = {
   id: number;
   status: PublishCourseStatus;
-  createdAt: string; // ISO date string
+  createdAt: string;
   type: "NEW" | "UPDATE";
   notes: string;
   courseId: number;
   course: {
     slug: string;
     publishedAt?: string;
-    metaDraft: {
-      title: string;
-      coverImage: string;
-      priceAmount: number;
-      isFree: boolean;
+    metaDraft: Pick<MetaCourse, "coverImage" | "title" | "isFree"> & {
+      priceAmount?: MetaCourse["priceAmount"];
+      priceDecimalAmount?: MetaCourse["priceAmount"];
       draftDiscounts?: Discount[];
       draftTags: Tag[];
       draftCategories: Category[];

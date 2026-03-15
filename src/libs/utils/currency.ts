@@ -1,3 +1,21 @@
+type DecimalLike = number | Decimal | string | null | undefined;
+
+const isDecimalObject = (value: unknown): value is { toNumber: () => number } =>
+  typeof value === "object" && value !== null && "toNumber" in value && typeof value.toNumber === "function";
+
+export const toNumber = (value: DecimalLike): number => {
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  if (isDecimalObject(value)) {
+    const parsed = value.toNumber();
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+};
+
 export const formatRupiah = (n: number): string => {
   const format = (num: number, suffix: string) => `Rp${num.toFixed(1).replace(/\.0$/, "").replace(".", ",")} ${suffix}`;
 
@@ -14,16 +32,21 @@ export const formatRupiah = (n: number): string => {
   }
 };
 
-export function applyDiscounts(price: number, discounts: Discount[]) {
-  let current = price;
+export function applyDiscounts(
+  price: DecimalLike,
+  discounts: Discount[],
+) {
+  let current = toNumber(price);
 
   for (const d of discounts) {
     if (!d.isActive) continue;
+    const discountValue = toNumber(d.value);
+
     if (d.type === "PERCENTAGE") {
-      const pct = Math.min(d.value, 100);
+      const pct = Math.min(discountValue, 100);
       current -= current * (pct / 100);
     } else {
-      current -= d.value;
+      current -= discountValue;
     }
 
     current = Math.max(0, current);
@@ -32,8 +55,8 @@ export function applyDiscounts(price: number, discounts: Discount[]) {
   return current;
 }
 
-export const convertLocal = (num: number) =>
-  num.toLocaleString("id-ID", {
+export const convertLocal = (num: DecimalLike) =>
+  toNumber(num).toLocaleString("id-ID", {
     style: "currency",
     currency: "IDR",
     maximumFractionDigits: 0,

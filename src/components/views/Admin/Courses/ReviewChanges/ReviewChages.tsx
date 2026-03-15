@@ -6,7 +6,7 @@ import NotFound from "@/components/commons/NotFound";
 import useCourse from "@/hooks/course/useCourse";
 import usePublishCourses from "@/hooks/course/useListPublishRequest";
 import cn from "@/libs/utils/cn";
-import { convertLocal } from "@/libs/utils/currency";
+import { convertLocal, toNumber } from "@/libs/utils/currency";
 import { formatDate } from "@/libs/utils/string";
 import { Button, Chip, Skeleton, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/react";
 import { useRouter } from "next/router";
@@ -74,7 +74,8 @@ export default function ReviewChanges({ courseId }: { courseId: number }) {
           description="The Changes will be rejected, and published course remain unchange"
         />
       ),
-      onSubmit: () => rejectCourseAsync({ notes: notesMethods.getValues("notes"), reqId: course?.publishRequest?.id as number }),
+      onSubmit: () =>
+        rejectCourseAsync({ notes: notesMethods.getValues("notes"), reqId: course?.publishRequest?.id as number }),
     });
 
   const onSaveChanges = () =>
@@ -225,13 +226,14 @@ const TagsField = ({ approved, draft }: { approved: Tag[]; draft: Tag[] }) => {
   }
 };
 
-const PriceField = ({ price, discounts, color }: { price: number; discounts: Discount[]; color?: Color }) => {
-  const activeDiscounts = discounts.filter(d => d.isActive && d.value > 0);
+const PriceField = ({ price, discounts, color }: { price: Decimal | number; discounts: Discount[]; color?: Color }) => {
+  const activeDiscounts = discounts.filter(d => d.isActive && toNumber(d.value) > 0);
 
   const { finalPrice, breakdown } = useMemo(() => {
-    let current = price;
+    let current = toNumber(price);
     const breakdown = activeDiscounts.map(d => {
-      const amount = d.type === "FIXED" ? d.value : current * (d.value / 100);
+      const discountValue = toNumber(d.value);
+      const amount = d.type === "FIXED" ? discountValue : current * (discountValue / 100);
       const before = current;
       current = Math.max(0, current - amount);
       return { discount: d, amount, before, after: current };
@@ -416,7 +418,7 @@ const DiscountsTable = ({ approved, draft }: { approved: Discount[]; draft: Disc
 function isSameDiscount(a: Discount, b: Discount): boolean {
   return (
     a.type === b.type &&
-    a.value === b.value &&
+    toNumber(a.value) === toNumber(b.value) &&
     a.startAt === b.startAt &&
     a.endAt === b.endAt &&
     a.isActive === b.isActive &&

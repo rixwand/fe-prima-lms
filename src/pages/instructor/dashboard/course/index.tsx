@@ -32,7 +32,7 @@ export default function InstructorDashboard() {
           }}
           onFinish={() => {
             setPage("course");
-            router.reload();
+            router.replace(router.route);
           }}
         />
       )}

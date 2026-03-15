@@ -1,5 +1,5 @@
 import cn from "@/libs/utils/cn";
-import { applyDiscounts } from "@/libs/utils/currency";
+import { applyDiscounts, convertLocal } from "@/libs/utils/currency";
 import { formatDate } from "@/libs/utils/string";
 import courseQueries from "@/queries/course-queries";
 import { Avatar, Button, Card, Chip, Popover, PopoverContent, PopoverTrigger, PressEvent } from "@heroui/react";
@@ -33,7 +33,7 @@ type CourseCardData = {
   title: string;
   status: string;
   coverImage: string;
-  priceAmount: number;
+  priceAmount: number | Decimal;
   // isFree: boolean;
   createdAt: string;
   discounts?: Discount[] | undefined;
@@ -233,14 +233,9 @@ export function CourseCard({
           </div>
           <div className="flex items-center gap-4 text-medium text-slate-800 font-medium">
             <span className="inline-flex items-center gap-1">
-              {(data.discounts && data.discounts.length > 0
-                ? applyDiscounts(data.priceAmount, data.discounts)
-                : data.priceAmount
-              ).toLocaleString("id-ID", {
-                style: "currency",
-                currency: "IDR",
-                maximumFractionDigits: 0,
-              })}
+              {convertLocal(
+                data.discounts && data.discounts.length > 0 ? applyDiscounts(data.priceAmount, data.discounts) : data.priceAmount,
+              )}
             </span>
           </div>
           <div className="flex items-center text-xs text-slate-500">
@@ -324,14 +319,9 @@ export function CourseCard({
           </span>
         </div>
         <div className="col-span-6 @2xl:col-span-3 @5xl:col-span-2 @3xl:justify-center flex items-center text-medium text-slate-800 font-medium justify-self-end justify-end">
-          {(data.discounts && data.discounts.length > 0
-            ? applyDiscounts(data.priceAmount, data.discounts)
-            : data.priceAmount
-          ).toLocaleString("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            maximumFractionDigits: 0,
-          })}
+          {convertLocal(
+            data.discounts && data.discounts.length > 0 ? applyDiscounts(data.priceAmount, data.discounts) : data.priceAmount,
+          )}
         </div>
         <div
           className={cn(

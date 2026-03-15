@@ -1,13 +1,17 @@
+import { convertLocal, toNumber } from "@/libs/utils/currency";
+
 export default function CheckoutCardDiscountItem({
   discount,
   priceAmount,
 }: {
   discount: Discount;
-  priceAmount: number;
+  priceAmount: number | Decimal;
 }) {
   if (!discount.isActive) return null;
 
-  const discountAmount = discount.type === "FIXED" ? Number(discount.value) : priceAmount * (discount.value / 100);
+  const basePrice = toNumber(priceAmount);
+  const discountValue = toNumber(discount.value);
+  const discountAmount = discount.type === "FIXED" ? discountValue : basePrice * (discountValue / 100);
 
   return (
     <div className="mt-2 flex items-center justify-between">
@@ -16,12 +20,7 @@ export default function CheckoutCardDiscountItem({
       </span>
 
       <span className="text-base font-semibold text-emerald-600">
-        -
-        {discountAmount.toLocaleString("id-ID", {
-          style: "currency",
-          currency: "IDR",
-          maximumFractionDigits: 0,
-        })}
+        -{convertLocal(discountAmount)}
       </span>
     </div>
   );

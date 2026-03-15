@@ -30,8 +30,7 @@ export default function usePublishCourses({
   onRejectSuccess?: VoidFn;
 }> = {}) {
   const qc = useQueryClient();
-  const invalidateCoursePublish = () =>
-    qc.invalidateQueries({ queryKey: courseQueries.keys.listPublishRequest(), refetchType: "active" });
+  const invalidateCoursePublish = () => qc.invalidateQueries({ queryKey: courseQueries.keys.listPublishRequest() });
   const {
     isLoading,
     data: queryCourses,
@@ -39,7 +38,11 @@ export default function usePublishCourses({
     error,
   } = useQuery(courseQueries.options.listPublishRequests(queryParams));
 
-  const { mutate: rejectCourse, mutateAsync: rejectCourseAsync, isPending: isPendingRejectCourse } = useMutation({
+  const {
+    mutate: rejectCourse,
+    mutateAsync: rejectCourseAsync,
+    isPending: isPendingRejectCourse,
+  } = useMutation({
     mutationFn: coursePublishService.reject,
     onSuccess() {
       addToast({ title: "Request for course publish has been rejected", color: "success" });
@@ -55,11 +58,15 @@ export default function usePublishCourses({
     },
   });
 
-  const { mutate: approveCourse, mutateAsync: approveCourseAsync, isPending: isPendingApproveCourse } = useMutation({
+  const {
+    mutate: approveCourse,
+    mutateAsync: approveCourseAsync,
+    isPending: isPendingApproveCourse,
+  } = useMutation({
     mutationFn: coursePublishService.approve,
-    onSuccess() {
+    async onSuccess() {
       addToast({ title: "Request for course publish has been approved", color: "success" });
-      invalidateCoursePublish();
+      await invalidateCoursePublish();
       onApproveSuccess();
     },
     onError: error => {

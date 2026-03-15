@@ -1,6 +1,5 @@
-import useDump from "@/hooks/use-dump";
 import cn from "@/libs/utils/cn";
-import { applyDiscounts } from "@/libs/utils/currency";
+import { applyDiscounts, convertLocal } from "@/libs/utils/currency";
 import { Avatar, Button, Card, Chip, Popover, PopoverContent, PopoverTrigger, Skeleton } from "@heroui/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -17,7 +16,6 @@ type Props = {
 };
 const UserCourseCard = ({ className, course: { metaApproved }, course, disabled = false }: Props) => {
   const router = useRouter();
-  useDump(course);
   return (
     <Card
       className={cn("rounded-xl overflow-hidden justify-between", className)}
@@ -138,19 +136,11 @@ const UserCourseCard = ({ className, course: { metaApproved }, course, disabled 
                 "line-through text-gray-400 font-medium",
               "inline-flex items-center gap-1",
             )}>
-            {metaApproved!.priceAmount.toLocaleString("id-ID", {
-              style: "currency",
-              currency: "IDR",
-              maximumFractionDigits: 0,
-            })}
+            {convertLocal(metaApproved!.priceAmount)}
           </span>
           {course.discounts && course.discounts.length > 0 && course.discounts[0].isActive && (
             <span className="inline-flex items-center gap-1">
-              {applyDiscounts(metaApproved!.priceAmount, course.discounts).toLocaleString("id-ID", {
-                style: "currency",
-                currency: "IDR",
-                maximumFractionDigits: 0,
-              })}
+              {convertLocal(applyDiscounts(metaApproved!.priceAmount, course.discounts))}
             </span>
           )}
         </div>

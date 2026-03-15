@@ -21,7 +21,7 @@ interface MetaCourse {
   descriptionJson: string;
   coverImage: string;
   previewVideo?: string;
-  priceAmount: number;
+  priceAmount: Decimal | number;
   isFree: boolean;
 }
 
@@ -48,7 +48,7 @@ interface Discount {
   id: number;
   courseId: number;
   type: DiscountType;
-  value: number;
+  value: Decimal | number;
   startAt: string | null;
   endAt: string | null;
   isActive: boolean;

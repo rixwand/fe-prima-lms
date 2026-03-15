@@ -24,6 +24,9 @@ export default function CoursesList({
   const router = useRouter();
   useDump(courses);
 
+  const getDraftPriceAmount = (metaDraft: QueryPublishCourse["course"]["metaDraft"]) =>
+    metaDraft.priceAmount ?? metaDraft.priceDecimalAmount ?? 0;
+
   return (
     <div className="pt-5 border-t border-slate-200">
       <Toolbar setLayout={setLayout} handleSearch={() => {}} />
@@ -39,37 +42,47 @@ export default function CoursesList({
                 ? "grid grid-cols-1 @lg:grid-cols-2 @7xl:grid-cols-4 @4xl:grid-cols-3 gap-4"
                 : "space-y-2",
             )}>
-            {courses?.map(c => (
-              <CourseCard
-                layout={layout}
-                key={c.id}
-                data={{
-                  ...c.course,
-                  ...c.course.metaApproved?.payload!,
-                  ...(c.status == "PENDING" && c.type == "NEW"
-                    ? c.course.metaDraft
-                    : { priceAmount: c.course.metaDraft.priceAmount }),
-                  id: c.courseId,
-                  createdAt: c.createdAt,
-                  status: getCourseStatus({ ...c.course, publishRequest: { id: c.id, notes: "", status: c.status } }),
-                  requestType: c.type,
-                  publishedRequestStatus: c.status,
-                  roles: "ADMIN",
-                }}
-                onPress={() => {
-                  return c.type == "UPDATE" && c.status == "PENDING"
-                    ? router.push(`/admin/dashboard/course/${c.courseId}/review-changes`)
-                    : router.push(`/admin/dashboard/course/${c.courseId}`);
-                }}
-                LisBoxActions={
-                  <AdminListBoxAction
-                    {...{ courseTitle: c.course.metaDraft.title, reqId: c.id, reqStatus: c.status, notes: c.notes }}
-                  />
-                }
-                owner={c.course.owner}
-                unPressable={c.status == "REJECTED" && c.type == "NEW"}
-              />
-            ))}
+            {courses?.map(c => {
+              // Normalize query shape to the card contract.
+              // QueryPublishCourse can now carry either `priceAmount` or `priceDecimalAmount`.
+              // CourseCard always consumes `priceAmount`.
+              const draftPriceAmount = getDraftPriceAmount(c.course.metaDraft);
+
+              return (
+                <CourseCard
+                  layout={layout}
+                  key={c.id}
+                  data={{
+                    ...c.course,
+                    ...c.course.metaApproved?.payload!,
+                    ...(c.status == "PENDING" && c.type == "NEW"
+                      ? { ...c.course.metaDraft, priceAmount: draftPriceAmount }
+                      : { priceAmount: draftPriceAmount }),
+                    id: c.courseId,
+                    createdAt: c.createdAt,
+                    status: getCourseStatus({
+                      ...c.course,
+                      publishRequest: { id: c.id, notes: "", status: c.status },
+                    }),
+                    requestType: c.type,
+                    publishedRequestStatus: c.status,
+                    roles: "ADMIN",
+                  }}
+                  onPress={() => {
+                    return c.type == "UPDATE" && c.status == "PENDING"
+                      ? router.push(`/admin/dashboard/course/${c.courseId}/review-changes`)
+                      : router.push(`/admin/dashboard/course/${c.courseId}`);
+                  }}
+                  LisBoxActions={
+                    <AdminListBoxAction
+                      {...{ courseTitle: c.course.metaDraft.title, reqId: c.id, reqStatus: c.status, notes: c.notes }}
+                    />
+                  }
+                  owner={c.course.owner}
+                  unPressable={c.status == "REJECTED" && c.type == "NEW"}
+                />
+              );
+            })}
           </div>
         )}
       </div>

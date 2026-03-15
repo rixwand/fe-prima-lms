@@ -30,7 +30,7 @@ export default function PricingPanel() {
             name="priceAmount"
             rules={{
               required: "Please input course price",
-              min: { value: 1, message: "Price must be greater than 0" },
+              min: { value: 0.01, message: "Price must be greater than 0" },
             }}
             render={({ field, fieldState: { error } }) => (
               <TextField
@@ -41,6 +41,7 @@ export default function PricingPanel() {
                 field={field}
                 onChange={e => field.onChange(e.target.valueAsNumber)}
                 type="number"
+                step="0.01"
                 onFocus={e => e.target.select()}
               />
             )}
@@ -83,7 +84,7 @@ export default function PricingPanel() {
                   name="discount.value"
                   rules={{
                     max: discount.type == "PERCENTAGE" ? { value: 100, message: "Cant over 100%" } : undefined,
-                    min: { value: 1, message: "Discount must be greater than 0" },
+                    min: { value: 0.01, message: "Discount must be greater than 0" },
                   }}
                   render={({ field, fieldState: { error } }) => (
                     <TextField
@@ -95,6 +96,7 @@ export default function PricingPanel() {
                       label={`Amount (${watch("discount.type") == "FIXED" ? "Rp" : "%"})`}
                       field={field}
                       onChange={e => field.onChange(e.target.valueAsNumber)}
+                      step="0.01"
                       onFocus={e => e.target.select()}
                     />
                   )}

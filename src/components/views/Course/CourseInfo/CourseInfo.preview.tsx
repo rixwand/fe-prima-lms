@@ -4,7 +4,7 @@ import { useNProgress } from "@/hooks/use-nProgress";
 import { useQueryError } from "@/hooks/use-query-error";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
-import { applyDiscounts } from "@/libs/utils/currency";
+import { applyDiscounts, convertLocal, toNumber } from "@/libs/utils/currency";
 import { getYouTubeEmbedUrl } from "@/libs/utils/string";
 import courseQueries from "@/queries/course-queries";
 import { Accordion, AccordionItem, Button, Card, Chip, Skeleton, Tab, Tabs } from "@heroui/react";
@@ -93,11 +93,7 @@ export default function CourseInfo({ slug }: { slug: string }) {
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-slate-600">Harga Kursus</span>
             <span className="text-sm font-medium text-slate-400 line-through">
-              {priceAmount.toLocaleString("id-ID", {
-                style: "currency",
-                currency: "IDR",
-                maximumFractionDigits: 0,
-              })}
+              {convertLocal(priceAmount)}
             </span>
           </div>
 
@@ -109,14 +105,11 @@ export default function CourseInfo({ slug }: { slug: string }) {
               </span>
               <span className="text-base font-semibold text-emerald-600">
                 -
-                {(discounts[0].type == "FIXED"
-                  ? discounts[0].value
-                  : priceAmount * (discounts[0].value / 100)
-                ).toLocaleString("id-ID", {
-                  style: "currency",
-                  currency: "IDR",
-                  maximumFractionDigits: 0,
-                })}
+                {convertLocal(
+                  discounts[0].type == "FIXED"
+                    ? discounts[0].value
+                    : toNumber(priceAmount) * (toNumber(discounts[0].value) / 100),
+                )}
               </span>
             </div>
           )}
@@ -152,14 +145,9 @@ export default function CourseInfo({ slug }: { slug: string }) {
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-700">Harga Akhir</span>
             <span className="text-xl font-bold tracking-tight text-slate-900">
-              {(discounts && discounts.length > 0 && discounts[0].isActive
-                ? applyDiscounts(priceAmount, discounts)
-                : priceAmount
-              ).toLocaleString("id-ID", {
-                style: "currency",
-                currency: "IDR",
-                maximumFractionDigits: 0,
-              })}
+              {convertLocal(
+                discounts && discounts.length > 0 && discounts[0].isActive ? applyDiscounts(priceAmount, discounts) : priceAmount,
+              )}
             </span>
           </div>
 

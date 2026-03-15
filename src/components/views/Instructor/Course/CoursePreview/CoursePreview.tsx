@@ -1,7 +1,7 @@
 import CheckoutCardDiscountItem from "@/components/commons/CheckoutCardDiscountItem";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
-import { applyDiscounts } from "@/libs/utils/currency";
+import { applyDiscounts, convertLocal } from "@/libs/utils/currency";
 import { getYouTubeEmbedUrl } from "@/libs/utils/string";
 import { Accordion, AccordionItem, Button, Chip, Tab, Tabs } from "@heroui/react";
 import Image from "next/image";
@@ -93,11 +93,7 @@ export default function CoursePreview({
                   ? "text-slate-400 line-through"
                   : "text-slate-600",
               )}>
-              {priceAmount.toLocaleString("id-ID", {
-                style: "currency",
-                currency: "IDR",
-                maximumFractionDigits: 0,
-              })}
+              {convertLocal(priceAmount)}
             </span>
           </div>
 
@@ -136,11 +132,7 @@ export default function CoursePreview({
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-700">Harga Akhir</span>
             <span className="text-xl font-bold tracking-tight text-slate-900">
-              {applyDiscounts(priceAmount, showPublished ? discounts : (draftDiscounts ?? [])).toLocaleString("id-ID", {
-                style: "currency",
-                currency: "IDR",
-                maximumFractionDigits: 0,
-              })}
+              {convertLocal(applyDiscounts(priceAmount, showPublished ? discounts : (draftDiscounts ?? [])))}
             </span>
           </div>
 
