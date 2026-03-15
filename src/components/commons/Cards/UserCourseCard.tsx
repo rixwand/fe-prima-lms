@@ -27,39 +27,41 @@ const UserCourseCard = ({ className, course: { metaApproved }, course, disabled 
         <div className="relative w-full h-fit aspect-video">
           <Image fill className="object-cover rounded-t-md" src={metaApproved!.coverImage} alt="Course Image" />
           <span className="absolute left-2 top-2 flex gap-x-1">
-            <Chip
-              endContent={
-                course.categories.length > 1 && (
-                  <Popover placement="right">
-                    <PopoverTrigger>
-                      <Button
-                        isIconOnly
-                        disableRipple
-                        variant="flat"
-                        color="default"
-                        onPress={() => {}}
-                        className="reset-button text-white p-0.5">
-                        <LuEllipsis size={16} />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="flex flex-row bg-white rounded-full gap-x-1 p-1">
-                      {course.categories.map(
-                        (c, i) =>
-                          i > 0 && (
-                            <Chip variant="flat" color="primary" className=" shadow-sm text-sm">
-                              {c.name}
-                            </Chip>
-                          ),
-                      )}
-                    </PopoverContent>
-                  </Popover>
-                )
-              }
-              variant="solid"
-              color="primary"
-              className=" shadow-sm text-sm">
-              {course.categories[0].name}
-            </Chip>
+            {course.categories[0] && (
+              <Chip
+                endContent={
+                  course.categories.length > 1 && (
+                    <Popover placement="right">
+                      <PopoverTrigger>
+                        <Button
+                          isIconOnly
+                          disableRipple
+                          variant="flat"
+                          color="default"
+                          onPress={() => {}}
+                          className="reset-button text-white p-0.5">
+                          <LuEllipsis size={16} />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="flex flex-row bg-white rounded-full gap-x-1 p-1">
+                        {course.categories.map(
+                          (c, i) =>
+                            i > 0 && (
+                              <Chip variant="flat" color="primary" className=" shadow-sm text-sm">
+                                {c.name}
+                              </Chip>
+                            ),
+                        )}
+                      </PopoverContent>
+                    </Popover>
+                  )
+                }
+                variant="solid"
+                color="primary"
+                className=" shadow-sm text-sm">
+                {course.categories[0].name}
+              </Chip>
+            )}
             {/* {course.categories.length > 1 && (
               <span className="size-7 rounded-full bg-primary shadow-sm text-white text-xs flex items-center justify-center">
                 +{course.categories.length - 1}

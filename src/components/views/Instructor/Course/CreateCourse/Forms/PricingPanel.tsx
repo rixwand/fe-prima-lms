@@ -41,6 +41,7 @@ export default function PricingPanel() {
                 field={field}
                 onChange={e => field.onChange(e.target.valueAsNumber)}
                 type="number"
+                onFocus={e => e.target.select()}
               />
             )}
           />
@@ -94,6 +95,7 @@ export default function PricingPanel() {
                       label={`Amount (${watch("discount.type") == "FIXED" ? "Rp" : "%"})`}
                       field={field}
                       onChange={e => field.onChange(e.target.valueAsNumber)}
+                      onFocus={e => e.target.select()}
                     />
                   )}
                 />

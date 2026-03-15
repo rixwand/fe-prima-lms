@@ -15,8 +15,7 @@ export const getServerSideProps = (async ctx => {
   ctx.res.setHeader("Cache-Control", "private, max-age=60, stale-while-revalidate=300");
   const queryClient = new QueryClient();
   const nextDataHeader = ctx.req.headers["x-nextjs-data"];
-  const isNextDataRequest =
-    nextDataHeader === "1" || (Array.isArray(nextDataHeader) && nextDataHeader.includes("1"));
+  const isNextDataRequest = nextDataHeader === "1" || (Array.isArray(nextDataHeader) && nextDataHeader.includes("1"));
 
   if (!isNextDataRequest) {
     try {

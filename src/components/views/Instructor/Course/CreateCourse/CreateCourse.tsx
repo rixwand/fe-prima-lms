@@ -1,11 +1,10 @@
 import UserCourseCard from "@/components/commons/Cards/UserCourseCard";
 import { SUPABASE_BUCKET, SUPABASE_URL } from "@/config/env";
+import useCourse from "@/hooks/course/useCourse";
 import { storageClient } from "@/libs/supabase/client";
 import cn from "@/libs/utils/cn";
 import { toSlug } from "@/libs/utils/string";
-import courseService from "@/services/course.service";
 import { Spinner, addToast } from "@heroui/react";
-import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { Fragment, useState } from "react";
@@ -27,24 +26,10 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
       sections: [],
     },
   });
-  const { mutate, isPending } = useMutation({
-    mutationFn: courseService.create,
-    onError: error => {
-      console.log(error);
-      addToast({
-        title: "Create course failed",
-        description: error.message,
-        color: "danger",
-      });
-    },
-    onSuccess(data) {
-      onFinish();
-      addToast({
-        title: "Create Course Success",
-        color: "success",
-      });
-    },
-  });
+  const {
+    createCourse,
+    pending: { isCreateCoursePending },
+  } = useCourse(0, { enabled: false, onCreateCourseSuccess: onFinish });
   const onSubmit = async (value: CourseForm) => {
     setLoading(true);
     const fileImage = value.coverImage[0];
@@ -63,7 +48,7 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
     if (value.discount == undefined) Reflect.deleteProperty(courseData, "discount");
     setLoading(false);
     console.log(courseData);
-    return mutate(courseData);
+    return createCourse(courseData);
   };
 
   const fileList = methods.watch("coverImage");
@@ -148,9 +133,9 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
             {step == 2 && (
               <button
                 onClick={saveCourse}
-                disabled={isLoading || isPending}
+                disabled={isLoading || isCreateCoursePending}
                 className="h-10 flex items-center gap-x-2 disabled:opacity-50 px-4 rounded-xl border border-blue-200 text-blue-700 hover:bg-blue-50">
-                {isLoading || isPending ? (
+                {isLoading || isCreateCoursePending ? (
                   <Fragment>
                     <Spinner size="sm" color="primary" />
                     Uploading
@@ -181,11 +166,11 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
             ) : (
               <button
                 onClick={saveCourse}
-                disabled={isLoading || isPending}
+                disabled={isLoading || isCreateCoursePending}
                 className={cn([
                   "h-10 flex gap-x-2 items-center px-4 rounded-xl bg-emerald-600 text-white font-medium disabled:bg-emerald-600/50",
                 ])}>
-                {isLoading || isPending ? (
+                {isLoading || isCreateCoursePending ? (
                   <Fragment>
                     <Spinner size="sm" color="white" />
                     Uploading
@@ -209,7 +194,7 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
             <UserCourseCard
               disabled
               course={{
-                categories: categories.map(({ name }) => ({ name, slug: toSlug(name) })),
+                categories: (categories ?? []).map(({ name }) => ({ name, slug: toSlug(name) })),
                 tags: tags.map(name => ({ name, slug: toSlug(name) })),
                 slug: toSlug(title ?? ""),
                 metaApproved: {

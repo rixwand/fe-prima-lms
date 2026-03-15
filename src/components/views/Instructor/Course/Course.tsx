@@ -1,10 +1,11 @@
 import StatCard from "@/components/commons/Cards/StatsCard";
+import useCourse from "@/hooks/course/useCourse";
 import { formatRupiah } from "@/libs/utils/currency";
 import { Tab, Tabs } from "@heroui/react";
 import { useState } from "react";
-import { LuBookOpen, LuPlus, LuStar, LuUsers } from "react-icons/lu";
+import { LuBookOpen, LuPlus, LuRefreshCcw, LuStar, LuUsers } from "react-icons/lu";
 import { PiMoneyWavy } from "react-icons/pi";
-import useCourse from "../../../../hooks/course/useListCourses";
+import useListCourses from "../../../../hooks/course/useListCourses";
 import AllCoursesTab from "./Tabs/AllCoursesTab";
 import DraftCoursesTab from "./Tabs/DraftCourse";
 import PendingCoursesTab from "./Tabs/PendingCourseTab";
@@ -12,7 +13,8 @@ import PublishedCoursesTab from "./Tabs/PublishedCourseTab";
 import RejectedCoursesTab from "./Tabs/RejectedCourseTab";
 
 export default function InstructorCourse({ onCreate }: { onCreate: () => void }) {
-  const { coursesMeta } = useCourse();
+  const { coursesMeta } = useListCourses();
+  const { invalidateCourse } = useCourse(0, { enabled: false });
   const [query, setQuery] = useState("");
 
   const totalStudents = 21000;
@@ -26,6 +28,11 @@ export default function InstructorCourse({ onCreate }: { onCreate: () => void })
           <h1 className="text-2xl font-bold tracking-tight">My Courses</h1>
           <p className="text-slate-600 text-sm">Manage, publish and track the performance of your courses.</p>
         </div>
+        <button
+          onClick={invalidateCourse}
+          className="inline-flex items-center gap-2 px-4 h-10 rounded-xl bg-blue-600 text-white font-medium shadow-sm hover:bg-blue-700">
+          <LuRefreshCcw size={20} /> Invalidate Course
+        </button>
         <button
           onClick={onCreate}
           className="inline-flex items-center gap-2 px-4 h-10 rounded-xl bg-blue-600 text-white font-medium shadow-sm hover:bg-blue-700">

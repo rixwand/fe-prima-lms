@@ -7,8 +7,16 @@ import { addToast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNProgress } from "../use-nProgress";
 import { useQueryError } from "../use-query-error";
+type UseCourseOptions = {
+  refetchOnMutateSuccess?: boolean;
+  enabled?: boolean;
+  onCreateCourseSuccess?: () => void;
+};
 
-const useCourse = (id: number, option: { refetchOnMutateSuccess?: boolean; enabled?: boolean } = { enabled: true }) => {
+const useCourse = (
+  id: number,
+  { refetchOnMutateSuccess, enabled, onCreateCourseSuccess = () => {} }: UseCourseOptions,
+) => {
   const qc = useQueryClient();
   const {
     data: course,
@@ -18,18 +26,40 @@ const useCourse = (id: number, option: { refetchOnMutateSuccess?: boolean; enabl
     refetch,
   } = useQuery({
     ...courseQueries.options.getCourse(id),
-    enabled: option.enabled,
+    enabled,
   });
   const invalidateCourse = () => {
-    qc.invalidateQueries({ queryKey: courseQueries.keys.getCourse(id), refetchType: "active" });
-    qc.invalidateQueries({ queryKey: courseQueries.keys.listCourses(), refetchType: "active" });
-    if (option?.refetchOnMutateSuccess == true) {
+    qc.invalidateQueries({ queryKey: courseQueries.keys.getCourse(id) });
+    qc.invalidateQueries({ queryKey: courseQueries.keys.listCourses() });
+    addToast({ title: "Invalidate List Course", color: "secondary" });
+    if (refetchOnMutateSuccess == true) {
       console.log("refetch");
       refetch();
     }
   };
 
   useQueryError({ isError, error });
+  const { mutate: createCourse, isPending: isCreateCoursePending } = useMutation({
+    mutationFn: courseService.create,
+    onError: error => {
+      console.log(error);
+      addToast({
+        title: "Create course failed",
+        description: error.message,
+        color: "danger",
+      });
+    },
+    onSuccess: async () => {
+      addToast({
+        title: "Create Course Succes",
+        description: "Using UseCourse and invalidate listcourse",
+        color: "success",
+      });
+      invalidateCourse();
+      onCreateCourseSuccess();
+    },
+  });
+
   const {
     mutate: updateCourse,
     mutateAsync: updateCourseAsync,
@@ -177,6 +207,7 @@ const useCourse = (id: number, option: { refetchOnMutateSuccess?: boolean; enabl
     deleteCoursePending,
     isPendingApplyDraft,
     isPendingCategories,
+    isCreateCoursePending,
   };
   const hasPending = hasTrue(pending);
 
@@ -206,6 +237,8 @@ const useCourse = (id: number, option: { refetchOnMutateSuccess?: boolean; enabl
     refetch,
     pending,
     publishCourseAsync,
+    createCourse,
+    invalidateCourse,
   };
 };
 export default useCourse;
