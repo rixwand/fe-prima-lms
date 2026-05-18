@@ -9,7 +9,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNProgress } from "../use-nProgress";
 import { useQueryError } from "../use-query-error";
 type Props = {
-  idsPath: { courseId: number; sectionId: number; lessonId: number };
+  idsPath: { courseId: number; sectionId: number; itemId: number };
   onRemoveLessonSuccess?: VoidFn;
   onUpdateLessonSuccess?: (variable: MutateUpdateLesson) => void;
   enableQueryContent?: boolean;

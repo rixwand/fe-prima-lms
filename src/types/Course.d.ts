@@ -3,9 +3,9 @@
 
 // =======================
 type DiscountType = "FIXED" | "PERCENTAGE";
-type LessonProgressStatus = "PENDING" | "COMPLETED";
+type LearnProgressStatus = "PENDING" | "COMPLETED";
 type ApprovalTarget = "META" | "TAGS" | "CATEGORY";
-
+type SectionItemType = "LESSON" | "QUIZ" | "FORUM";
 // =======================
 // Shared base models
 // =======================
@@ -129,7 +129,7 @@ interface CoursePreview extends BaseCourse {
   tags: Tag[];
   sections?: {
     title: string;
-    lessons: Lesson[];
+    items: CourseSectionsItem[];
   }[];
   discounts?: Discount[];
 }
@@ -161,23 +161,30 @@ interface CourseSection {
   position: number;
   publishedAt: string | null;
   removedAt: string | null;
-  lessons: Lesson[];
+  items: CourseSectionsItem[];
+}
+
+interface CourseSectionsItem {
+  id: number;
+  sectionId: number;
+  type: SectionItemType;
+  position: number;
+  slug: string;
+  title: string;
+  isPreview: boolean;
+  durationSec: number;
+  learnProgress: { status: LearnProgressStatus }[];
+  publishedAt: string | null;
+  removedAt: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 
 interface Lesson {
   id: number;
-  sectionId: number;
-  slug: string;
-  title: string;
+  sectionItemId: number;
   summary: string | null;
-  position: number;
   durationSec: number | null;
-  isPreview: boolean;
-  publishedAt: string | null;
-  removedAt: string | null;
-}
-
-interface LessonContent {
   contentDraft: JSONContent;
   contentLive: JSONContent;
   publishedAt: string | null;
@@ -217,15 +224,16 @@ type QueryLessonItem = {
 
 interface CourseCurriculum {
   title: MetaCourse["title"];
-  sections: Array<
-    Pick<CourseSection, "id" | "courseId" | "title" | "position" | "publishedAt" | "removedAt"> & {
-      lessons: Array<
-        Pick<Lesson, "id" | "isPreview" | "slug" | "sectionId" | "title" | "durationSec"> & {
-          lessonProgress: [{ status: LessonProgressStatus }];
-        }
-      >;
-    }
-  >;
+  sections: CourseSection[];
+  // sections: Array<
+  //   Pick<CourseSection, "id" | "courseId" | "title" | "position" | "publishedAt" | "removedAt"> & {
+  //     lessons: Array<
+  //       Pick<Lesson, "id" | "isPreview" | "slug" | "sectionId" | "title" | "durationSec"> & {
+  //         lessonProgress: [{ status: LessonProgressStatus }];
+  //       }
+  //     >;
+  //   }
+  // >;
 }
 
 interface QueryEnrollmentItem {

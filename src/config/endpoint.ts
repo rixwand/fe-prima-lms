@@ -10,4 +10,5 @@ export const endpoint = {
   INVOICE: "/invoices",
   ENROLLMENT: "/me/enrollments",
   LEARN: "/me/learn",
+  NOTIFICATION: "/me/notifications",
 };

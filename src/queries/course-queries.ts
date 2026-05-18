@@ -22,7 +22,7 @@ const courseQueries = {
     listCourses: (params?: ListCourseParams) => (params ? ["course-list", params] : ["course-list"]),
     listSections: (id: number) => ["course-sections", id],
     listLessons: (ids: Ids) => ["section-lessons", ids],
-    getLessonContent: (ids?: Ids & { lessonId: number }) => ["lesson-content", ids],
+    getLessonContent: (ids?: Ids & { itemId: number }) => ["lesson-content", ids],
     listPublishRequest: (params?: PublishCourseListParams) =>
       params ? ["list-publish-request", params] : ["list-publish-request"],
     listPublicCourses: (params?: ListPublicCoursesParams) => (params ? ["public-courses", params] : ["public-courses"]),
@@ -139,8 +139,8 @@ const courseQueries = {
         enabled: false,
         placeholderData: keepPreviousData,
       }),
-    getLessonContent: (ids?: Ids & { lessonId: number }, enabled?: boolean) =>
-      queryOptions<LessonContent>({
+    getLessonContent: (ids?: Ids & { itemId: number }, enabled?: boolean) =>
+      queryOptions<Lesson>({
         queryKey: courseQueries.keys.getLessonContent(ids),
         queryFn: () => courseLessonService.getContent(ids!).then(res => res.data),
         enabled: enabled != undefined ? enabled : !!ids,

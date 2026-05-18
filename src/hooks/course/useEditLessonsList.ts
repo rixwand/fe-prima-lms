@@ -1,4 +1,4 @@
-import { getErrorMessage } from "@/libs/axios/error";
+import { getErrorMessage, getUnknownErrorMessage } from "@/libs/axios/error";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import { voidFn } from "@/libs/utils/function";
 import courseQueries from "@/queries/course-queries";
@@ -6,7 +6,6 @@ import courseLessonService, { MutateLesson, MutateReorderLessons } from "@/servi
 import { AppAxiosError } from "@/types/axios";
 import { addToast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { useEffect } from "react";
 
 type TUseEditLesson = {
@@ -44,7 +43,7 @@ export default function useEditLessonList({
       addToast({
         color: "danger",
         title: "Error",
-        description: isAxiosError(error) ? getErrorMessage(error) : error.message,
+        description: getUnknownErrorMessage(error),
       });
   }, [isError, error]);
 

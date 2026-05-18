@@ -6,7 +6,7 @@ import { Button } from "@heroui/react";
 import { FaChevronRight } from "react-icons/fa6";
 
 export default function CourseSection() {
-  const { courses, loadings } = usePublicCourse({ limit: 5 });
+  const { courses, loadings } = usePublicCourse({ limit: 4 });
   return (
     <section className={cn([inter.className, "bg-[#1E40AF] "])}>
       <div className="py-16 flex flex-col items-center container mx-auto lg:px-16">
@@ -18,7 +18,7 @@ export default function CourseSection() {
           ) : courses ? (
             courses.map(({ metaApproved, ...course }) => (
               <UserCourseCard
-                // className="max-w-48"
+                className="min-w-xs"
                 course={{ metaApproved: metaApproved!, ...course }}
                 key={course.id}
               />

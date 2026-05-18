@@ -1,15 +1,10 @@
-import { authService } from "@/services/auth.service";
+import useAuth from "@/hooks/auth/useAuth";
 import { Avatar, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/react";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 export default function AvatarProfile() {
   const { data } = useSession();
-  const logoutHandler = async () => {
-    await authService.logout();
-    await signOut({
-      callbackUrl: "/",
-    });
-  };
+  const { logoutHandler } = useAuth();
   return (
     <Dropdown placement="bottom-end">
       <DropdownTrigger>

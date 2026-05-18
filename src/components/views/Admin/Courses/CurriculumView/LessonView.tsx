@@ -5,12 +5,12 @@ import { Content, JSONContent } from "@tiptap/core";
 import { useEffect, useState } from "react";
 import { TiptapViewer } from "../../../../commons/TiptapViewer/TiptapViewer";
 
-export default function Lessonview({ activeLesson }: { activeLesson: LessonPathIds }) {
-  // const { data: blocks, isPending, isError, error } = useQueryBlocks(activeLesson);
+export default function Lessonview({ activeItem }: { activeItem: LessonPathIds }) {
+  // const { data: blocks, isPending, isError, error } = useQueryBlocks(activeItem);
   const {
     lessonContent,
     pending: { isPendingQuery },
-  } = useEditLesson({ idsPath: activeLesson });
+  } = useEditLesson({ idsPath: activeItem });
   const [blockPreview, setBlockPreview] = useState<Content | undefined>(undefined);
   useEffect(() => {
     if (lessonContent && lessonContent.contentDraft) {

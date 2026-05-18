@@ -7,7 +7,16 @@ import { StateType } from "@/types/Helper";
 import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button, Listbox, ListboxItem, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
+import {
+  Button,
+  Listbox,
+  ListboxItem,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+  SelectItem,
+} from "@heroui/react";
 import { useOverlayTriggerState } from "@react-stately/overlays";
 import { CSSProperties, FC, Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -17,7 +26,6 @@ import {
   LuChevronsUpDown,
   LuCopyPlus,
   LuEllipsisVertical,
-  LuFilePlus2,
   LuFileX,
   LuPencilLine,
   LuPencilOff,
@@ -25,6 +33,7 @@ import {
   LuSquarePen,
   LuTrash2,
 } from "react-icons/lu";
+import { itemTypeSelect } from "../../../../EditCourse/Forms/FolderTree/SectionItem/SectionItem";
 import { CourseForm, CourseSectionForm } from "../../../form.type";
 const CourseSectionItem: FC<{
   section: CourseSectionForm;
@@ -47,7 +56,27 @@ const CourseSectionItem: FC<{
   const { editMode } = useFolderTreeContext();
   const [editSection, setEditSection] = useState<{ id: string; title: string } | null>(null);
   const [isEditLesson, setEditLesson] = useState(false);
-  const [newLesson, setNewLesson] = useState<string | null>(null);
+  const [newItem, setNewItem] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<SectionItemType | null>(null);
+  const [selectOpen, setSelectOpen] = useState(false);
+  const selectOpenRef = useRef(false);
+  const skipResetSelectedTypeRef = useRef(false);
+  const inputNewItemRef = useRef<HTMLInputElement>(null);
+  const inputSelectTypeRef = useRef<HTMLSelectElement>(null);
+  const focusNewItemInput = () => {
+    skipResetSelectedTypeRef.current = true;
+    requestAnimationFrame(() => {
+      inputNewItemRef.current?.focus();
+      requestAnimationFrame(() => {
+        skipResetSelectedTypeRef.current = false;
+      });
+    });
+  };
+  const handleSelectOpenChange = (isOpen: boolean) => {
+    if (!isOpen) focusNewItemInput();
+    selectOpenRef.current = isOpen;
+    setSelectOpen(isOpen);
+  };
 
   useEffect(() => {
     if (editMode) setEditLesson(false);
@@ -80,7 +109,7 @@ const CourseSectionItem: FC<{
   const { control } = useFormContext<CourseForm>();
   const { fields, move, append, update, remove } = useFieldArray({
     control,
-    name: `sections.${idx}.lessons`,
+    name: `sections.${idx}.items`,
     keyName: "id",
   });
   const ids = useMemo(() => fields.map(s => s.id!), [fields]);
@@ -93,17 +122,16 @@ const CourseSectionItem: FC<{
     move(from, to);
   };
 
-  const inputNewLessonRef = useRef<HTMLInputElement>(null);
   const menuState = useOverlayTriggerState({ defaultOpen: false });
 
-  useEffect(() => {
-    if (newLesson && !menuState.isOpen) {
-      setExpanded(prev => new Set([...prev, section.id!]));
-      setTimeout(() => {
-        inputNewLessonRef.current?.focus();
-      }, 300);
-    }
-  }, [menuState.isOpen, newLesson]);
+  // useEffect(() => {
+  //   if (selectedType && !menuState.isOpen) {
+  //     setExpanded(prev => new Set([...prev, section.id!]));
+  //     setTimeout(() => {
+  //       inputNewLessonRef.current?.focus();
+  //     }, 300);
+  //   }
+  // }, [menuState.isOpen, selectedType]);
 
   const [selectedLesson, setSelectedLesson] = useState<Set<string>>(new Set());
   useEffect(() => {
@@ -131,9 +159,9 @@ const CourseSectionItem: FC<{
   const handleRenameSection = () => (editSection ? onRename(idx, editSection.title) : null);
 
   const handleAddLesson = () => {
-    if (newLesson) {
-      append({ title: newLesson });
-      setNewLesson(null);
+    if (newItem && selectedType) {
+      append({ title: newItem, type: selectedType });
+      setNewItem(null);
     }
   };
 
@@ -143,7 +171,7 @@ const CourseSectionItem: FC<{
     },
   });
 
-  const onRenameLesson = (idx: number, title: string) => update(idx, { title });
+  const onRenameLesson = (idx: number, title: string, type: SectionItemType) => update(idx, { title, type });
   const onRemoveLesson = (idx: number) => remove(idx);
 
   const handleDeleteLessons = () => {
@@ -272,7 +300,16 @@ const CourseSectionItem: FC<{
                 </PopoverTrigger>
                 <PopoverContent className="p-2 w-44">
                   <Listbox variant="light" color="primary" aria-label="Actions" onAction={menuState.close}>
-                    <ListboxItem onPress={() => setNewLesson("New Lesson")} startContent={<LuPlus />} key="new">
+                    <ListboxItem
+                      onPress={() => {
+                        setSelectedType("LESSON");
+                        setNewItem("New item");
+                        setExpanded(prev => new Set([...prev, section.id!]));
+                        selectOpenRef.current = true;
+                        setSelectOpen(true);
+                      }}
+                      startContent={<LuPlus />}
+                      key="new">
                       New lesson
                     </ListboxItem>
                     <ListboxItem onPress={opneAddLessonModal} startContent={<LuCopyPlus />} key="new batch">
@@ -332,24 +369,68 @@ const CourseSectionItem: FC<{
                 />
               ))}
             </SortableContext>
-            {newLesson && (
+            {selectedType && (
               <li
                 className="list-none"
                 role="treeitem"
                 aria-selected={false}
                 onBlur={e => {
-                  if (!e.currentTarget.contains(e.relatedTarget)) {
-                    setNewLesson(null);
-                  }
+                  const currentTarget = e.currentTarget;
+                  requestAnimationFrame(() => {
+                    if (skipResetSelectedTypeRef.current) return;
+                    if (selectOpenRef.current) return;
+                    const focusedElement = document.activeElement;
+                    if (focusedElement && currentTarget.contains(focusedElement)) return;
+                    setSelectedType(null);
+                  });
                 }}>
                 <span
                   className={
-                    "flex w-full items-center gap-1 rounded-lg pl-3 text-left text-[var(--tt-theme-text)] transition-colors duration-150 cursor-pointer hover:bg-[var(--tt-gray-light-a-100)] py-[3px] pr-[3px]"
+                    "flex w-full items-center gap-1 rounded-lg text-left text-[var(--tt-theme-text)] transition-colors duration-150 cursor-pointer hover:bg-[var(--tt-gray-light-a-100)] py-[3px] pr-[3px] pl-1"
                   }>
-                  <span className="block h-4 w-4 shrink-0 rounded-full" />
+                  {/* <span className="block h-4 w-4 shrink-0 rounded-full" />
                   <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--tt-theme-brand-color-600)]">
                     <LuFilePlus2 />
-                  </span>
+                  </span> */}
+                  <Select
+                    aria-label="Select Item type"
+                    ref={inputSelectTypeRef}
+                    isOpen={selectOpen}
+                    onOpenChange={handleSelectOpenChange}
+                    items={itemTypeSelect}
+                    className="max-w-[6.65rem]"
+                    size="sm"
+                    selectedKeys={selectedType ? [selectedType] : undefined}
+                    onSelectionChange={keys => {
+                      setSelectOpen(false);
+                      const value = Array.from(keys)[0] as SectionItemType;
+                      if (!value) return;
+                      setSelectedType(value);
+                    }}
+                    classNames={{
+                      selectorIcon: "-mr-1.5",
+                      trigger: "border-1 border-gray-300 focus-within:ring-blue-500 focus-within:ring-1",
+                      popoverContent: "rounded-lg p-0",
+                    }}
+                    renderValue={items => {
+                      return items.map(({ data, key }) =>
+                        data ? (
+                          <span key={key} className="flex items-center gap-x-1">
+                            <data.icon size={16} />
+                            {data.label}
+                          </span>
+                        ) : null,
+                      );
+                    }}>
+                    {({ icon: Icon, key, label }) => (
+                      <SelectItem aria-label={label} key={key}>
+                        <span className="flex items-center gap-x-1">
+                          <Icon size={16} />
+                          {label}
+                        </span>
+                      </SelectItem>
+                    )}
+                  </Select>
                   <input
                     type="text"
                     name="new lesson"
@@ -357,16 +438,16 @@ const CourseSectionItem: FC<{
                       "w-full border text-sm px-1 py-1 focus:outline-0 text-[var(--tt-theme-text)] rounded-md",
                       "bg-gray-100 border-gray-300",
                     )}
-                    ref={inputNewLessonRef}
-                    value={newLesson || undefined}
-                    onChange={e => setNewLesson(e.target.value)}
-                    onFocus={() => inputNewLessonRef.current?.select()}
+                    ref={inputNewItemRef}
+                    value={newItem || undefined}
+                    onChange={e => setNewItem(e.target.value)}
+                    onFocus={() => inputNewItemRef.current?.select()}
                     onKeyDown={e => {
                       if (e.key == "Enter") {
                         e.preventDefault();
                         handleAddLesson();
                       }
-                      if (e.key == "Escape") setNewLesson(null);
+                      if (e.key == "Escape") setNewItem(null);
                     }}
                   />
                   <Button
@@ -382,7 +463,7 @@ const CourseSectionItem: FC<{
                 </span>
               </li>
             )}
-            {fields?.length == 0 && newLesson == null ? (
+            {fields?.length == 0 && newItem == null ? (
               <li role="treeitem" aria-selected={false} className="list-none">
                 <span
                   className={

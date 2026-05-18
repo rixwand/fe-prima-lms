@@ -1,5 +1,5 @@
 import StatCard from "@/components/commons/Cards/StatsCard";
-import { formatRupiah } from "@/libs/utils/currency";
+import { useSocketContext } from "@/libs/context/SocketContext";
 import { Fragment } from "react";
 import {
   LuBookOpen,
@@ -16,9 +16,10 @@ import {
   LuUsers,
 } from "react-icons/lu";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
-import { PiMoneyWavy } from "react-icons/pi";
+import { SiSocketdotio } from "react-icons/si";
 
 export default function Overview() {
+  const { status } = useSocketContext();
   return (
     <Fragment>
       <header className="mb-6 flex items-center gap-3">
@@ -35,7 +36,8 @@ export default function Overview() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={<LuUsers className="w-5 h-5" />} label="Total Users" value={(1245).toLocaleString("id-ID")} />
         <StatCard icon={<LuBookOpen className="w-5 h-5" />} label="Courses" value={(320).toLocaleString("id-ID")} />
-        <StatCard icon={<PiMoneyWavy size={24} />} label="Revenue (30d)" value={formatRupiah(1234567)} />
+        {/* <StatCard icon={<PiMoneyWavy size={24} />} label="Revenue (30d)" value={formatRupiah(1234567)} /> */}
+        <StatCard icon={<SiSocketdotio size={20} />} label="Socket Status" value={status} />
         <StatCard icon={<LuClockAlert className="w-5 h-5" />} label="Pending Approvals" value={"12"} />
       </div>
 
@@ -180,8 +182,8 @@ export default function Overview() {
                           c.status === "Paid"
                             ? "bg-green-100 text-green-700"
                             : c.status === "Refunded"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-gray-100 text-gray-600"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-gray-100 text-gray-600"
                         }`}>
                         {c.status}
                       </span>

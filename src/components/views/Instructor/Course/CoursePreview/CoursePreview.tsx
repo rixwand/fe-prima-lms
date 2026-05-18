@@ -166,13 +166,7 @@ const PreviewTab = ({ url }: { url: string }) => {
   );
 };
 
-const SyllabusTab = ({
-  sections,
-  showPublished,
-}: {
-  sections: { title: string; lessons?: Lesson[]; publishedAt: string | null }[];
-  showPublished: boolean;
-}) => {
+const SyllabusTab = ({ sections, showPublished }: { sections: CourseSection[]; showPublished: boolean }) => {
   return (
     <div className="space-y-3 w-full lg:w-4/5 text-gray-500 2xl:text-lg">
       <h3 className="w-full lg:ml-3 font-medium 2xl:text-lg">Materi yang akan dipelajari pada kursus ini :</h3>
@@ -182,15 +176,15 @@ const SyllabusTab = ({
           title: ["text-gray-500", "font-semibold"],
         }}
         variant="splitted">
-        {sections.map((item, index) => (
+        {sections.map((section, index) => (
           <AccordionItem
-            hidden={showPublished && item.publishedAt == null}
+            hidden={showPublished && section.publishedAt == null}
             key={index}
             aria-label={`Accordion ${index}`}
-            title={item.title}>
+            title={section.title}>
             <ul className="text-gray-500 mb-4 -mt-2 list-disc space-y-2">
-              {item.lessons &&
-                item.lessons.map((list, index) => (
+              {section.items &&
+                section.items.map((list, index) => (
                   <li hidden={showPublished && list.publishedAt == null} key={index} className="ml-6">
                     {list.title}
                   </li>
@@ -213,7 +207,7 @@ const DescTab = ({
   return (
     <div className="lg:mx-2 space-y-3 text-gray-500">
       <p className="lg:w-4/5">{shortDescription}</p>
-      <p className="lg:w-4/5">{descriptionJson || ""}</p>
+      <p className="lg:w-4/5 whitespace-pre-wrap">{descriptionJson || ""}</p>
     </div>
   );
 };

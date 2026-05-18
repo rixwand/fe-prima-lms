@@ -27,20 +27,22 @@ import {
   LuClock,
   LuEllipsisVertical,
   LuEqual,
+  LuFileQuestion,
   LuFileText,
+  LuMessageSquareText,
   LuPencil,
   LuTrash2,
 } from "react-icons/lu";
 
 const CourseLessonItem = ({
-  lesson,
+  item,
   section,
   onSelect,
   isChecked,
   onCheck,
   editMode,
 }: {
-  lesson: NonNullable<CourseSectionForm["lessons"]>[number];
+  item: NonNullable<CourseSectionForm["items"]>[number];
   section: CourseSectionForm;
   onSelect: OnSelect;
   onCheck: () => void;
@@ -48,8 +50,8 @@ const CourseLessonItem = ({
   editMode: boolean;
 }) => {
   const { activeLesson } = useFolderTreeContext();
-  const isActiveLesson = lesson.id === activeLesson?.ids.lessonId;
-  const path = [section.title, lesson.title];
+  const isActiveItem = item.id === activeLesson?.ids.itemId;
+  const path = [section.title, item.title];
   const [editLesson, setEditLesson] = useState<{ id: number; title: string } | null>(null);
   const [isOpenDuration, setOpenDuration] = useState(false);
   const [isOpenMenu, setOpenMenu] = useState(false);
@@ -70,10 +72,10 @@ const CourseLessonItem = ({
   }, [isOpenDuration]);
 
   const handleSelectLesson = () => {
-    onSelect(section, lesson, path);
+    onSelect(section, item, path);
   };
 
-  const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id: lesson.id! });
+  const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id: item.id! });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -82,7 +84,7 @@ const CourseLessonItem = ({
   } as CSSProperties;
   const { courseId } = useEditCourseContext();
   const { pending, removeLessonAsync, updateLesson } = useEditLesson({
-    idsPath: { courseId, lessonId: lesson.id!, sectionId: section.id! },
+    idsPath: { courseId, itemId: item.id!, sectionId: section.id! },
     onUpdateLessonSuccess(variant) {
       setEditLesson(null);
     },
@@ -91,8 +93,8 @@ const CourseLessonItem = ({
 
   const handleDeleteLesson = () => {
     return confirmDialog({
-      title: "Remove lesson ?",
-      desc: `This action will permanently remove "${lesson.title}" lesson`,
+      title: "Remove item ?",
+      desc: `This action will permanently remove "${item.title}" Section item`,
       isDestructive: true,
       onConfirmed: () => removeLessonAsync(),
     });
@@ -101,7 +103,7 @@ const CourseLessonItem = ({
   const handleRenameLesson = () => {
     if (!editLesson) return;
     if (editLesson.title.length == 0)
-      return addToast({ color: "danger", title: "Error", description: "Lesson title cannot be empty" });
+      return addToast({ color: "danger", title: "Error", description: "Section item title cannot be empty" });
     return updateLesson({ title: editLesson.title });
   };
 
@@ -110,11 +112,11 @@ const CourseLessonItem = ({
       {...(editMode && { ...listeners, ...attributes })}
       ref={setNodeRef}
       style={style}
-      data-sortable-lesson={lesson.id}
-      data-sortable-lesson-section={section.title}
+      data-sortable-item={item.id}
+      data-sortable-item-section={section.title}
       className="list-none"
       role="treeitem"
-      aria-selected={isActiveLesson}
+      aria-selected={isActiveItem}
       tabIndex={-1}
       onBlur={e => {
         if (!e.currentTarget.contains(e.relatedTarget)) setEditLesson(null);
@@ -122,10 +124,10 @@ const CourseLessonItem = ({
       <span
         className={cn(
           "flex w-full items-center gap-1 rounded-lg pl-3 text-left text-[var(--tt-theme-text)] transition-colors duration-150 cursor-pointer",
-          isActiveLesson
+          isActiveItem
             ? "border-[var(--tt-brand-color-500)] bg-[var(--tt-brand-color-50)] text-blue-600 font-medium dark:border-[var(--tt-brand-color-400)] dark:bg-[rgba(91,126,238,0.2)]"
             : "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)]",
-          editLesson?.id != lesson.id ? "py-1.5 px-2" : "pl-2 py-[3px] pr-[3px]",
+          editLesson?.id != item.id ? "py-1.5 px-2" : "pl-2 py-[3px] pr-[3px]",
         )}
         onClick={handleSelectLesson}>
         {editMode ? (
@@ -136,7 +138,7 @@ const CourseLessonItem = ({
             isSelected={isChecked}
             onClick={e => e.stopPropagation()}
           />
-        ) : isActiveLesson ? (
+        ) : isActiveItem ? (
           <span className="text-blue-600 dark:text-blue-400">
             <LuChevronsRight size={16} />
           </span>
@@ -144,20 +146,20 @@ const CourseLessonItem = ({
           <span className="block h-4 w-4 shrink-0 rounded-full" />
         )}
         <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--tt-theme-brand-color-600)]">
-          <LuFileText />
+          <ItemIcon type={item.type} />
         </span>
-        {editLesson && editLesson.id === lesson.id ? (
+        {editLesson && editLesson.id === item.id ? (
           <Fragment>
             <input
               type="text"
               ref={inputLessonRef}
               className={cn(
                 "w-full border text-sm px-1 py-1 focus:outline-0 text-[var(--tt-theme-text)] rounded-md",
-                isActiveLesson ? "bg-gray-50 border-blue-400" : "bg-gray-100 border-gray-300",
+                isActiveItem ? "bg-gray-50 border-blue-400" : "bg-gray-100 border-gray-300",
               )}
               onClick={e => e.stopPropagation()}
               value={editLesson.title}
-              onChange={e => setEditLesson({ id: lesson.id!, title: e.target.value })}
+              onChange={e => setEditLesson({ id: item.id!, title: e.target.value })}
               onFocus={() => inputLessonRef.current?.select()}
               onKeyDown={e => {
                 if (e.key == "Escape") setEditLesson(null);
@@ -190,7 +192,7 @@ const CourseLessonItem = ({
           </Fragment>
         ) : (
           <Fragment>
-            <span className="flex-1 truncate text-sm text-left">{lesson.title}</span>
+            <span className="flex-1 truncate text-sm text-left">{item.title}</span>
             <Popover radius="sm" showArrow isOpen={isOpenDuration} onOpenChange={open => setOpenDuration(open)}>
               <PopoverTrigger>
                 <Button
@@ -199,7 +201,7 @@ const CourseLessonItem = ({
                   variant="light"
                   isIconOnly
                   className="reset-button text-gray-500 text-right text-xs mr-5 italic hover:bg-white px-2 rounded cursor-pointer py-1 data-[hover=true]:bg-white">
-                  {toRoundedMinutes(lesson.durationSec || undefined)} min
+                  {toRoundedMinutes(item.durationSec || undefined)} min
                 </Button>
               </PopoverTrigger>
               <PopoverContent
@@ -257,7 +259,7 @@ const CourseLessonItem = ({
                     <Listbox variant="light" color="primary" aria-label="Actions" onAction={() => setOpenMenu(false)}>
                       <ListboxItem
                         onPress={() => {
-                          setEditLesson({ id: lesson.id!, title: lesson.title });
+                          setEditLesson({ id: item.id!, title: item.title });
                           setOpenMenu(false);
                         }}
                         startContent={<LuPencil />}
@@ -294,3 +296,14 @@ const CourseLessonItem = ({
 };
 
 export default CourseLessonItem;
+
+export const ItemIcon = ({ type }: { type: SectionItemType }) => {
+  switch (type) {
+    case "FORUM":
+      return <LuMessageSquareText />;
+    case "QUIZ":
+      return <LuFileQuestion />;
+    default:
+      return <LuFileText />;
+  }
+};

@@ -10,7 +10,7 @@ import { FolderTree } from "./simple-editor-layout-folder-tree";
 type SidebarProps = {
   structure: CourseSection[];
   activeLessonId?: number | null;
-  onSelect: (section: CourseSection, lesson: Lesson, path: string[]) => void;
+  onSelect: (section: CourseSection, item: Omit<CourseSectionsItem, "lesson">, path: string[]) => void;
   isDesktop: boolean;
   isSidebarOpen: boolean;
   closeSidebar: () => void;

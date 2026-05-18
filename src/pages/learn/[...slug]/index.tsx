@@ -79,12 +79,12 @@ function LearnCoursePageContent({
   }[] = [];
 
   for (const section of data.sections) {
-    for (const lesson of section.lessons) {
+    for (const item of section.items) {
       flatLessons.push({
         sectionId: section.id,
-        lessonId: lesson.id,
-        slug: lesson.slug,
-        title: lesson.title,
+        lessonId: item.id,
+        slug: item.slug,
+        title: item.title,
       });
     }
   }

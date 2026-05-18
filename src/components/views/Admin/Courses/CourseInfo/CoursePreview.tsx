@@ -143,7 +143,9 @@ export default function CoursePreview({
             <span className="text-sm font-semibold text-slate-700">Harga Akhir</span>
             <span className="text-xl font-bold tracking-tight text-slate-900">
               {convertLocal(
-                discounts && discounts.length > 0 && discounts[0].isActive ? applyDiscounts(priceAmount, discounts) : priceAmount,
+                discounts && discounts.length > 0 && discounts[0].isActive
+                  ? applyDiscounts(priceAmount, discounts)
+                  : priceAmount,
               )}
             </span>
           </div>
@@ -183,7 +185,7 @@ const PreviewTab = ({ url }: { url: string }) => {
 const SyllabusTab = ({
   sections,
 }: {
-  sections: { title: string; lessons?: Lesson[]; publishedAt: string | null }[];
+  sections: { title: string; items?: CourseSectionsItem[]; publishedAt: string | null }[];
 }) => {
   return (
     <div className="space-y-3 w-full lg:w-4/5 text-gray-500 2xl:text-lg">
@@ -201,8 +203,8 @@ const SyllabusTab = ({
             aria-label={`Accordion ${index}`}
             title={item.title}>
             <ul className="text-gray-500 mb-4 -mt-2 list-disc space-y-2">
-              {item.lessons &&
-                item.lessons.map((list, index) => (
+              {item.items &&
+                item.items.map((list, index) => (
                   <li hidden={list.publishedAt == null} key={index} className="ml-6">
                     {list.title}
                   </li>

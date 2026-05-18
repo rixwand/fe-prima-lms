@@ -1,4 +1,4 @@
-import { getErrorMessage } from "@/libs/axios/error";
+import { getErrorMessage, getUnknownErrorMessage } from "@/libs/axios/error";
 import { authService } from "@/services/auth.service";
 import { AppAxiosError } from "@/types/axios";
 import { addToast } from "@heroui/react";
@@ -35,7 +35,7 @@ export default function useLogin() {
       console.log(error);
       addToast({
         title: "Gagal masuk",
-        description: error.message,
+        description: getUnknownErrorMessage(error),
         color: "danger",
       });
     },

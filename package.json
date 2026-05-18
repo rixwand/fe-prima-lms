@@ -58,6 +58,7 @@
     "react-icons": "^5.5.0",
     "react-simple-star-rating": "^5.1.7",
     "recharts": "^3.2.0",
+    "socket.io-client": "^4.8.3",
     "tailwind-merge": "^3.3.1",
     "uuid": "^13.0.0",
     "yup": "^1.7.0"

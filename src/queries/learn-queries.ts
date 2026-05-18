@@ -16,7 +16,7 @@ const learnQueries = {
         staleTime: 5 * 60 * 1000,
       }),
     getLearningContent: (id: { slug: string; sectionId: number; lessonId: number }) =>
-      queryOptions<Pick<LessonContent, "contentLive">>({
+      queryOptions<Pick<Lesson, "contentLive">>({
         queryKey: learnQueries.keys.getLearningContent(id),
         queryFn: () => learnService.getLearningContent(id).then(res => res.data),
       }),

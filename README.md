@@ -24,6 +24,37 @@ The `pages/api` directory is mapped to `/api/*`. Files in this directory are tre
 
 This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## WebSocket Setup
+
+1. Set WebSocket URL in `.env` (optional if your API host is the same origin):
+
+```bash
+NEXT_PUBLIC_WS_URL="http://localhost:3001"
+```
+
+2. Use `useWebSocket` hook from `src/hooks/use-websocket.ts` inside client components/pages:
+
+```tsx
+import { useWebSocket } from "@/hooks/use-websocket";
+
+export default function NotificationsPage() {
+  const { status, lastMessage, emit } = useWebSocket({
+    namespace: "/notifications",
+    includeAuthToken: true,
+  });
+
+  return (
+    <div>
+      <p>Status: {status}</p>
+      <pre>{JSON.stringify(lastMessage ?? "-", null, 2)}</pre>
+      <button onClick={() => emit("ping", { from: "frontend" })}>Ping</button>
+    </div>
+  );
+}
+```
+
+The hook uses `socket.io-client` and sends NextAuth `accessToken` during handshake by default (`auth.accessToken` and query `accessToken`).
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

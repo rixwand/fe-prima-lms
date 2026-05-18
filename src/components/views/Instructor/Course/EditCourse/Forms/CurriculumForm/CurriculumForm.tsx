@@ -46,7 +46,7 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
   const isLessonEditorDisabled = useMemo(
     () =>
       !Array.isArray(sectionsValue) ||
-      !sectionsValue.some(section => Array.isArray(section?.lessons) && section.lessons.length > 0),
+      !sectionsValue.some(section => Array.isArray(section?.items) && section.items.length > 0),
     [sectionsValue],
   );
 
@@ -68,10 +68,10 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
 
   const onSelect = (
     section: CourseSectionForm,
-    lesson: NonNullable<CourseSectionForm["lessons"]>[number],
+    item: NonNullable<CourseSectionForm["items"]>[number],
     path: string[],
   ) => {
-    setActiveLesson({ path, ids: { sectionId: section.id!, lessonId: lesson.id!, courseId } });
+    setActiveLesson({ path, ids: { sectionId: section.id!, itemId: item.id!, courseId } });
   };
 
   useEffect(() => {

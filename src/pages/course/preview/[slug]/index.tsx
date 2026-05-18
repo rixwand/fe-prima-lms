@@ -1,7 +1,7 @@
 import Navbar from "@/components/commons/Navbar";
 import NotFound from "@/components/commons/NotFound";
 import MainLayout from "@/components/layouts/MainLayout";
-import CourseInfo from "@/components/views/Course/CourseInfo/CourseInfo.preview";
+import CoursePreview from "@/components/views/Course/CoursePreview";
 import { useRouter } from "next/router";
 
 export default function CourseInfoPage() {
@@ -12,7 +12,7 @@ export default function CourseInfoPage() {
   return (
     <MainLayout title="Prima | Kursus">
       <Navbar />
-      <CourseInfo slug={Array.isArray(slug) ? slug[0] : slug} />
+      <CoursePreview slug={Array.isArray(slug) ? slug[0] : slug} />
     </MainLayout>
   );
 }

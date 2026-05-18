@@ -1,5 +1,5 @@
 import NormalCkbox from "@/components/commons/NormalCkbox";
-import { AddLessonsFormRhf } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
+import { AddSectionItemsFormRhf } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import { cn } from "@/libs/tiptap/tiptap-utils";
 import { StateType } from "@/types/Helper";
 import {
@@ -18,11 +18,11 @@ import { UseFormReturn, useFieldArray } from "react-hook-form";
 import { LuPlus, LuTrash2 } from "react-icons/lu";
 import NewLessonItem from "./NewLessonsItem";
 
-export type RhfMethods = UseFormReturn<AddLessonsFormRhf>;
+export type RhfMethods = UseFormReturn<AddSectionItemsFormRhf>;
 export type SelectState = StateType<Set<UniqueIdentifier>>;
 export type ToggleSelect = (id: UniqueIdentifier) => void;
 export default function AddLessonsForm({ rhfMethods: { control } }: { rhfMethods: RhfMethods }) {
-  const { fields, move, append, remove: removeFields } = useFieldArray({ control, name: "lessons" });
+  const { fields, move, append, remove: removeFields } = useFieldArray({ control, name: "items" });
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
   useEffect(() => {
     const el = document.querySelector(`input[data-new-lesson-id="${fields[0].id}"]`);
@@ -39,7 +39,7 @@ export default function AddLessonsForm({ rhfMethods: { control } }: { rhfMethods
   };
   const ids: UniqueIdentifier[] = useMemo(() => fields.map(f => f.id), [fields]);
   const addLesson = () => {
-    append({ title: "New Lesson" });
+    append({ title: "New Lesson", type: "LESSON" });
   };
 
   const [selected, setSelected]: SelectState = useState(new Set());

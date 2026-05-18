@@ -1,4 +1,5 @@
 import { setSessionUpdater } from "@/libs/axios/session-updater";
+import { SocketProvider } from "@/libs/context/SocketContext";
 import "@/styles/globals.css";
 import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import { DehydratedState, HydrationBoundary, QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -43,13 +44,15 @@ export default function App({ Component, pageProps }: AppProps<AppPageProps>) {
     <SessionProvider session={session}>
       <Bridge />
       <QueryClientProvider client={queryClient}>
-        <HeroUIProvider>
-          {isMounted ? <ToastProvider placement="top-center" toastProps={{ classNames: { base: "top-5" } }} /> : null}
-          <HydrationBoundary state={dehydratedState}>
-            <Component {...restPageProps} />
-          </HydrationBoundary>
-        </HeroUIProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
+        <SocketProvider>
+          <HeroUIProvider>
+            {isMounted ? <ToastProvider placement="top-center" toastProps={{ classNames: { base: "top-5" } }} /> : null}
+            <HydrationBoundary state={dehydratedState}>
+              <Component {...restPageProps} />
+            </HydrationBoundary>
+          </HeroUIProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </SocketProvider>
       </QueryClientProvider>
     </SessionProvider>
   );

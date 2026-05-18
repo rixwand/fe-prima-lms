@@ -1,11 +1,10 @@
-import { getErrorMessage } from "@/libs/axios/error";
+import { getErrorMessage, getUnknownErrorMessage } from "@/libs/axios/error";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import courseQueries from "@/queries/course-queries";
 import courseSectionService from "@/services/course-section.service";
 import { AppAxiosError } from "@/types/axios";
 import { addToast } from "@heroui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { useEffect } from "react";
 
 export default function useEditSection({
@@ -46,7 +45,7 @@ export default function useEditSection({
       addToast({
         color: "danger",
         title: "Error",
-        description: isAxiosError(error) ? getErrorMessage(error) : error.message,
+        description: getUnknownErrorMessage(error),
       });
   }, [isError, error]);
 

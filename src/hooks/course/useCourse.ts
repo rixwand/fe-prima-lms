@@ -1,4 +1,4 @@
-import { getErrorMessage } from "@/libs/axios/error";
+import { getErrorMessage, getUnknownErrorMessage } from "@/libs/axios/error";
 import { hasTrue } from "@/libs/utils/boolean";
 import courseQueries from "@/queries/course-queries";
 import courseService from "@/services/course.service";
@@ -47,7 +47,7 @@ const useCourse = (
       console.log(error);
       addToast({
         title: "Create course failed",
-        description: error.message,
+        description: getUnknownErrorMessage(error),
         color: "danger",
       });
     },
@@ -69,7 +69,7 @@ const useCourse = (
     mutationFn: courseService.update,
     onError: e => {
       console.log(e);
-      addToast({ title: "Erorr", description: e.message, color: "danger" });
+      addToast({ title: "Erorr", description: getUnknownErrorMessage(e), color: "danger" });
     },
     onSuccess: async () => {
       addToast({ title: "Success", description: "Success save changes", color: "success" });
@@ -84,7 +84,7 @@ const useCourse = (
   } = useMutation({
     mutationFn: courseService.updateTags,
     onError: e => {
-      addToast({ title: "Erorr", description: e.message, color: "danger" });
+      addToast({ title: "Erorr", description: getUnknownErrorMessage(e), color: "danger" });
     },
     onSuccess: async () => {
       addToast({ title: "Success", description: "Success save changes", color: "success" });
@@ -99,7 +99,7 @@ const useCourse = (
   } = useMutation({
     mutationFn: courseService.updateCategories,
     onError: e => {
-      addToast({ title: "Erorr", description: e.message, color: "danger" });
+      addToast({ title: "Erorr", description: getUnknownErrorMessage(e), color: "danger" });
     },
     onSuccess: async () => {
       addToast({ title: "Success", description: "Success save changes", color: "success" });
@@ -134,7 +134,7 @@ const useCourse = (
   } = useMutation({
     mutationFn: courseService.deleteDiscount,
     onError: e => {
-      addToast({ title: "Erorr", description: e.message, color: "danger" });
+      addToast({ title: "Erorr", description: getUnknownErrorMessage(e), color: "danger" });
     },
     onSuccess: async () => {
       addToast({ title: "Success", description: "Success remove discount", color: "success" });

@@ -4,11 +4,10 @@ import VisibilitySwitch from "@/components/commons/Switch/VisibilitySwitch";
 import InstructorLayout from "@/components/layouts/InstructorLayout";
 import EditCourse, { EditCourseTabsType } from "@/components/views/Instructor/Course/EditCourse/EditCourse";
 import { useNProgress } from "@/hooks/use-nProgress";
-import { getErrorMessage } from "@/libs/axios/error";
+import { getUnknownErrorMessage } from "@/libs/axios/error";
 import courseQueries from "@/queries/course-queries";
 import { addToast } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -34,7 +33,7 @@ export default function EditCoursePage({ id }: { id: string }) {
       addToast({
         color: "danger",
         title: "Error",
-        description: isAxiosError(error) ? getErrorMessage(error) : error.message,
+        description: getUnknownErrorMessage(error),
       });
   }, [isError, error]);
 

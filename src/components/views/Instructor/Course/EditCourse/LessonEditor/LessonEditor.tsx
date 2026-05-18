@@ -11,7 +11,7 @@ import { JSONContent } from "@tiptap/core";
 type LessonEditorProps = {
   lessonState: StateType<Lesson | null>;
 };
-export default function LessonEditor({ lessonState }: LessonEditorProps) {
+export default function LessonEditor() {
   const { ids } = useLessonEditorContext();
 
   const { lessonContent, updateLesson, pending, publishDraftAsync } = useEditLesson({ idsPath: ids! });
@@ -50,7 +50,7 @@ export default function LessonEditor({ lessonState }: LessonEditorProps) {
     <SimpleEditor
       onSave={onSave}
       onPublish={onPublishDraft}
-      lessonContent={lessonContent || { contentLive: [{}], contentDraft: [{}], publishedAt: null }}
+      lessonContent={lessonContent || { contentLive: [{}], contentDraft: [{}] }}
     />
   );
 }

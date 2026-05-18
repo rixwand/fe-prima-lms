@@ -1,6 +1,5 @@
-import { getErrorMessage } from "@/libs/axios/error";
+import { getUnknownErrorMessage } from "@/libs/axios/error";
 import { addToast } from "@heroui/react";
-import { isAxiosError } from "axios";
 import { useEffect } from "react";
 
 interface UseQueryErrorOptions {
@@ -14,7 +13,7 @@ export const useQueryError = ({ isError, error }: UseQueryErrorOptions) => {
       addToast({
         title: "Error",
         color: "danger",
-        description: isAxiosError(error) ? getErrorMessage(error) : error.message,
+        description: getUnknownErrorMessage(error),
       });
     }
   }, [isError, error, addToast]);

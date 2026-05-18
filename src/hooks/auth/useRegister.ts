@@ -1,3 +1,4 @@
+import { getUnknownErrorMessage } from "@/libs/axios/error";
 import { authService } from "@/services/auth.service";
 import { addToast } from "@heroui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -17,7 +18,7 @@ const useRegister = () => {
       console.log(error);
       addToast({
         title: "Pendaftaran gagal",
-        description: error.message,
+        description: getUnknownErrorMessage(error),
         color: "danger",
       });
     },

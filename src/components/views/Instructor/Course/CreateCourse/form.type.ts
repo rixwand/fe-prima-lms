@@ -13,8 +13,9 @@ export interface CourseForm {
   sections?: {
     title: string;
     position?: number;
-    lessons?: {
+    items?: {
       title: string;
+      type: SectionItemType;
       summary?: string;
       durationSec?: number;
       isPreview?: boolean; // default false in Yup
@@ -24,7 +25,7 @@ export interface CourseForm {
   discount?: DiscountForm;
 }
 export type CourseSectionForm = FieldArrayWithId<CourseForm, "sections", "id">;
-export type CourseLessonForm = FieldArrayWithId<CourseForm, `sections.${number}.lessons`, "id">;
+export type CourseItemForm = FieldArrayWithId<CourseForm, `sections.${number}.items`, "id">;
 export type AddSectionsFormRhf = { sections: { title: string }[] };
 
-export type AddLessonsFormRhf = { lessons: { title: string }[] };
+export type AddLessonsFormRhf = { items: { title: string; type: SectionItemType }[] };

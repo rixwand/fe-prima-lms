@@ -1,7 +1,8 @@
 import * as React from "react";
-import { IoChevronDown, IoChevronForward, IoDocumentTextOutline } from "react-icons/io5";
+import { IoChevronDown, IoChevronForward } from "react-icons/io5";
 
 import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
+import { ItemIcon } from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree/SectionItem/LessonItem/Lessonitem";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { getErrorMessage } from "@/libs/axios/error";
 import { useLessonEditorContext } from "@/libs/context/LessonEditorContext";
@@ -17,7 +18,7 @@ import { LuBookmark, LuGlobeLock } from "react-icons/lu";
 export type FolderTreeProps = {
   courseSections: CourseSection[];
   activeLessonId?: number | null;
-  onSelect: (section: CourseSection, lesson: Lesson, path: string[]) => void;
+  onSelect: (section: CourseSection, item: Omit<CourseSectionsItem, "lesson">, path: string[]) => void;
   expandedState: StateType<Set<number>>;
 };
 
@@ -33,7 +34,7 @@ const CourseSectionItem: React.FC<{
   section: CourseSection;
   expandedState: StateType<Set<number>>;
   activeLessonId?: number | null;
-  onSelect: (section: CourseSection, lesson: Lesson, path: string[]) => void;
+  onSelect: (section: CourseSection, item: Omit<CourseSectionsItem, "lesson">, path: string[]) => void;
 }> = ({ section, activeLessonId, onSelect, expandedState: [expanded, setExpanded] }) => {
   const isOpen = React.useMemo(() => expanded.has(section.id), [expanded, section.id]);
   const { courseId } = useLessonEditorContext();
@@ -59,8 +60,8 @@ const CourseSectionItem: React.FC<{
     },
   });
   const containsActiveLesson = React.useMemo(
-    () => section.lessons.some(lesson => lesson.id === activeLessonId),
-    [section.lessons, activeLessonId],
+    () => section.items.some(item => item.id === activeLessonId),
+    [section.items, activeLessonId],
   );
   const handleToggle = () => {
     setExpanded(v => {
@@ -87,7 +88,7 @@ const CourseSectionItem: React.FC<{
     <li
       className="list-none"
       role="treeitem"
-      aria-expanded={section.lessons.length > 0 ? isOpen : undefined}
+      aria-expanded={section.items.length > 0 ? isOpen : undefined}
       aria-selected={isOpen}>
       <button
         type="button"
@@ -96,7 +97,7 @@ const CourseSectionItem: React.FC<{
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tt-theme-text-muted)] focus-visible:ring-offset-0 focus-visible:border-none",
           // containsActiveLesson ? "dark:bg-[var(--tt-gray-dark-a-200)] border border-blue-400 text-blue-500" :
           "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)] border-abu text-[var(--tt-theme-text)]",
-          section.lessons.some(({ publishedAt }) => publishedAt == null) && "text-primary",
+          section.items.some(({ publishedAt }) => publishedAt == null) && "text-primary",
         )}
         onClick={handleToggle}>
         <span
@@ -126,16 +127,16 @@ const CourseSectionItem: React.FC<{
         <ul
           className="mt-1 ml-4 flex list-none flex-col gap-1 border-l border-[var(--tt-border-color)] pl-3"
           role="group">
-          {section.lessons.map(lesson => {
-            const isActiveLesson = lesson.id === activeLessonId;
-            const path = [section.title, lesson.title];
+          {section.items.map(item => {
+            const isActiveLesson = item.id === activeLessonId;
+            const path = [section.title, item.title];
 
             const handleSelectLesson = () => {
-              onSelect(section, lesson, path);
+              onSelect(section, item, path);
             };
 
             return (
-              <li key={lesson.id} className="list-none" role="treeitem" aria-selected={isActiveLesson}>
+              <li key={item.id} className="list-none" role="treeitem" aria-selected={isActiveLesson}>
                 <button
                   type="button"
                   className={cn(
@@ -146,7 +147,7 @@ const CourseSectionItem: React.FC<{
                         // "bg-[var(--tt-gray-light-a-100)] dark:bg-[var(--tt-gray-dark-a-100)]"
                         "bg-primary-400 text-white dark:bg-[var(--tt-gray-dark-a-100)]"
                       : "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)]",
-                    !lesson.publishedAt && "text-primary",
+                    !item.publishedAt && "text-primary",
                   )}
                   onClick={handleSelectLesson}>
                   {/* {isActiveLesson ? (
@@ -157,15 +158,15 @@ const CourseSectionItem: React.FC<{
                     <span className="block h-4 w-4 shrink-0 rounded-full" />
                   )} */}
                   <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--tt-theme-brand-color-600)]">
-                    <IoDocumentTextOutline />
+                    <ItemIcon type={item.type} />
                   </span>
-                  <span className="flex-1 truncate text-sm text-left">{lesson.title}</span>
-                  {!lesson.publishedAt && <LuBookmark size={12} color="primary" />}
+                  <span className="flex-1 truncate text-sm text-left">{item.title}</span>
+                  {!item.publishedAt && <LuBookmark size={12} color="primary" />}
                 </button>
               </li>
             );
           })}
-          {section.lessons.length == 0 ? (
+          {section.items.length == 0 ? (
             <p className="text-sm pl-3 text-[var(--tt-theme-text-muted)]">No lesson found</p>
           ) : null}
         </ul>

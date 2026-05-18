@@ -23,26 +23,48 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Select,
+  SelectItem,
   Spinner,
   addToast,
 } from "@heroui/react";
 import { useOverlayTriggerState } from "@react-stately/overlays";
 import { CSSProperties, FC, Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { IconType } from "react-icons";
 import { IoChevronDown, IoChevronForward } from "react-icons/io5";
 import {
   LuCheck,
   LuChevronsUpDown,
   LuCopyPlus,
   LuEllipsisVertical,
-  LuFilePlus2,
+  LuFileQuestion,
+  LuFileText,
   LuFileX,
+  LuMessageSquareText,
   LuPencilLine,
   LuPencilOff,
   LuPlus,
   LuSquarePen,
   LuTrash2,
 } from "react-icons/lu";
+export const itemTypeSelect: { label: string; key: SectionItemType; icon: IconType }[] = [
+  {
+    label: "Lesson",
+    key: "LESSON",
+    icon: LuFileText,
+  },
+  {
+    label: "Quiz",
+    key: "QUIZ",
+    icon: LuFileQuestion,
+  },
+  {
+    label: "Forum",
+    key: "FORUM",
+    icon: LuMessageSquareText,
+  },
+];
 const CourseSectionItem: FC<{
   section: CourseSectionForm;
   onSelect: OnSelect;
@@ -52,7 +74,7 @@ const CourseSectionItem: FC<{
   onRemove?: (id: number, title: string) => void;
   onCheck?: () => void;
   isChecked: boolean;
-  defaultLessons: CourseSection["lessons"];
+  defaultItem: CourseSection["items"];
 }> = ({
   section,
   onSelect,
@@ -61,7 +83,7 @@ const CourseSectionItem: FC<{
   onRemove = () => {},
   onCheck = () => {},
   isChecked,
-  defaultLessons,
+  defaultItem,
 }) => {
   const { editMode } = useFolderTreeContext();
   const [editSection, setEditSection] = useState<{ id: number; title: string } | null>(null);
@@ -99,7 +121,7 @@ const CourseSectionItem: FC<{
   const idIdx = getValues("sections")!.findIndex(s => s.id == section.id);
   const { fields, move, replace } = useFieldArray({
     control,
-    name: `sections.${idIdx}.lessons`,
+    name: `sections.${idIdx}.items`,
     keyName: "fieldId",
   });
   const ids = useMemo(() => fields.map(s => s.id!), [fields]);
@@ -112,18 +134,43 @@ const CourseSectionItem: FC<{
     move(from, to);
   };
 
-  const [newLesson, setNewLesson] = useState<string | null>(null);
-  const inputNewLessonRef = useRef<HTMLInputElement>(null);
+  const [newItem, setNewItem] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<SectionItemType | null>(null);
+  const [selectOpen, setSelectOpen] = useState(false);
+  const selectOpenRef = useRef(false);
+  const skipResetSelectedTypeRef = useRef(false);
+  const inputNewItemRef = useRef<HTMLInputElement>(null);
+  const inputSelectTypeRef = useRef<HTMLSelectElement>(null);
   const menuState = useOverlayTriggerState({ defaultOpen: false });
+  const focusNewItemInput = () => {
+    skipResetSelectedTypeRef.current = true;
+    requestAnimationFrame(() => {
+      inputNewItemRef.current?.focus();
+      requestAnimationFrame(() => {
+        skipResetSelectedTypeRef.current = false;
+      });
+    });
+  };
+  const handleSelectOpenChange = (isOpen: boolean) => {
+    if (!isOpen) focusNewItemInput();
+    selectOpenRef.current = isOpen;
+    setSelectOpen(isOpen);
+  };
+  // useEffect(() => {
+  //   const monitoring = inputNewItemRef.current?.addEventListener("", )
+  // },[])
 
-  useEffect(() => {
-    if (newLesson && !menuState.isOpen) {
-      setExpanded(prev => new Set([...prev, section.id!]));
-      setTimeout(() => {
-        inputNewLessonRef.current?.focus();
-      }, 300);
-    }
-  }, [menuState.isOpen, newLesson]);
+  // useEffect(() => {
+  //   if (selectedType && !menuState.isOpen) {
+  //     setExpanded(prev => new Set([...prev, section.id!]));
+  //     setTimeout(() => {
+  //       // inputSelectTypeRef.current?.focus();
+  //       selectOpenRef.current = true;
+  //       setSelectOpen(true);
+  //       // console.log(inputSelectTypeRef.current);
+  //     }, 300);
+  //   }
+  // }, [menuState.isOpen, selectedType]);
 
   const { courseId, showPublished } = useEditCourseContext();
   const { renameSection, isPending } = useEditSection({});
@@ -159,7 +206,7 @@ const CourseSectionItem: FC<{
   const { createLessons, createLessonsAsync, isLoading, reorderLessons, batchRemoveLessonAsync } = useEditLessonList({
     sectionId: section.id!,
     onCreateLessonSuccess() {
-      setNewLesson(null);
+      setNewItem(null);
     },
     onReorderLessonSuccess() {
       setEditLesson(false);
@@ -169,20 +216,20 @@ const CourseSectionItem: FC<{
     },
   });
   const handleSubmitLesson = () => {
-    if (!newLesson) return;
-    return createLessons([{ title: newLesson }]);
+    if (!newItem || !selectedType) return;
+    return createLessons([{ title: newItem, type: selectedType }]);
   };
   const handleSubmitReorderLesson = () => {
-    const base = defaultLessons;
+    const base = defaultItem;
     const changes = fields.map(({ fieldId: _fId, position: _pos, ...v }, i) => ({ position: i + 1, ...v }));
-    const reorderList = diffList(base, changes as Lesson[], { props: ["position"] });
+    const reorderList = diffList(base, changes as CourseSectionsItem[], { props: ["position"] });
     if (reorderList.length == 0) return setEditLesson(false);
     return reorderLessons(reorderList);
   };
 
   const handleCancelReorder = () => {
     setEditLesson(false);
-    replace(defaultLessons);
+    replace(defaultItem);
   };
 
   const handleToggleAllSelectedLesson = (v: boolean) => {
@@ -202,6 +249,23 @@ const CourseSectionItem: FC<{
 
   const { opneAddLessonModal } = useModalAddLessons({ createLessons: createLessonsAsync });
   useNProgress(hasTrue(isPending) || hasTrue(isLoading));
+
+  // useEffect(() => {
+  //   switch (selectedType) {
+  //     case "LESSON":
+  //       setNewItem("New Lesson");
+  //       break;
+  //     case "FORUM":
+  //       setNewItem("New Forum");
+  //       break;
+  //     case "QUIZ":
+  //       setNewItem("New Quiz");
+  //       break;
+  //     default:
+  //       setNewItem(null);
+  //       break;
+  //   }
+  // }, [selectedType]);
 
   return (
     <li
@@ -339,14 +403,23 @@ const CourseSectionItem: FC<{
                 </PopoverTrigger>
                 <PopoverContent className="p-2 w-44">
                   <Listbox variant="light" color="primary" aria-label="Actions" onAction={menuState.close}>
-                    <ListboxItem onPress={() => setNewLesson("New Lesson")} startContent={<LuPlus />} key="new">
-                      New lesson
+                    <ListboxItem
+                      onPress={() => {
+                        setSelectedType("LESSON");
+                        setNewItem("New item");
+                        setExpanded(prev => new Set([...prev, section.id!]));
+                        selectOpenRef.current = true;
+                        setSelectOpen(true);
+                      }}
+                      startContent={<LuPlus />}
+                      key="new">
+                      New item
                     </ListboxItem>
                     <ListboxItem onPress={opneAddLessonModal} startContent={<LuCopyPlus />} key="new batch">
-                      New lesson batch
+                      New item batch
                     </ListboxItem>
                     <ListboxItem
-                      hidden={!section.lessons || section.lessons.length == 0}
+                      hidden={!section.items || section.items.length == 0}
                       onPress={() => {
                         setExpanded(v => new Set([...v, section.id!]));
                         setEditLesson(true);
@@ -389,38 +462,81 @@ const CourseSectionItem: FC<{
             role="group">
             <SortableContext strategy={verticalListSortingStrategy} items={ids}>
               {fields.map(
-                lesson =>
-                  ((showPublished && lesson.publishedAt) || !showPublished) && (
+                item =>
+                  ((showPublished && item.publishedAt) || !showPublished) && (
                     <CourseLessonItem
-                      isChecked={selectedLesson.has(lesson.id!)}
-                      onCheck={() => toggleSelect(lesson.id!)}
-                      lesson={lesson}
+                      isChecked={selectedLesson.has(item.id!)}
+                      onCheck={() => toggleSelect(item.id!)}
+                      item={item}
                       onSelect={onSelect}
                       section={section}
-                      key={lesson.id}
+                      key={item.id}
                       editMode={isEditLesson}
                     />
                   ),
               )}
             </SortableContext>
-            {newLesson && (
+            {selectedType && (
               <li
                 className="list-none"
                 role="treeitem"
                 aria-selected={false}
                 onBlur={e => {
-                  if (!e.currentTarget.contains(e.relatedTarget)) {
-                    setNewLesson(null);
-                  }
+                  const currentTarget = e.currentTarget;
+                  requestAnimationFrame(() => {
+                    if (skipResetSelectedTypeRef.current) return;
+                    if (selectOpenRef.current) return;
+                    const focusedElement = document.activeElement;
+                    if (focusedElement && currentTarget.contains(focusedElement)) return;
+                    setSelectedType(null);
+                  });
                 }}>
                 <span
                   className={
-                    "flex w-full items-center gap-1 rounded-lg pl-3 text-left text-[var(--tt-theme-text)] transition-colors duration-150 cursor-pointer hover:bg-[var(--tt-gray-light-a-100)] py-[3px] pr-[3px]"
+                    "flex w-full items-center gap-1 rounded-lg text-left text-[var(--tt-theme-text)] transition-colors duration-150 cursor-pointer hover:bg-[var(--tt-gray-light-a-100)] py-[3px] pr-[3px] pl-1"
                   }>
-                  <span className="block h-4 w-4 shrink-0 rounded-full" />
-                  <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--tt-theme-brand-color-600)]">
-                    <LuFilePlus2 />
-                  </span>
+                  {/* <span className="block h-4 w-4 shrink-0 rounded-full" /> */}
+                  {/* <span className="flex rounded-md border-gray-300 border-1 shrink-0 items-start bg-gray-100 justify-start py-1.5 px-0.5 text-[var(--tt-theme-brand-color-600)]">
+                  </span> */}
+                  <Select
+                    aria-label="Select Item type"
+                    ref={inputSelectTypeRef}
+                    isOpen={selectOpen}
+                    onOpenChange={handleSelectOpenChange}
+                    items={itemTypeSelect}
+                    className="max-w-[6.65rem]"
+                    size="sm"
+                    selectedKeys={selectedType ? [selectedType] : undefined}
+                    onSelectionChange={keys => {
+                      setSelectOpen(false);
+                      const value = Array.from(keys)[0] as SectionItemType;
+                      if (!value) return;
+                      setSelectedType(value);
+                    }}
+                    classNames={{
+                      selectorIcon: "-mr-1.5",
+                      trigger: "border-1 border-gray-300 focus-within:ring-blue-500 focus-within:ring-1",
+                      popoverContent: "rounded-lg p-0",
+                    }}
+                    renderValue={items => {
+                      return items.map(({ data, key }) =>
+                        data ? (
+                          <span key={key} className="flex items-center gap-x-1">
+                            <data.icon size={16} />
+                            {data.label}
+                          </span>
+                        ) : null,
+                      );
+                    }}>
+                    {({ icon: Icon, key, label }) => (
+                      <SelectItem aria-label={label} key={key}>
+                        <span className="flex items-center gap-x-1">
+                          <Icon size={16} />
+                          {label}
+                        </span>
+                      </SelectItem>
+                    )}
+                  </Select>
                   <input
                     type="text"
                     name="new lesson"
@@ -428,16 +544,16 @@ const CourseSectionItem: FC<{
                       "w-full border text-sm px-1 py-1 focus:outline-0 text-[var(--tt-theme-text)] rounded-md",
                       "bg-gray-100 border-gray-300",
                     )}
-                    ref={inputNewLessonRef}
-                    value={newLesson || undefined}
-                    onChange={e => setNewLesson(e.target.value)}
-                    onFocus={() => inputNewLessonRef.current?.select()}
+                    ref={inputNewItemRef}
+                    value={newItem || undefined}
+                    onChange={e => setNewItem(e.target.value)}
+                    onFocus={() => inputNewItemRef.current?.select()}
                     onKeyDown={e => {
                       if (e.key == "Enter") {
                         e.preventDefault();
                         handleSubmitLesson();
                       }
-                      if (e.key == "Escape") setNewLesson(null);
+                      if (e.key == "Escape") setNewItem(null);
                     }}
                   />
                   <Button
@@ -463,7 +579,7 @@ const CourseSectionItem: FC<{
                 </span>
               </li>
             )}
-            {fields?.length == 0 && newLesson == null ? (
+            {fields?.length == 0 && newItem == null ? (
               <li role="treeitem" aria-selected={false} className="list-none">
                 <span
                   className={

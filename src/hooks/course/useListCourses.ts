@@ -1,9 +1,8 @@
-import { getErrorMessage } from "@/libs/axios/error";
+import { getUnknownErrorMessage } from "@/libs/axios/error";
 import { hasTrue } from "@/libs/utils/boolean";
 import courseQueries from "@/queries/course-queries";
 import { addToast } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { useEffect } from "react";
 import { useNProgress } from "../use-nProgress";
 
@@ -15,7 +14,7 @@ export default function useListCourses(params?: ListCourseParams) {
       addToast({
         color: "danger",
         title: "Error",
-        description: isAxiosError(error) ? getErrorMessage(error) : error.message,
+        description: getUnknownErrorMessage(error),
       });
   }, [isError, error]);
 

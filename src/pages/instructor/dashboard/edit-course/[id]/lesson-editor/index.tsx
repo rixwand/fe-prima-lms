@@ -3,6 +3,7 @@ import PageHead from "@/components/commons/PageHead";
 import SimpleEditorLayout from "@/components/layouts/SimpleEditorLayout";
 import LessonEditor from "@/components/views/Instructor/Course/EditCourse/LessonEditor/LessonEditor";
 import NoLessonMessage from "@/components/views/Instructor/Course/EditCourse/NoLessonMessage";
+import QuizEditor from "@/components/views/Instructor/Course/EditCourse/QuizEditor";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { useQueryError } from "@/hooks/use-query-error";
 import { LessonEditorContext } from "@/libs/context/LessonEditorContext";
@@ -39,23 +40,23 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export default function CurriculumPage({ id }: { id: number }) {
   const { data, isPending, isFetching, isError, error } = useQuery(courseQueries.options.getCourse(id));
-  const lessonState = useState<Lesson | null>(null);
-  const [activeLesson] = lessonState;
+  const itemState = useState<CourseSectionsItem | null>(null);
+  const [activeItem] = itemState;
   const currentDirtyState = useState(false);
 
   const contextValue = useMemo(() => {
-    if (activeLesson) {
+    if (activeItem) {
       return {
         ids: {
           courseId: id,
-          sectionId: activeLesson.sectionId,
-          lessonId: activeLesson.id,
+          sectionId: activeItem.sectionId,
+          itemId: activeItem.id,
         },
-        activeLesson,
+        activeItem,
       };
     }
     return undefined;
-  }, [activeLesson, id]);
+  }, [activeItem, id]);
 
   useNProgress(isPending);
   useQueryError({ isError, error });
@@ -70,13 +71,13 @@ export default function CurriculumPage({ id }: { id: number }) {
     return null;
   }
   const hasNoContent =
-    !data.sections || data.sections.length === 0 || data.sections.every(s => !s.lessons || s.lessons.length === 0);
+    !data.sections || data.sections.length === 0 || data.sections.every(s => !s.items || s.items.length === 0);
 
   if (data && !isPending && !isFetching && hasNoContent) {
     return (
       <LessonEditorContext.Provider value={{ ...contextValue, currentDirtyState, courseId: id }}>
         <PageHead title="Edit Course" />
-        <SimpleEditorLayout courseTitle={data.metaDraft.title} lessonState={[null, () => {}]} structure={[]}>
+        <SimpleEditorLayout courseTitle={data.metaDraft.title} itemState={[null, () => {}]} structure={[]}>
           <NoLessonMessage courseId={id} />
         </SimpleEditorLayout>
       </LessonEditorContext.Provider>
@@ -88,12 +89,16 @@ export default function CurriculumPage({ id }: { id: number }) {
       <PageHead title="Edit Course" />
       <SimpleEditorLayout
         courseTitle={data.metaDraft.title || ""}
-        lessonState={lessonState}
+        itemState={itemState}
         structure={data.sections || []}>
-        {activeLesson ? (
-          <LessonEditor lessonState={lessonState} />
-        ) : (
+        {!activeItem ? (
           <NoLessonMessage title="No Lesson Selected" desc="Select a lesson to start editing" />
+        ) : activeItem.type == "LESSON" ? (
+          <LessonEditor />
+        ) : activeItem.type == "QUIZ" ? (
+          <QuizEditor />
+        ) : (
+          <h1>Forum</h1>
         )}
       </SimpleEditorLayout>
     </LessonEditorContext.Provider>

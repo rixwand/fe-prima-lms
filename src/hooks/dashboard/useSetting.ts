@@ -1,10 +1,9 @@
-import { getErrorMessage } from "@/libs/axios/error";
+import { getErrorMessage, getUnknownErrorMessage } from "@/libs/axios/error";
 import userService from "@/services/user.service";
 import { AppAxiosError } from "@/types/axios";
 import { addToast } from "@heroui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -63,7 +62,7 @@ const useSetting = () => {
       addToast({
         color: "danger",
         title: "Error",
-        description: isAxiosError(error) ? getErrorMessage(error) : error.message,
+        description: getUnknownErrorMessage(error),
       });
   }, [isError, error]);
 
@@ -127,7 +126,7 @@ const useSetting = () => {
       addToast({
         title: "Perubahan password gagal",
         color: "danger",
-        description: error.message,
+        description: getUnknownErrorMessage(error),
       }),
   });
 

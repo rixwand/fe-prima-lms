@@ -1,17 +1,20 @@
 import NavbarDashboard from "@/components/commons/Navbar2";
+import NotificationBox from "@/components/commons/NotificationBox";
 import PageHead from "@/components/commons/PageHead";
 import Sidebar from "@/components/commons/Sidebar";
 import { NavStruct } from "@/components/commons/Sidebar/Sidebar";
+import useNotification from "@/hooks/dashboard/useNotification";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { Fragment, ReactNode, useState } from "react";
-import { LuChartSpline, LuFileText, LuLayoutGrid, LuSettings2, LuWalletMinimal } from "react-icons/lu";
+import { LuBell, LuChartSpline, LuFileText, LuLayoutGrid, LuSettings2, LuWalletMinimal } from "react-icons/lu";
 
 const prefix = "/instructor/dashboard";
 
 const navLinks: NavStruct = [
   { label: "Overview", Icon: LuLayoutGrid, link: prefix },
   { label: "My Courses", Icon: LuFileText, link: prefix + "/course" },
+  { label: "Notifications", Icon: LuBell, link: "/notifications" },
   { label: "Analytics", Icon: LuChartSpline, link: prefix + "/report" },
   { label: "Payouts", Icon: LuWalletMinimal, link: prefix + "/payout" },
   { label: "Settings", Icon: LuSettings2, link: prefix + "/setting" },
@@ -34,10 +37,28 @@ export default function InstructorLayout({
 } & Nav) {
   const [collapsed, setCollapsed] = useState(false);
   const [open, setOpen] = useState(false);
+  const {
+    notification: { data, meta },
+    readNotifications,
+  } = useNotification();
   return (
     <Fragment>
       <PageHead title={title} />
-      <Sidebar {...{ collapsed, open, setOpen, setCollapsed, active, navLinks, subTitle: "Instructor Dashboard" }} />
+      <Sidebar
+        {...{
+          collapsed,
+          open,
+          setOpen,
+          setCollapsed,
+          active,
+          navLinks,
+          subTitle: "Instructor Dashboard",
+          newNotif: meta?.newNotif,
+          NotificationBox: (
+            <NotificationBox notifications={data} newNotif={meta?.newNotif ?? 0} readNotif={readNotifications} />
+          ),
+        }}
+      />
       <main
         className={cn([
           inter.className,

@@ -3,6 +3,7 @@ import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import { SUPABASE_BUCKET, SUPABASE_URL } from "@/config/env";
 import useCourse from "@/hooks/course/useCourse";
 import { useNProgress } from "@/hooks/use-nProgress";
+import { getUnknownErrorMessage } from "@/libs/axios/error";
 import { EditCourseContext } from "@/libs/context/EditCourseContext";
 import { storageClient } from "@/libs/supabase/client";
 import cn from "@/libs/utils/cn";
@@ -129,7 +130,7 @@ export default function EditCourse({
         const path = `courses/${toSlug(dirtyData.title || metaDraft.title)}.${ext}`;
         const { error, data } = await storageClient.from(SUPABASE_BUCKET).upload(path, fileImage, { upsert: true });
         if (error) {
-          addToast({ color: "danger", title: "Error uploading image", description: error.message });
+          addToast({ color: "danger", title: "Error uploading image", description: getUnknownErrorMessage(error) });
           setLoading(false);
           console.log(error);
           return;
@@ -145,8 +146,7 @@ export default function EditCourse({
       return updateCourse({ id, data: dirtyData });
     } catch (error) {
       setLoading(false);
-      const err = error as Error;
-      addToast({ title: "Error", description: err.message, color: "danger" });
+      addToast({ title: "Error", description: getUnknownErrorMessage(error), color: "danger" });
     }
   };
 

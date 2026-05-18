@@ -32,10 +32,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export default function CurriculumPagePreview({ id }: { id: number }) {
   const { data, isPending, isFetching, isError, error } = useQuery(courseQueries.options.listSections(id));
-  const hasNoContent = !data || data.length === 0 || data.every(s => !s.lessons || s.lessons.length === 0);
-  const [activeLesson, setActiveLesson] = useState<LessonPathIds | null>(null);
-  const onSelect = (section: CourseSection, lesson: Lesson) => {
-    setActiveLesson({ sectionId: section.id!, lessonId: lesson.id!, courseId: id });
+  const hasNoContent = !data || data.length === 0 || data.every(s => !s.items || s.items.length === 0);
+  const [activeItem, setActiveItem] = useState<LessonPathIds | null>(null);
+  const onSelect = (section: CourseSection, item: Omit<CourseSectionsItem, "lesson">) => {
+    setActiveItem({ sectionId: section.id!, itemId: item.id!, courseId: id });
   };
 
   useNProgress(isPending);
@@ -44,10 +44,10 @@ export default function CurriculumPagePreview({ id }: { id: number }) {
     if (!data?.length) return;
     const active = findFirstSelectableLesson(data);
     if (!active) return;
-    setActiveLesson({
+    setActiveItem({
       courseId: id,
       sectionId: active.section.id,
-      lessonId: active.lesson.id,
+      itemId: active.item.id,
     });
   }, [data, id]);
   if (isFetching || isPending) return null;
@@ -61,9 +61,9 @@ export default function CurriculumPagePreview({ id }: { id: number }) {
 
   return (
     <LearnLayout title="Preview Kursus">
-      <CurriculumViewContext.Provider value={{ activeLesson, setActiveLesson, onSelect }}>
+      <CurriculumViewContext.Provider value={{ activeItem, setActiveItem, onSelect }}>
         <CurriculumNav courseId={id} sections={data}>
-          {activeLesson != null ? <Lessonview activeLesson={activeLesson} /> : <p>Select a lesson</p>}
+          {activeItem != null ? <Lessonview activeItem={activeItem} /> : <p>Select a lesson</p>}
         </CurriculumNav>
       </CurriculumViewContext.Provider>
     </LearnLayout>

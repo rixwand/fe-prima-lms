@@ -65,10 +65,10 @@ export default function LearnCourseNav({
     let total = 0;
 
     for (const section of data.sections) {
-      for (const lesson of section.lessons) {
+      for (const item of section.items) {
         total++;
 
-        if (lesson.lessonProgress[0]?.status === "COMPLETED") {
+        if (item.learnProgress[0]?.status === "COMPLETED") {
           done++;
         }
       }
@@ -188,12 +188,9 @@ export default function LearnCourseNav({
                     key={"intro"}
                     item={{
                       slug: "/",
-                      id: 0,
                       isPreview: true,
                       title: "Introducing into course",
-                      sectionId: 0,
-                      durationSec: 300,
-                      lessonProgress: [{ status: "COMPLETED" }],
+                      learnProgress: [{ status: "COMPLETED" }],
                     }}
                   />
                 </div>
@@ -202,8 +199,8 @@ export default function LearnCourseNav({
                 <div key={section.id} className="first:border-t-0 border-abu py-1">
                   <CategoryHeader
                     title={section.title}
-                    completedCount={section.lessons.filter(l => l.lessonProgress?.[0]?.status === "COMPLETED").length}
-                    totalCount={section.lessons.length}
+                    completedCount={section.items.filter(i => i.learnProgress?.[0]?.status === "COMPLETED").length}
+                    totalCount={section.items.length}
                     expanded={!!open[section.id]}
                     onToggle={() => toggle(section.id)}
                   />
@@ -214,10 +211,10 @@ export default function LearnCourseNav({
                       "pl-5 ml-2 border-l-2 border-abu transition-[max-height] overflow-hidden duration-500",
                       open[section.id] ? "mb-3 max-h-96" : "max-h-0",
                     ])}>
-                    {section.lessons.length === 0 ? (
+                    {section.items.length === 0 ? (
                       <div className="text-sm text-zinc-500 pb-3">(Belum ada item.)</div>
                     ) : (
-                      section.lessons.map((item, i) => (
+                      section.items.map((item, i) => (
                         <ModuleRow
                           activeLesson={activeLesson}
                           activeCourseSlug={activeCourseSlug}
@@ -283,7 +280,7 @@ export default function LearnCourseNav({
   );
 }
 
-const StatusIcon: React.FC<{ status: LessonProgressStatus; isCurrent: boolean }> = ({ isCurrent, status }) => {
+const StatusIcon: React.FC<{ status: LearnProgressStatus; isCurrent: boolean }> = ({ isCurrent, status }) => {
   if (status === "COMPLETED") {
     return <LuCircleCheckBig className="text-prime text-base" />;
   }
@@ -299,7 +296,7 @@ const SmallFreeTag: React.FC = () => <small className="text-zinc-500 ml-1">(Grat
 // ——— Items ————————————————————————————————————————————————————————
 
 const ModuleRow: React.FC<{
-  item: CourseCurriculum["sections"][number]["lessons"][number];
+  item: Pick<CourseSectionsItem, "slug" | "learnProgress" | "title" | "isPreview">;
   activeLesson: string | null;
   activeCourseSlug: string;
   isCurrent?: boolean;
@@ -307,7 +304,7 @@ const ModuleRow: React.FC<{
   return (
     <div className="flex items-start gap-3 py-2 text-zinc-700">
       <div className="pt-0.5">
-        <StatusIcon status={item.lessonProgress[0].status} isCurrent={item.slug == activeLesson} />
+        <StatusIcon status={item.learnProgress[0].status} isCurrent={item.slug == activeLesson} />
       </div>
       <Link
         href={`/learn/${activeCourseSlug}/${item.slug}`}

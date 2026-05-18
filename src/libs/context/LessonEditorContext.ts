@@ -2,7 +2,7 @@ import { StateType } from "@/types/Helper";
 import { createContext, useContext } from "react";
 
 type LessonEditorContextProps = {
-  ids?: { courseId: number; sectionId: number; lessonId: number };
+  ids?: { courseId: number; sectionId: number; itemId: number };
   currentDirtyState: StateType<boolean>;
   courseId: number;
 };

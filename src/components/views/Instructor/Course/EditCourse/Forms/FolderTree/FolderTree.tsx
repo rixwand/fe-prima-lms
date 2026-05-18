@@ -26,7 +26,7 @@ import CourseSectionItem from "./SectionItem";
 
 export type OnSelect = (
   section: CourseSectionForm,
-  lesson: NonNullable<CourseSectionForm["lessons"]>[number],
+  item: NonNullable<CourseSectionForm["items"]>[number],
   path: string[],
 ) => void;
 export type FolderTreeProps = {
@@ -141,7 +141,7 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
                   expandState={expandedState}
                   onCheck={() => toggleSelect(section.id!)}
                   isChecked={selected.has(section.id!)}
-                  defaultLessons={defaultValue.filter(s => s.id == section.id)[0]?.lessons ?? []}
+                  defaultItem={defaultValue.filter(s => s.id == section.id)[0]?.items ?? []}
                 />
               ),
           )}
@@ -214,7 +214,7 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
               onSelect={onSelect}
               expandState={expandedState}
               isChecked={selected.has(activeId)}
-              defaultLessons={defaultValue.filter(s => s.id == activeId)[0].lessons}
+              defaultItem={defaultValue.filter(s => s.id == activeId)[0].items}
             />
           </div>
         </DragOverlay>

@@ -3,15 +3,15 @@ import { Dispatch, SetStateAction, createContext, useContext } from "react";
 export type LessonPathIds = {
   courseId: number;
   sectionId: number;
-  lessonId: number;
+  itemId: number;
 };
 
-type OnSelectLesson = (section: CourseSection, lesson: Lesson) => void;
+type OnSelectLesson = (section: CourseSection, item: Omit<CourseSectionsItem, "lesson">) => void;
 
 type CurriculumViewContextType = {
   onSelect: OnSelectLesson;
-  activeLesson: LessonPathIds | null;
-  setActiveLesson: Dispatch<SetStateAction<LessonPathIds | null>>;
+  activeItem: LessonPathIds | null;
+  setActiveItem: Dispatch<SetStateAction<LessonPathIds | null>>;
 };
 
 export const CurriculumViewContext = createContext<CurriculumViewContextType | null>(null);

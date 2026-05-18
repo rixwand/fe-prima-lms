@@ -1,13 +1,25 @@
 import NormalCkbox from "@/components/commons/NormalCkbox";
+import { ItemIcon } from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree/SectionItem/LessonItem/Lessonitem";
+import { itemTypeSelect } from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree/SectionItem/SectionItem";
 import { cn } from "@/libs/tiptap/tiptap-utils";
 import { toRoundedMinutes } from "@/libs/utils/string";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button, Input, Listbox, ListboxItem, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
+import {
+  Button,
+  Input,
+  Listbox,
+  ListboxItem,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+  SelectItem,
+} from "@heroui/react";
 import { CSSProperties, Fragment, useEffect, useRef, useState } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
-import { LuCheck, LuClock, LuEllipsisVertical, LuEqual, LuFileText, LuPencil, LuTrash2 } from "react-icons/lu";
-import { CourseForm, CourseLessonForm, CourseSectionForm } from "../../../../form.type";
+import { LuCheck, LuClock, LuEllipsisVertical, LuEqual, LuPencil, LuTrash2 } from "react-icons/lu";
+import { CourseForm, CourseItemForm, CourseSectionForm } from "../../../../form.type";
 
 const CourseLessonItem = ({
   lesson,
@@ -22,22 +34,27 @@ const CourseLessonItem = ({
 }: {
   sectionIdx: number;
   idx: number;
-  lesson: CourseLessonForm;
+  lesson: CourseItemForm;
   section: CourseSectionForm;
   onCheck: () => void;
-  onRename: (idx: number, title: string) => void;
+  onRename: (idx: number, title: string, type: SectionItemType) => void;
   onRemove: (idx: number) => void;
   isChecked: boolean;
   editMode: boolean;
 }) => {
-  const durationPath = `sections.${sectionIdx}.lessons.${idx}.durationSec` as const;
+  const durationPath = `sections.${sectionIdx}.items.${idx}.durationSec` as const;
   const { control } = useFormContext<CourseForm>();
-  const [editLesson, setEditLesson] = useState<{ id: string; title: string } | null>(null);
+  const [editLesson, setEditLesson] = useState<{ id: string; title: string; type: SectionItemType } | null>(null);
   const [isOpenDuration, setOpenDuration] = useState(false);
   const [isOpenMenu, setOpenMenu] = useState(false);
+  const [selectOpen, setSelectOpen] = useState(false);
+  const selectOpenRef = useRef(false);
+  const skipResetSelectedTypeRef = useRef(false);
+  const inputNewItemRef = useRef<HTMLInputElement>(null);
 
   const inputLessonRef = useRef<HTMLInputElement>(null);
   const inputDurationRef = useRef<HTMLInputElement>(null);
+  const inputSelectTypeRef = useRef<HTMLSelectElement>(null);
 
   const durationSec = useWatch({ control, name: durationPath });
 
@@ -61,7 +78,21 @@ const CourseLessonItem = ({
     border: 1,
   } as CSSProperties;
 
-  const handleRenameLesson = () => (editLesson ? onRename(idx, editLesson.title) : null);
+  const handleRenameLesson = () => (editLesson ? onRename(idx, editLesson.title, editLesson.type) : null);
+  const focusNewItemInput = () => {
+    skipResetSelectedTypeRef.current = true;
+    requestAnimationFrame(() => {
+      inputNewItemRef.current?.focus();
+      requestAnimationFrame(() => {
+        skipResetSelectedTypeRef.current = false;
+      });
+    });
+  };
+  const handleSelectOpenChange = (isOpen: boolean) => {
+    if (!isOpen) focusNewItemInput();
+    selectOpenRef.current = isOpen;
+    setSelectOpen(isOpen);
+  };
 
   return (
     <li
@@ -73,7 +104,14 @@ const CourseLessonItem = ({
       className="list-none"
       tabIndex={-1}
       onBlur={e => {
-        if (!e.currentTarget.contains(e.relatedTarget)) setEditLesson(null);
+        const currentTarget = e.currentTarget;
+        requestAnimationFrame(() => {
+          if (skipResetSelectedTypeRef.current) return;
+          if (selectOpenRef.current) return;
+          const focusedElement = document.activeElement;
+          if (focusedElement && currentTarget.contains(focusedElement)) return;
+          setEditLesson(null);
+        });
       }}>
       <span
         className={cn(
@@ -91,11 +129,52 @@ const CourseLessonItem = ({
         ) : (
           <span className="block h-4 w-4 shrink-0 rounded-full" />
         )}
-        <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--tt-theme-brand-color-600)]">
-          <LuFileText />
-        </span>
+        {!editLesson && (
+          <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--tt-theme-brand-color-600)]">
+            <ItemIcon type={lesson.type} />
+          </span>
+        )}
         {editLesson && editLesson.id === lesson.id ? (
           <Fragment>
+            <Select
+              aria-label="Select Item type"
+              ref={inputSelectTypeRef}
+              isOpen={selectOpen}
+              onOpenChange={handleSelectOpenChange}
+              items={itemTypeSelect}
+              className="max-w-[6.65rem]"
+              size="sm"
+              selectedKeys={editLesson ? [editLesson.type] : undefined}
+              onSelectionChange={keys => {
+                setSelectOpen(false);
+                const value = Array.from(keys)[0] as SectionItemType;
+                if (!value) return;
+                setEditLesson(v => (v ? { ...v, type: value } : { ...lesson, type: value }));
+              }}
+              classNames={{
+                selectorIcon: "-mr-1.5",
+                trigger: "border-1 border-gray-300 focus-within:ring-blue-500 focus-within:ring-1",
+                popoverContent: "rounded-lg p-0",
+              }}
+              renderValue={items => {
+                return items.map(({ data, key }) =>
+                  data ? (
+                    <span key={key} className="flex items-center gap-x-1">
+                      <data.icon size={16} />
+                      {data.label}
+                    </span>
+                  ) : null,
+                );
+              }}>
+              {({ icon: Icon, key, label }) => (
+                <SelectItem aria-label={label} key={key}>
+                  <span className="flex items-center gap-x-1">
+                    <Icon size={16} />
+                    {label}
+                  </span>
+                </SelectItem>
+              )}
+            </Select>
             <input
               type="text"
               ref={inputLessonRef}
@@ -105,7 +184,7 @@ const CourseLessonItem = ({
               )}
               onClick={e => e.stopPropagation()}
               value={editLesson.title}
-              onChange={e => setEditLesson({ id: lesson.id!, title: e.target.value })}
+              onChange={e => setEditLesson(v => ({ id: lesson.id!, title: e.target.value, type: lesson.type }))}
               onFocus={() => inputLessonRef.current?.select()}
               onKeyDown={e => {
                 if (e.key == "Escape") setEditLesson(null);
@@ -200,7 +279,7 @@ const CourseLessonItem = ({
                     <Listbox variant="light" color="primary" aria-label="Actions" onAction={() => setOpenMenu(false)}>
                       <ListboxItem
                         onPress={() => {
-                          setEditLesson({ id: lesson.id!, title: lesson.title });
+                          setEditLesson({ id: lesson.id!, title: lesson.title, type: lesson.type });
                           setOpenMenu(false);
                         }}
                         startContent={<LuPencil />}

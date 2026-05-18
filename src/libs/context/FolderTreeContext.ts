@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, createContext, useContext } from "react";
 
 export type LessonPathIds = {
-  ids: { courseId: number; sectionId: number; lessonId: number };
+  ids: { courseId: number; sectionId: number; itemId: number };
   path: string[];
 };
 

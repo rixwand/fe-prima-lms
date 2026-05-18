@@ -1,6 +1,7 @@
 import UserCourseCard from "@/components/commons/Cards/UserCourseCard";
 import { SUPABASE_BUCKET, SUPABASE_URL } from "@/config/env";
 import useCourse from "@/hooks/course/useCourse";
+import { getUnknownErrorMessage } from "@/libs/axios/error";
 import { storageClient } from "@/libs/supabase/client";
 import cn from "@/libs/utils/cn";
 import { toSlug } from "@/libs/utils/string";
@@ -37,7 +38,7 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
     const path = `courses/${toSlug(value.title)}.${ext}`;
     const { error, data } = await storageClient.from(SUPABASE_BUCKET).upload(path, fileImage, { upsert: true });
     if (error) {
-      addToast({ color: "danger", title: "Error uploading image", description: error.message });
+      addToast({ color: "danger", title: "Error uploading image", description: getUnknownErrorMessage(error) });
       setLoading(false);
       console.log(error);
       return;
@@ -60,11 +61,13 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
   const validateBasicForm = async () => {
     const isValid = await methods.trigger(["title", "shortDescription", "coverImage", "tags", "categories"]);
     if (isValid) goNext();
+    // goNext();
   };
 
   const validatePricing = async () => {
     const isValid = await methods.trigger(["priceAmount", "discount"]);
     if (isValid) goNext();
+    // goNext();
   };
 
   const [title, price, discount, categories, tags] = methods.watch([

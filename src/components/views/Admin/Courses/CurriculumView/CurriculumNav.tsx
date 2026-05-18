@@ -35,7 +35,7 @@ export default function CurriculumNav({ children, sections, courseId }: Props) {
   const { data: course, isError, error, isPending } = useQuery(courseQueries.options.getCourse(courseId));
 
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const { activeLesson } = useCurriculumViewContext();
+  const { activeItem } = useCurriculumViewContext();
   const sideBarToggle = () => setSidebarOpen(isSidebarOpen => !isSidebarOpen);
   useQueryError({ isError, error });
   useNProgress(isPending);
@@ -46,7 +46,7 @@ export default function CurriculumNav({ children, sections, courseId }: Props) {
           <NavbarContent className="max-w-[calc(50%-64px)]">
             <NavbarItem className="w-[85%] flex items-center">
               <Link
-                href={`/admin/dashboard/course/${activeLesson?.courseId}`}
+                href={`/admin/dashboard/course/${activeItem?.courseId}`}
                 as={NextLink}
                 className="flex items-center w-full gap-x-3 overflow-hidden text-slate-700">
                 <LuArrowLeft size={20} />
@@ -141,7 +141,7 @@ export default function CurriculumNav({ children, sections, courseId }: Props) {
                 </div>
               </header>
               <section className="flex-1 overflow-y-auto overscroll-contain px-5 mt-2 pb-5 scrollbar-hide">
-                <SectionsTree courseSections={sections} onSelect={onSelect} activeLessonId={activeLesson?.lessonId} />
+                <SectionsTree courseSections={sections} onSelect={onSelect} activeItemId={activeItem?.itemId} />
               </section>
             </div>
           </aside>

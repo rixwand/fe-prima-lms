@@ -1,10 +1,11 @@
+import CheckoutCardDiscountItem from "@/components/commons/CheckoutCardDiscountItem";
 import NotFound from "@/components/commons/NotFound";
 import useOrder from "@/hooks/transaction/useOrder";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { useQueryError } from "@/hooks/use-query-error";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
-import { applyDiscounts, convertLocal, toNumber } from "@/libs/utils/currency";
+import { applyDiscounts, convertLocal } from "@/libs/utils/currency";
 import { getYouTubeEmbedUrl } from "@/libs/utils/string";
 import courseQueries from "@/queries/course-queries";
 import { Accordion, AccordionItem, Button, Card, Chip, Skeleton, Tab, Tabs } from "@heroui/react";
@@ -13,9 +14,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { FiInfo } from "react-icons/fi";
-import { IoMdTime } from "react-icons/io";
-import { LuSquareArrowOutUpRight, LuUsers } from "react-icons/lu";
-import { Rating } from "react-simple-star-rating";
+import { LuClock4, LuSquareArrowOutUpRight, LuStar, LuUsers } from "react-icons/lu";
 
 export default function CourseInfo({ slug }: { slug: string }) {
   const { isError, error, isPending, data } = useQuery(courseQueries.options.getCourseBySlug(slug));
@@ -50,6 +49,28 @@ export default function CourseInfo({ slug }: { slug: string }) {
             </div>
             <div className="space-y-4">
               <h1 className="font-bold text-xl xl:text-2xl">{title}</h1>
+              <div className="space-y-2">
+                <p className="text-slate-800">Kategori:</p>
+                <span className="flex gap-x-2">
+                  {data.categories.map((c, index) => (
+                    <Chip size="md" key={c.id} radius="sm" color="primary" variant={index == 0 ? "solid" : "flat"}>
+                      {c.name}
+                    </Chip>
+                  ))}
+                </span>
+              </div>
+              <span className="flex items-center gap-x-3">
+                <p className="text-slate-700 flex items-center gap-x-1">
+                  <LuClock4 size={20} /> <span>20jam</span>
+                </p>
+                <p className="text-slate-700 flex items-center gap-x-1">
+                  <LuUsers size={20} /> <span>1.2rb</span>
+                </p>
+                <p className="flex items-center gap-x-1 text-slate-700">
+                  <LuStar size={20} />
+                  <span>4.5</span>
+                </p>
+              </span>
               <span className="flex items-center gap-x-2">
                 <p className="text-slate-800">Tags:</p>
                 {tags.map(({ name, slug }) => (
@@ -57,16 +78,6 @@ export default function CourseInfo({ slug }: { slug: string }) {
                     {name}
                   </Chip>
                 ))}
-              </span>
-              <p className="text-slate-800 flex items-center gap-x-1">
-                <IoMdTime size={24} /> <span>20 Jam Belajar</span>
-              </p>
-              <p className="text-slate-700 flex items-center gap-x-1">
-                <LuUsers size={20} stroke="#3F3F46" /> <span>1.2rb Peserta</span>
-              </p>
-              <span className="flex items-center gap-x-3">
-                <Rating size={24} initialValue={4.5} allowFraction />
-                <p className="text-lg font-semibold mt-1">4.5</p>
               </span>
             </div>
           </div>
@@ -92,27 +103,18 @@ export default function CourseInfo({ slug }: { slug: string }) {
           {/* Price Row */}
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-slate-600">Harga Kursus</span>
-            <span className="text-sm font-medium text-slate-400 line-through">
+            <span
+              className={cn(
+                "text-sm font-medium",
+                data.discounts?.some(d => d.isActive) ? "text-slate-400 line-through" : "text-slate-600",
+              )}>
               {convertLocal(priceAmount)}
             </span>
           </div>
 
-          {/* Discountsdiscounts */}
-          {discounts && discounts.length > 0 && discounts[0].isActive && (
-            <div className="mt-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-600">
-                Diskon {discounts[0].type == "PERCENTAGE" && discounts[0].value + "%"}
-              </span>
-              <span className="text-base font-semibold text-emerald-600">
-                -
-                {convertLocal(
-                  discounts[0].type == "FIXED"
-                    ? discounts[0].value
-                    : toNumber(priceAmount) * (toNumber(discounts[0].value) / 100),
-                )}
-              </span>
-            </div>
-          )}
+          {data.discounts?.map(discount => (
+            <CheckoutCardDiscountItem {...{ discount, priceAmount }} />
+          ))}
 
           {/* Promo Code */}
           <div className="mt-5">
@@ -145,9 +147,7 @@ export default function CourseInfo({ slug }: { slug: string }) {
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-slate-700">Harga Akhir</span>
             <span className="text-xl font-bold tracking-tight text-slate-900">
-              {convertLocal(
-                discounts && discounts.length > 0 && discounts[0].isActive ? applyDiscounts(priceAmount, discounts) : priceAmount,
-              )}
+              {convertLocal(applyDiscounts(priceAmount, data.discounts ?? []))}
             </span>
           </div>
 
@@ -181,7 +181,7 @@ const PreviewTab = ({ url }: { url: string }) => {
   );
 };
 
-const SyllabusTab = ({ sections }: { sections: { title: string; lessons?: Lesson[] }[] }) => {
+const SyllabusTab = ({ sections }: { sections: { title: string; items: CourseSectionsItem[] }[] }) => {
   return (
     <div className="space-y-3 w-full lg:w-4/5 text-gray-500 2xl:text-lg">
       <h3 className="w-full lg:ml-3 font-medium 2xl:text-lg">Materi yang akan dipelajari pada kursus ini :</h3>
@@ -194,8 +194,8 @@ const SyllabusTab = ({ sections }: { sections: { title: string; lessons?: Lesson
         {sections.map((item, index) => (
           <AccordionItem key={index} aria-label={`Accordion ${index}`} title={item.title}>
             <ul className="text-gray-500 mb-4 -mt-2 list-disc space-y-2">
-              {item.lessons &&
-                item.lessons.map((list, index) => (
+              {item.items &&
+                item.items.map((list, index) => (
                   <li key={index} className="ml-6">
                     {list.title}
                   </li>
@@ -218,7 +218,7 @@ const DescTab = ({
   return (
     <div className="lg:mx-2 space-y-3 text-gray-500">
       <p className="lg:w-4/5">{shortDescription}</p>
-      <p className="lg:w-4/5">{descriptionJson || ""}</p>
+      <p className="lg:w-4/5 whitespace-pre-wrap">{descriptionJson || ""}</p>
     </div>
   );
 };

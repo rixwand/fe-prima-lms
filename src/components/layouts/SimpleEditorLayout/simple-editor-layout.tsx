@@ -18,7 +18,7 @@ type SimpleEditorLayoutProps = React.PropsWithChildren<{
   structure: CourseSection[];
   className?: string;
   courseTitle: string;
-  lessonState: StateType<Lesson | null>;
+  itemState: StateType<Omit<CourseSectionsItem, "lesson"> | null>;
 }>;
 
 export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
@@ -26,10 +26,10 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
   structure,
   className,
   courseTitle,
-  lessonState,
+  itemState,
 }) => {
   const sidebarId = React.useId();
-  const [activeLesson, setActiveLesson] = lessonState;
+  const [activeItem, setActiveItem] = itemState;
   const [activePath, setActivePath] = React.useState<string[]>([]);
   const headerRef = React.useRef<HTMLDivElement | null>(null);
   const [toolbarOffset, setToolbarOffset] = React.useState(0);
@@ -46,8 +46,8 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
     setIsSidebarOpen(false);
   }, []);
 
-  const switchLesson = (lesson: Lesson, path: string[]) => {
-    setActiveLesson(lesson);
+  const switchItem = (item: Omit<CourseSectionsItem, "lesson">, path: string[]) => {
+    setActiveItem(item);
     setActivePath(path);
     if (!isDesktop) {
       closeSidebar();
@@ -55,29 +55,29 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
   };
 
   const handleSelect = React.useCallback(
-    (_section: CourseSection, lesson: Lesson, path: string[]) => {
+    (_section: CourseSection, item: Omit<CourseSectionsItem, "lesson">, path: string[]) => {
       if (!isDirty) {
-        switchLesson(lesson, path);
+        switchItem(item, path);
       } else
         confirmDialog({
           title: "Discard changes?",
           desc: "Unsaved changes will be lost if you leave this tab.",
           isDestructive: true,
-          onConfirmed: () => switchLesson(lesson, path),
+          onConfirmed: () => switchItem(item, path),
         });
     },
     [closeSidebar, isDesktop, isDirty],
   );
 
   React.useEffect(() => {
-    if (activeLesson || structure.length === 0) return;
+    if (activeItem || structure.length === 0) return;
 
     const firstSelectable = findFirstSelectableLesson(structure);
     if (firstSelectable) {
-      setActiveLesson(firstSelectable.lesson);
+      setActiveItem(firstSelectable.item);
       setActivePath(firstSelectable.path);
     }
-  }, [activeLesson, structure]);
+  }, [activeItem, structure]);
 
   React.useEffect(() => {
     const updateOffset = () => {
@@ -183,8 +183,8 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
   );
 
   const breadcrumb = React.useMemo(
-    () => (activeLesson ? activePath.join(" / ") : "Select a lesson"),
-    [activeLesson, activePath],
+    () => (activeItem ? activePath.join(" / ") : "Select a lesson"),
+    [activeItem, activePath],
   );
 
   return (
@@ -197,7 +197,7 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
         )}>
         <SimpleEditorSidebar
           structure={structure}
-          activeLessonId={activeLesson?.id ?? null}
+          activeLessonId={activeItem?.id ?? null}
           onSelect={handleSelect}
           isDesktop={isDesktop}
           isSidebarOpen={isSidebarOpen}
@@ -217,7 +217,7 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
               breadcrumb={breadcrumb}
             />
 
-            <div className="flex flex-1 flex-col bg-inherit px-4 pb-6 pt-4 lg:px-8" style={contentStyle}>
+            <div className="flex flex-1 flex-col bg-inherit px-4 pb-6 pt-4 lg:px-8 @container" style={contentStyle}>
               {children}
             </div>
           </div>

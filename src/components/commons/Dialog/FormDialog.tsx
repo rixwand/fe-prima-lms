@@ -43,7 +43,7 @@ const ModalBodySections = ({
 
   return (
     <Modal isDismissable={false} onClose={handleCancel} isKeyboardDismissDisabled={true} isOpen={isOpen}>
-      <ModalContent className="bg-gradient-to-br from-gray-50 to-white text-slate-900 max-w-xl">
+      <ModalContent className="bg-gradient-to-br from-gray-50 to-white text-slate-900 max-w-2xl">
         <ModalHeader className="flex flex-col gap-1">{title}</ModalHeader>
         <ModalBody className="">{children}</ModalBody>
         <ModalFooter>

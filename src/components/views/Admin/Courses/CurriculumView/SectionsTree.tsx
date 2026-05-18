@@ -5,26 +5,26 @@ import { cn } from "@/libs/tiptap/tiptap-utils";
 
 export type FolderTreeProps = {
   courseSections: CourseSection[];
-  activeLessonId?: number | null;
-  onSelect: (section: CourseSection, lesson: Lesson, path: string[]) => void;
+  activeItemId?: number | null;
+  onSelect: (section: CourseSection, item: Omit<CourseSectionsItem, "lesson">, path: string[]) => void;
 };
 
-export const SectionsTree: React.FC<FolderTreeProps> = ({ courseSections, activeLessonId, onSelect }) => (
+export const SectionsTree: React.FC<FolderTreeProps> = ({ courseSections, activeItemId, onSelect }) => (
   <ul className="m-0 flex list-none flex-col gap-1 p-0" role="tree">
     {courseSections.map(section => (
-      <CourseSectionItem key={section.id} section={section} activeLessonId={activeLessonId} onSelect={onSelect} />
+      <CourseSectionItem key={section.id} section={section} activeItemId={activeItemId} onSelect={onSelect} />
     ))}
   </ul>
 );
 
 const CourseSectionItem: React.FC<{
   section: CourseSection;
-  activeLessonId?: number | null;
-  onSelect: (section: CourseSection, lesson: Lesson, path: string[]) => void;
-}> = ({ section, activeLessonId, onSelect }) => {
+  activeItemId?: number | null;
+  onSelect: (section: CourseSection, item: Omit<CourseSectionsItem, "lesson">, path: string[]) => void;
+}> = ({ section, activeItemId, onSelect }) => {
   const containsActiveLesson = React.useMemo(
-    () => section.lessons.some(lesson => lesson.id === activeLessonId),
-    [section.lessons, activeLessonId],
+    () => section.items.some(item => item.id === activeItemId),
+    [section.items, activeItemId],
   );
   const [isOpen, setIsOpen] = React.useState(containsActiveLesson);
 
@@ -42,7 +42,7 @@ const CourseSectionItem: React.FC<{
     <li
       className="list-none"
       role="treeitem"
-      aria-expanded={section.lessons.length > 0 ? isOpen : undefined}
+      aria-expanded={section.items.length > 0 ? isOpen : undefined}
       aria-selected={containsActiveLesson}>
       <button
         type="button"
@@ -65,16 +65,16 @@ const CourseSectionItem: React.FC<{
         <ul
           className="mt-1 ml-4 flex list-none flex-col gap-1 border-l border-[var(--tt-border-color)] pl-3"
           role="group">
-          {section.lessons.map(lesson => {
-            const isActiveLesson = lesson.id === activeLessonId;
-            const path = [section.title, lesson.title];
+          {section.items.map(item => {
+            const isActiveLesson = item.id === activeItemId;
+            const path = [section.title, item.title];
 
             const handleSelectLesson = () => {
-              onSelect(section, lesson, path);
+              onSelect(section, item, path);
             };
 
             return (
-              <li key={lesson.id} className="list-none" role="treeitem" aria-selected={isActiveLesson}>
+              <li key={item.id} className="list-none" role="treeitem" aria-selected={isActiveLesson}>
                 <button
                   type="button"
                   className={cn(
@@ -89,12 +89,12 @@ const CourseSectionItem: React.FC<{
                   <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--tt-theme-brand-color-600)]">
                     <IoDocumentTextOutline />
                   </span>
-                  <span className="flex-1 truncate text-sm text-left">{lesson.title}</span>
+                  <span className="flex-1 truncate text-sm text-left">{item.title}</span>
                 </button>
               </li>
             );
           })}
-          {section.lessons.length == 0 ? (
+          {section.items.length == 0 ? (
             <p className="text-sm pl-3 text-[var(--tt-theme-text-muted)]">No lesson found</p>
           ) : null}
         </ul>

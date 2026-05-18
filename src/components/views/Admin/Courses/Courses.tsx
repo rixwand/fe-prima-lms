@@ -1,10 +1,12 @@
 import StatCard from "@/components/commons/Cards/StatsCard";
 import Toolbar from "@/components/commons/Toolbar";
 import usePublishCourses from "@/hooks/course/useListPublishRequest";
+import { useSocketContext } from "@/libs/context/SocketContext";
 import { Tab, Tabs } from "@heroui/react";
 import { Suspense, useState } from "react";
 import { LuBookOpen, LuClock } from "react-icons/lu";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
+import { SiSocketdotio } from "react-icons/si";
 import CoursesLoading from "../../../commons/Cards/CoursesCardLoading";
 import AllCourses from "./Tabs/AllCourses";
 import PendingCourses from "./Tabs/PendingCourses";
@@ -16,6 +18,7 @@ export default function Courses() {
   const [activeTab, setActiveTab] = useState<TabKeys>("all");
   const { queryCourses } = usePublishCourses();
   const handleSearch = () => {};
+  const { status } = useSocketContext();
 
   return (
     <section className="@container">
@@ -42,6 +45,7 @@ export default function Courses() {
           label="Pending Approval"
           value={queryCourses?.courses.filter(({ status }) => status == "PENDING").length.toString() || "0"}
         />
+        <StatCard icon={<SiSocketdotio size={20} />} label="Socket Status" value={status} />
       </div>
       <div className="relative">
         <Tabs variant="underlined" className="flex" selectedKey={activeTab} onSelectionChange={setActiveTab as VoidFn}>

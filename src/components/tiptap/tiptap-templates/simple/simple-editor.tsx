@@ -61,6 +61,7 @@ import ccn from "@/libs/utils/cn";
 // --- Icons (external) ---
 import { MySwitch } from "@/components/commons/CustomHeroui/MySwitch";
 import { TiptapViewer } from "@/components/commons/TiptapViewer/TiptapViewer";
+import { getUnknownErrorMessage } from "@/libs/axios/error";
 import { useLessonEditorContext } from "@/libs/context/LessonEditorContext";
 import { normalizeTiptapContent } from "@/libs/utils/course";
 import { StateType } from "@/types/Helper";
@@ -242,7 +243,7 @@ const MobileToolbarContent = ({ type, onBack }: { type: "highlighter" | "link"; 
 type SimpleEditorProps = {
   onSave?: (data: { json: JSONContent; onSuccess?: () => void }) => void;
   onPublish?: (props: { newDraft?: JSONContent; onSuccess?: () => void }) => void;
-  lessonContent: LessonContent;
+  lessonContent: Pick<Lesson, "contentDraft" | "contentLive">;
 };
 
 export function SimpleEditor({
@@ -305,7 +306,7 @@ export function SimpleEditor({
         onError: error => {
           // alert(error.message);
           // console.error("Upload failed:", error);
-          addToast({ title: "Error uploadig image", color: "danger", description: error.message });
+          addToast({ title: "Error uploadig image", color: "danger", description: getUnknownErrorMessage(error) });
         },
       }),
     ],

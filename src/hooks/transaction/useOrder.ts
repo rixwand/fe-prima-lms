@@ -1,3 +1,4 @@
+import { getUnknownErrorMessage } from "@/libs/axios/error";
 import { hasTrue } from "@/libs/utils/boolean";
 import orderQueries from "@/queries/order-queries";
 import orderService from "@/services/order.service";
@@ -21,7 +22,7 @@ export default function useOrder(
     mutationFn: (data: { courseId: number; code?: string }) => orderService.create(data),
     onError(e) {
       console.log(e);
-      addToast({ title: "Erorr", description: e.message, color: "danger" });
+      addToast({ title: "Erorr", description: getUnknownErrorMessage(e), color: "danger" });
     },
     onSuccess({ data }) {
       router.push(data.invoiceUrl);

@@ -1,7 +1,9 @@
 import NavbarDashboard from "@/components/commons/Navbar2";
+import NotificationBox from "@/components/commons/NotificationBox";
 import PageHead from "@/components/commons/PageHead";
 import Sidebar from "@/components/commons/Sidebar";
 import { NavStruct } from "@/components/commons/Sidebar/Sidebar";
+import useNotification from "@/hooks/dashboard/useNotification";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { Fragment, ReactNode, useState } from "react";
@@ -43,10 +45,28 @@ export default function AdminLayout({
 } & Nav) {
   const [collapsed, setCollapsed] = useState(false);
   const [open, setOpen] = useState(false);
+  const {
+    notification: { data, meta },
+    readNotifications,
+  } = useNotification();
   return (
     <Fragment>
       <PageHead title={title} />
-      <Sidebar {...{ open, setOpen, collapsed, setCollapsed, active, navLinks, subTitle: "Admin Dashboard" }} />
+      <Sidebar
+        {...{
+          open,
+          setOpen,
+          collapsed,
+          setCollapsed,
+          active,
+          navLinks,
+          subTitle: "Admin Dashboard",
+          NotificationBox: (
+            <NotificationBox newNotif={meta?.newNotif ?? 0} notifications={data} readNotif={readNotifications} />
+          ),
+          newNotif: meta?.newNotif,
+        }}
+      />
       <main
         className={cn([
           inter.className,
