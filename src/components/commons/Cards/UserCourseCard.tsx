@@ -120,7 +120,7 @@ const UserCourseCard = ({ className, course: { metaApproved }, course, disabled 
           <LuTags size={16} />{" "}
           <ul className="flex items-center gap-x-1">
             {course.tags.map((t, i) => (
-              <li className="italic underline">
+              <li key={t.slug} className="italic underline">
                 {t.name}
                 {i !== course.tags.length - 1 && ","}
               </li>

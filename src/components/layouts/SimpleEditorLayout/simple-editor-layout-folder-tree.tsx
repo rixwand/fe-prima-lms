@@ -90,11 +90,10 @@ const CourseSectionItem: React.FC<{
       role="treeitem"
       aria-expanded={section.items.length > 0 ? isOpen : undefined}
       aria-selected={isOpen}>
-      <button
-        type="button"
+      <span
         className={cn(
           "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors duration-150",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tt-theme-text-muted)] focus-visible:ring-offset-0 focus-visible:border-none",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--tt-theme-text-muted)] focus-visible:ring-offset-0 focus-visible:border-none cursor-pointer",
           // containsActiveLesson ? "dark:bg-[var(--tt-gray-dark-a-200)] border border-blue-400 text-blue-500" :
           "hover:bg-[var(--tt-gray-light-a-100)] dark:hover:bg-[var(--tt-gray-dark-a-100)] border-abu text-[var(--tt-theme-text)]",
           section.items.some(({ publishedAt }) => publishedAt == null) && "text-primary",
@@ -121,7 +120,7 @@ const CourseSectionItem: React.FC<{
             <LuGlobeLock size={15} />
           </Button>
         )}
-      </button>
+      </span>
 
       {isOpen ? (
         <ul

@@ -245,3 +245,48 @@ interface QueryEnrollmentItem {
   total: number;
   completed: number;
 }
+
+type Ids = { courseId: number; sectionId: number };
+
+interface IQuizOption {
+  id: number;
+  questionId: number;
+  value: string;
+  isCorrect: boolean;
+  position: number;
+}
+
+interface IQuizQuestion {
+  id: number;
+  quizId: number;
+  question: string;
+  position: number;
+  multipleAnswer: boolean;
+  estimatedTimesSecond: number;
+  points: number;
+  options: IQuizOption[];
+}
+
+interface IQuiz {
+  id: number;
+  description: string;
+  sectionItemId: number;
+  publishedData: {
+    description: string;
+    questions: PublishedQuestion[];
+  } | null;
+  questions: IQuizQuestion[];
+}
+
+type PublishedQuestion = {
+  question: string;
+  position: number;
+  multipleAnswer: boolean;
+  estimatedTimesSecond: number;
+  points: number;
+  options: {
+    value: string;
+    isCorrect: boolean;
+    position: number;
+  }[];
+};

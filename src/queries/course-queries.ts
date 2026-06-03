@@ -1,5 +1,6 @@
-import courseLessonService, { Ids } from "@/services/course-lesson.service";
+import courseLessonService from "@/services/course-lesson.service";
 import coursePublishService from "@/services/course-publish.service";
+import courseQuizService from "@/services/course-quiz.service";
 import courseSectionService from "@/services/course-section.service";
 import courseService from "@/services/course.service";
 import enrollmentService from "@/services/enrollment.service";
@@ -31,8 +32,16 @@ const courseQueries = {
     listCourseCategries: (params?: ListCoursesCategoriesParams) =>
       params ? ["courses-categories", params] : ["courses-categories"],
     getCourseBySlug: (slug: string) => ["coruse-preview", slug],
+    getQuizContent: (ids: Ids & { itemId: number }) => ["quiz-content", ids],
   },
   options: {
+    getQuizContent: (ids: Ids & { itemId: number }) =>
+      queryOptions<IQuiz>({
+        queryKey: courseQueries.keys.getQuizContent(ids),
+        queryFn: () => courseQuizService.get(ids).then(res => res.data),
+        placeholderData: keepPreviousData,
+        retry,
+      }),
     getCourse: (id: number) =>
       queryOptions<Course>({
         queryKey: courseQueries.keys.getCourse(id),

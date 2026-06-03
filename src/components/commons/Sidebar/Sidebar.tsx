@@ -70,11 +70,11 @@ export default function Sidebar<T extends NavStruct>({
           {!collapsed && (
             <div className="leading-tight">
               <p className="font-semibold">Prima LMS</p>
-              <p className="text-xs text-gray-500">{subTitle}</p>
+              <p className="text-xs text-nowrap text-gray-500">{subTitle}</p>
             </div>
           )}
           <Button
-            className="reset-button md:block hidden text-slate-700 w-full data-[hover=true]:bg-transparent px-3 py-2 mt-2"
+            className="reset-button md:block hidden text-slate-700 w-full data-[hover=true]:bg-transparent px-2.5 py-2 mt-2"
             onPress={() => setCollapsed(false)}
             radius="none"
             variant="light"

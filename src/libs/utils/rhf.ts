@@ -59,3 +59,64 @@ export function hasDirty(dirty: any): boolean {
 
   return false;
 }
+
+type DirtyField<T> = T extends any[]
+  ? DirtyField<T[number]>[]
+  : T extends object
+    ? { [K in keyof T]?: boolean | DirtyField<T[K]> }
+    : boolean;
+
+function hasDirtyField(dirty: any): boolean {
+  if (dirty === true) return true;
+
+  if (Array.isArray(dirty)) {
+    return dirty.some(hasDirtyField);
+  }
+
+  if (typeof dirty === "object" && dirty !== null) {
+    return Object.values(dirty).some(hasDirtyField);
+  }
+
+  return false;
+}
+
+export function extractDirtyFields<T extends { id?: string | number }>(
+  data: T[],
+  dirtyFields: DirtyField<T>[],
+): Partial<T>[] {
+  return data.reduce<Partial<T>[]>((acc, item, index) => {
+    const dirty = dirtyFields?.[index];
+
+    if (!dirty || !hasDirtyField(dirty)) {
+      return acc;
+    }
+
+    const result: Partial<T> = {};
+
+    // always include id
+    if (item.id !== undefined) {
+      result.id = item.id;
+    }
+
+    for (const key in dirty) {
+      const typedKey = key as keyof T;
+
+      const dirtyValue = (dirty as any)[typedKey];
+
+      if (!hasDirtyField(dirtyValue)) continue;
+
+      const value = item[typedKey];
+
+      if (Array.isArray(value)) {
+        result[typedKey] = value as T[keyof T];
+        continue;
+      }
+
+      result[typedKey] = value;
+    }
+
+    acc.push(result);
+
+    return acc;
+  }, []);
+}

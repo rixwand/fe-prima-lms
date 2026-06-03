@@ -1,263 +1,401 @@
-import { Button, Checkbox, Divider, Input, Select, SelectItem, Switch, Textarea } from "@heroui/react";
-import { useState } from "react";
-import { CgEditBlackPoint } from "react-icons/cg";
-import { FaCheck } from "react-icons/fa6";
+import { MySwitch } from "@/components/commons/CustomHeroui/MySwitch";
+import NormalCkbox from "@/components/commons/NormalCkbox";
+import cn from "@/libs/utils/cn";
+import { hasDirty } from "@/libs/utils/rhf";
+import { StateType } from "@/types/Helper";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, Tooltip } from "@heroui/react";
+import { useOverlayTriggerState } from "@react-stately/overlays";
+import { CSSProperties, Fragment } from "react";
+import { FormProvider } from "react-hook-form";
 import {
-  LuCodeXml,
+  LuAlignRight,
+  LuBookmark,
+  LuCheckCheck,
+  LuChevronsRight,
+  LuCloudUpload,
   LuCopyCheck,
   LuEllipsis,
+  LuGlobe,
   LuGripVertical,
-  LuImage,
-  LuMessageCircleQuestion,
-  LuPencilLine,
+  LuPencil,
   LuPlus,
-  LuTimer,
-  LuType,
+  LuSave,
+  LuTrash2,
+  LuUndo2,
+  LuX,
 } from "react-icons/lu";
+import QuestionItem from "./QuestionItem";
+import PublishedQuestionItem from "./QuestionItem/PublishedQuestion";
+import { QuizTypeKey } from "./QuizEditor.types";
+import QuizEditorPopover from "./QuizEditorPopover";
+import useQuizEditor from "./useQuizEditor";
 
-const quizType = [
-  {
-    key: "multiple-choices",
-    label: "Multiple Choices",
-    icon: LuCopyCheck,
-  },
-  {
-    key: "fill-blank",
-    label: "Fill in the Blank",
-    icon: LuPencilLine,
-  },
-];
-
-const choicesType = [
-  {
-    key: "text",
-    label: "Text",
-    icon: LuType,
-  },
-  {
-    key: "code",
-    label: "Code",
-    icon: LuCodeXml,
-  },
-  {
-    key: "image",
-    label: "Image",
-    icon: LuImage,
-  },
-];
 export default function QuizEditor() {
-  const [selectedQuizType, setSelectedQuizType] = useState<string>("multiple-choices");
-  const [selectedChoicesType, setSelectedChoicesType] = useState<string>("text");
+  const {
+    methods,
+    methods: {
+      control,
+      register,
+      setValue,
+      formState: { dirtyFields },
+    },
+    sidebarQuestions,
+    questions,
+    ids,
+    sensors,
+    onDragEnd,
+    defaultQuiz,
+    updateQuestion,
+    editModeActionHandler: { deleteMany, discard, restore, save },
+    drawerState: { isOpen, onClose, onOpen },
+    visibilityState: [showPublished, setShowPublished],
+    isEditMode,
+    updatedQuestionPositions,
+    handleAddQuestion,
+    handleEnterEditMode,
+    handleDeleteQuestion,
+    handleSaveQuiz,
+    handleUpdateAndPublishQuiz,
+    handleRestoreQuiz,
+  } = useQuizEditor();
 
   return (
-    <div className="grid @xl:grid-cols-[1fr_400px] text-slate-700 gap-x-6">
-      <div className="text-center space-y-4">
-        <div className="flex gap-x-2 w-full">
-          <div className="bg-gray-200 rounded-full p-1.5 h-fit mt-1">
-            <LuGripVertical size={16} />
-          </div>
-          <div className="p-4 rounded-lg shadow-sm border-gray-200 border-1 space-y-5 w-full text-start">
-            <div className="flex justify-between">
-              <Select
-                size="sm"
-                items={quizType}
-                radius="none"
-                className="w-44 h-fit"
-                selectedKeys={selectedQuizType ? [selectedQuizType] : undefined}
-                onSelectionChange={keys => {
-                  const value = Array.from(keys)[0] as SectionItemType;
-                  if (!value) return;
-                  setSelectedQuizType(value);
-                }}
-                classNames={{ trigger: "rounded-md" }}
-                renderValue={items =>
-                  items.map(({ data, key }) =>
-                    data ? (
-                      <span key={key} className="flex items-center gap-x-1 text-slate-700">
-                        <data.icon size={16} />
-                        {data.label}
-                      </span>
-                    ) : null,
-                  )
-                }>
-                {({ icon: Icon, key, label }) => (
-                  <SelectItem aria-label={label} key={key}>
-                    <span className="flex items-center gap-x-1 text-slate-700">
-                      <Icon size={16} />
-                      {label}
-                    </span>
-                  </SelectItem>
-                )}
-              </Select>
-              <Button
-                className="reset-button p-1.5 border border-gray-200 shadow-sm rounded-md"
-                radius="none"
-                isIconOnly
-                variant="light">
-                <LuEllipsis size={18} />
-              </Button>
-            </div>
-            <Divider />
-            <div className="flex justify-between -mb-1 px-1">
-              <span className="flex gap-x-1">
-                <LuMessageCircleQuestion size={20} />
-                <h2>Question 1</h2>
-              </span>
-              <span className="flex gap-x-2">
-                <Button
-                  className="reset-button p-1 text-slate-700 bouncy-button data-[hover=true]:bg-transparent"
-                  disableRipple
-                  radius="none"
-                  isIconOnly
-                  variant="light">
-                  <LuImage size={20} />
-                </Button>
-                <Button
-                  className="reset-button p-1 bouncy-button data-[hover=true]:bg-transparent text-slate-700"
-                  disableRipple
-                  radius="none"
-                  isIconOnly
-                  variant="light">
-                  <LuCodeXml size={20} />
-                </Button>
-              </span>
-            </div>
-            <Textarea
-              disableAnimation
-              disableAutosize
-              classNames={{
-                base: "max-w-full",
-                input: "resize-y min-h-3/4 py-2",
-              }}
-              labelPlacement="outside-top"
-              label={<></>}
-              placeholder="Enter your description"
-              variant="flat"
-              radius="sm"
-            />
-            <div className="flex gap-x-4 px-1 items-center h-8">
-              <p>Choices</p>
-              <Divider orientation="vertical" />
-              <Select
-                size="sm"
-                items={choicesType}
-                radius="none"
-                className="w-24 h-fit"
-                selectedKeys={selectedChoicesType ? [selectedChoicesType] : undefined}
-                onSelectionChange={keys => {
-                  const value = Array.from(keys)[0] as SectionItemType;
-                  if (!value) return;
-                  setSelectedChoicesType(value);
-                }}
-                classNames={{ trigger: "rounded-md" }}
-                renderValue={items =>
-                  items.map(({ data, key }) =>
-                    data ? (
-                      <span key={key} className="flex items-center gap-x-1 text-slate-700">
-                        <data.icon size={16} />
-                        {data.label}
-                      </span>
-                    ) : null,
-                  )
-                }>
-                {({ icon: Icon, key, label }) => (
-                  <SelectItem aria-label={label} key={key}>
-                    <span className="flex items-center gap-x-1 text-slate-700">
-                      <Icon size={16} />
-                      {label}
-                    </span>
-                  </SelectItem>
-                )}
-              </Select>
-              <Switch classNames={{ label: "text-slate-700" }} size="sm">
-                Multiple Answer
-              </Switch>
-            </div>
-            <div className="space-y-2">
-              <div className="flex gap-x-1 items-center">
-                <Checkbox radius="full" size="md" icon={<FaCheck />} />
-                <Input radius="sm" classNames={{ inputWrapper: "h-fit min-h-fit py-1.5" }} />
-                <span className="cursor-grabbing p-1.5 ml-1 rounded-lg bg-gray-200">
-                  <LuGripVertical size={18} />
-                </span>
-              </div>
-            </div>
-            <Button
-              className="reset-button bouncy-button border-1.5 border-dashed border-gray-500 px-3 py-2 rounded-md text-gray-700"
-              startContent={<LuPlus className="mr-2" />}
-              isIconOnly
-              variant="light"
-              disableRipple
-              radius="none">
-              Add Answer
-            </Button>
-            <Divider />
-            <div className="flex gap-x-5">
-              <div className="flex py-1.5 rounded-md border border-gray-200 bg-gray-100">
-                <input
-                  type="number"
-                  defaultValue={2}
-                  className="w-[4.5rem] bg-transparent px-3 font-medium text-gray-800 outline-none"
-                />
-                <Divider orientation="vertical" />
-                <div className="flex flex-1 text-gray-500 items-center justify-between pl-3 pr-2.5 gap-x-2">
-                  <span className="text-gray-700">Mins</span>
-                  <LuTimer size={17} />
-                </div>
-              </div>
-              <div className="flex py-1.5 rounded-md border border-gray-200 bg-gray-100">
-                <input
-                  type="number"
-                  defaultValue={5}
-                  className="w-[4.5rem] bg-transparent px-3 font-medium text-gray-800 outline-none"
-                />
-                <Divider orientation="vertical" />
-                <div className="flex flex-1 text-gray-500 items-center justify-between pl-3 pr-2.5 gap-x-2">
-                  <span className="text-gray-700">Points</span>
-                  <CgEditBlackPoint size={18} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <Button
-          className="reset-button bouncy-button border-1.5 border-dashed border-gray-500 px-3 py-2 rounded-md text-slate-700"
-          startContent={<LuPlus className="mr-2" />}
-          isIconOnly
-          variant="light"
-          disableRipple
-          radius="none">
-          Add New Question
-        </Button>
-      </div>
-      <div className="space-y-4 min-h-[calc(100vh-140px)] border rounded-xl shadow-sm border-gray-300 overflow-y-scroll sticky p-3 bg-gray-50">
-        <button
-          // key={question.id}
-          className={`w-full rounded-2xl border p-4 text-left transition ${
-            // question.active
-            //   ? "border-zinc-400 bg-white shadow-sm"
-            "border-zinc-200 bg-white hover:bg-gray-50 hover:border-zinc-300 cursor-pointer"
-          }`}>
-          <div className="mb-4 flex items-start justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-100 text-xs font-semibold text-zinc-600">
-                1
-              </div>
-              <p className="line-clamp-1 text-sm font-medium">Lorem ipsum dolor sit amet</p>
-            </div>
-          </div>
-
-          <div className="flex w-full items-center justify-between">
-            <span className="inline-flex items-center gap-x-2 rounded-lg bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700">
-              <LuCopyCheck />
-              <p>Multiple choices</p>
+    <FormProvider {...methods}>
+      <div className="grid @5xl:grid-cols-[1fr_400px] text-slate-700 gap-x-6">
+        <div className="text-center space-y-6 relative">
+          <div className="sticky top-28 z-10 -mt-2 flex justify-between border-b-1 border-gray-200 bg-white/95 py-1.5 backdrop-blur supports-[backdrop-filter]:bg-white/80 px-3">
+            <span className="flex items-center gap-x-3 ">
+              <SwitchMode state={[showPublished, setShowPublished]} />
             </span>
-            <Button className="reset-button p-1.5 bouncy-button" radius="sm" isIconOnly variant="light" disableRipple>
-              <LuEllipsis size={18} />
-            </Button>
+            <span className="flex items-center gap-x-2">
+              <Button
+                onPress={handleUpdateAndPublishQuiz}
+                // isIconOnly
+                isDisabled={isEditMode}
+                radius="none"
+                color="success"
+                variant="flat"
+                startContent={hasDirty(dirtyFields) ? <LuCloudUpload /> : <LuGlobe />}
+                className="reset-button bouncy-button px-3 py-2 rounded-lg">
+                {hasDirty(dirtyFields) && !isEditMode ? "Save & Publish" : "Publish"}
+              </Button>
+              <Button
+                onPress={handleRestoreQuiz}
+                // isIconOnly
+                isDisabled={!hasDirty(dirtyFields)}
+                radius="none"
+                color="danger"
+                variant="flat"
+                startContent={<LuUndo2 />}
+                className="reset-button bouncy-button px-3 py-2 rounded-lg">
+                Restore
+              </Button>
+              <Button
+                onPress={handleSaveQuiz}
+                // isIconOnly
+                isDisabled={!hasDirty(dirtyFields) || isEditMode}
+                radius="none"
+                color="primary"
+                variant="flat"
+                startContent={<LuSave />}
+                className="reset-button bouncy-button px-3 py-2 rounded-lg">
+                Save
+              </Button>
+            </span>
           </div>
+          {showPublished && defaultQuiz?.publishedData ? (
+            defaultQuiz.publishedData.questions.map((q, i) => <PublishedQuestionItem question={q} idx={i} key={i} />)
+          ) : (
+            <Fragment>
+              {questions.map((question, idx) => (
+                <QuestionItem
+                  key={question.fieldId}
+                  control={control}
+                  register={register}
+                  setValue={setValue}
+                  idx={idx}
+                  question={question}
+                  updateQuestion={updateQuestion}
+                  defaultQuestion={defaultQuiz?.questions[idx]!}
+                  isEditMode={isEditMode}
+                  removeQuestion={handleDeleteQuestion}
+                />
+              ))}
+              {!isEditMode && (
+                <Button
+                  onPress={handleAddQuestion}
+                  className="reset-button bouncy-button border-1.5 border-dashed border-gray-500 px-3 py-2 rounded-md text-slate-700"
+                  startContent={<LuPlus className="mr-2" />}
+                  isIconOnly
+                  variant="light"
+                  disableRipple
+                  radius="none">
+                  Add New Question
+                </Button>
+              )}
+            </Fragment>
+          )}
+        </div>
+        <button
+          onClick={onOpen}
+          className={cn([
+            isOpen ? "translate-x-12" : "translate-x-0",
+            "absolute @5xl:hidden cursor-pointer delay-700 duration-300 transition-transform top-28 bg-primary pl-3 pr-2 rounded-l-full py-2 right-0 z-20 ",
+          ])}>
+          <LuAlignRight className="text-xl text-white" />
         </button>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <aside className="@5xl:flex hidden">
+            <div
+              className={cn([
+                "h-[calc(100svh-140px)] overflow-y-scroll overflow-x-hidden @5xl:sticky top-28 right-4",
+                `flex flex-col gap-4 border rounded-xl shadow-sm w-full p-3`,
+                isEditMode ? "border-blue-300 bg-white-50 shadow-blue-200" : "border-gray-300 bg-gray-50",
+              ])}>
+              <div className="sticky top-0 right-2 left-3 rounded-xl border border-blue-200 py-1.5 px-2 flex items-center bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 justify-between">
+                <div className="flex gap-x-2 items-center">
+                  <Button
+                    onPress={isEditMode ? save : handleEnterEditMode}
+                    isIconOnly
+                    radius="sm"
+                    {...(isEditMode
+                      ? {
+                          color: "success",
+                          variant: "flat",
+                        }
+                      : {
+                          color: "primary",
+                          variant: "light",
+                        })}
+                    disableRipple
+                    className="reset-button bouncy-button p-1.5">
+                    {isEditMode ? <LuCheckCheck size={18} /> : <LuPencil size={18} />}
+                  </Button>
+                  <Button
+                    isDisabled={updatedQuestionPositions.length == 0}
+                    onPress={() => console.log(updatedQuestionPositions)}
+                    isIconOnly
+                    radius="sm"
+                    color="primary"
+                    variant="flat"
+                    disableRipple
+                    className="reset-button bouncy-button p-1.5">
+                    <LuCloudUpload size={18} />
+                  </Button>
+                  {isEditMode && <NormalCkbox size="md" className="-m-2" />}
+                </div>
+                <div className="flex gap-x-3 items-center">
+                  {isEditMode && (
+                    <Fragment>
+                      <Button
+                        isDisabled={!hasDirty(dirtyFields)}
+                        onPress={restore}
+                        isIconOnly
+                        radius="sm"
+                        color="warning"
+                        variant="flat"
+                        disableRipple
+                        className="reset-button bouncy-button p-1.5">
+                        <LuUndo2 size={18} />
+                      </Button>
+                      <Button
+                        onPress={deleteMany}
+                        isIconOnly
+                        radius="sm"
+                        color="danger"
+                        variant="flat"
+                        disableRipple
+                        className="reset-button bouncy-button p-1.5">
+                        <LuTrash2 size={18} />
+                      </Button>
+                      <Button
+                        onPress={discard}
+                        isIconOnly
+                        radius="sm"
+                        color="danger"
+                        variant="flat"
+                        disableRipple
+                        className="reset-button bouncy-button p-1.5">
+                        <LuX size={18} />
+                      </Button>
+                    </Fragment>
+                  )}
+                </div>
+              </div>
+
+              <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+                {questions.map((question, idx) => (
+                  <SidebarQuestions
+                    key={question.fieldId}
+                    {...{
+                      question: {
+                        id: question.fieldId,
+                        title: sidebarQuestions[idx].title,
+                        quizType: sidebarQuestions[idx].quizType,
+                      },
+                      idx,
+                      isEditMode,
+                      onRemoveQuestion() {
+                        question.id
+                          ? handleDeleteQuestion({ id: question.id })
+                          : handleDeleteQuestion({ fieldId: question.fieldId });
+                      },
+                    }}
+                  />
+                ))}
+              </SortableContext>
+            </div>
+          </aside>
+        </DndContext>
+        <Drawer
+          classNames={{
+            base: "sm:data-[placement=right]:m-2 sm:data-[placement=left]:m-2  rounded-medium",
+          }}
+          backdrop="transparent"
+          className="@5xl:hidden"
+          size="xs"
+          isOpen={isOpen}
+          onClose={onClose}>
+          <DrawerContent className="bg-gray-50">
+            <DrawerHeader className="absolute top-0 inset-x-0 z-50 flex flex-row gap-2 px-2 py-2 border-b border-default-200/50 justify-between bg-content1/50 backdrop-saturate-150 backdrop-blur-lg">
+              <Tooltip content="Close">
+                <Button
+                  isIconOnly
+                  className="text-default-400 reset-button p-1"
+                  size="sm"
+                  variant="light"
+                  onPress={onClose}>
+                  <LuChevronsRight size={20} />
+                </Button>
+              </Tooltip>
+              <h3 className="font-semibold mr-3">Question Lists</h3>
+            </DrawerHeader>
+            <DrawerBody className="pt-[3.75rem] px-3">
+              {questions.map((question, idx) => (
+                <SidebarQuestions
+                  key={question.fieldId}
+                  {...{
+                    question: {
+                      id: question.fieldId,
+                      title: sidebarQuestions[idx].title,
+                      quizType: sidebarQuestions[idx].quizType,
+                    },
+                    idx,
+                    isEditMode,
+                    onRemoveQuestion() {
+                      question.id
+                        ? handleDeleteQuestion({ id: question.id })
+                        : handleDeleteQuestion({ fieldId: question.fieldId });
+                    },
+                  }}
+                />
+              ))}
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
+      </div>
+    </FormProvider>
+  );
+}
+
+const SidebarQuestions = ({
+  question,
+  isEditMode,
+  idx,
+  onRemoveQuestion,
+}: {
+  question: {
+    id: string;
+    title: string;
+    quizType: QuizTypeKey;
+  };
+  idx: number;
+  isEditMode: boolean;
+  onRemoveQuestion: () => void;
+}) => {
+  const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
+    id: question.id,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  } as CSSProperties;
+  const menuState = useOverlayTriggerState({ defaultOpen: false });
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...(isEditMode && { ...listeners, attributes })}
+      // href={`#${question.fieldId}`}
+      // onClick={() => document.location.href}
+      className={`w-full rounded-2xl border p-4 text-left transition-colors border-zinc-200 bg-white hover:bg-gray-50 hover:border-zinc-300 cursor-pointer inline-block`}>
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2">
+          {isEditMode ? (
+            <NormalCkbox size="md" className="-m-2" />
+          ) : (
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-100 text-xs font-semibold text-zinc-600">
+              {idx + 1}
+            </div>
+          )}
+          <p className="line-clamp-1 text-sm font-medium">{question.title}</p>
+        </div>
+      </div>
+
+      <div className="flex w-full items-center justify-between">
+        <span className="inline-flex items-center gap-x-2 rounded-lg bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700">
+          <LuCopyCheck />
+          <p>{question.quizType === "fill-blank" ? "Fill in the blank" : "Multiple choices"}</p>
+        </span>
+        {!isEditMode ? (
+          <QuizEditorPopover menuState={menuState} onRemoveQuestion={onRemoveQuestion}>
+            <Button className="reset-button p-1.5 bouncy-button" radius="sm" isIconOnly variant="light" disableRipple>
+              <LuEllipsis size={16} />
+            </Button>
+          </QuizEditorPopover>
+        ) : (
+          <button
+            className="rounded-full p-1.5 h-fit mt-1 cursor-grab active:cursor-grabbing"
+            // {...{ ...listeners, ...attributes }}
+          >
+            <LuGripVertical size={16} />
+          </button>
+        )}
       </div>
     </div>
   );
-}
+};
+const SwitchMode = ({ state: [showPublished, setShowPublished] }: { state: StateType<boolean> }) => (
+  <span className={cn("flex items-center gap-x-1.5 py-1 px-1.5 rounded-full")}>
+    <MySwitch
+      classNames={{ wrapper: cn(showPublished ? "bg-success" : "bg-primary", "transition-background") }}
+      color="white"
+      defaultSelected
+      thumbIcon={({ isSelected, className }) =>
+        isSelected ? (
+          <LuGlobe
+            {...{
+              className: cn([className, "text-success"]),
+            }}
+          />
+        ) : (
+          <LuBookmark
+            {...{
+              className: cn([className, "text-primary"]),
+            }}
+          />
+        )
+      }
+      isSelected={showPublished}
+      onValueChange={setShowPublished}
+      endContent={<LuGlobe color="white" />}
+      size="md"
+      startContent={<LuBookmark color="white" />}
+    />
+    <p className="text-slate-700 text-sm mr-2 ml-1 text-nowrap">{showPublished ? "Live Content" : "Draft Content"}</p>
+  </span>
+);

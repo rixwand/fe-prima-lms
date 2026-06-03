@@ -2,7 +2,6 @@ import { endpoint } from "@/config/endpoint";
 import api from "@/libs/axios/instance";
 import { Content } from "@tiptap/core";
 
-export type Ids = { courseId: number; sectionId: number };
 export type MutateLesson = {
   title: string;
   summary?: string;
