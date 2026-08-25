@@ -67,7 +67,7 @@ import { normalizeTiptapContent } from "@/libs/utils/course";
 import { StateType } from "@/types/Helper";
 import { addToast } from "@heroui/react";
 import { IoContractOutline, IoExpandOutline, IoSaveOutline } from "react-icons/io5";
-import { LuBookmark, LuGlobe, LuInfo } from "react-icons/lu";
+import { LuBookmark, LuCloudUpload, LuGlobe, LuInfo } from "react-icons/lu";
 
 // --- Styles ---
 
@@ -189,7 +189,7 @@ const MainToolbarContent = ({
           className="reset-button px-2.5 py-1.5 space-x-1 text-white"
           isIconOnly
           aria-label="Publish editor content">
-          <LuGlobe />
+          <LuCloudUpload />
           <span>{isDirty && "Save & "}Publish draft</span>
         </HeroUIBtn>
         <Button

@@ -1,6 +1,5 @@
 "use client";
 import { ToggleSwitch } from "@/components/commons/CustomHeroui/ToggleSwitch";
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import useModalAddSections from "@/components/commons/Forms/AddSectionsForm/useModalAddSections";
 import NormalCkbox from "@/components/commons/NormalCkbox";
 import { TiptapViewer } from "@/components/commons/TiptapViewer/TiptapViewer";
@@ -12,6 +11,7 @@ import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import { FolderTreeContext, LessonPathIds } from "@/libs/context/FolderTreeContext";
 import { hasTrue } from "@/libs/utils/boolean";
 import cn from "@/libs/utils/cn";
+import { confirmDialog } from "@/libs/utils/confirm-dialog";
 import { diffList } from "@/libs/utils/data";
 import courseQueries from "@/queries/course-queries";
 import { StateType } from "@/types/Helper";
@@ -170,7 +170,7 @@ export default function CurriculumForm({ courseId, defaultValue }: CurriculumFor
                 <p className="text-sm text-slate-500">Organize sections and lessons for your course.</p>
               </header>
               <Link
-                href={`/instructor/dashboard/edit-course/${courseId}/lesson-editor`}
+                href={`/instructor/dashboard/edit-course/${courseId}/content-editor`}
                 aria-disabled={isLessonEditorDisabled}
                 tabIndex={isLessonEditorDisabled ? -1 : undefined}
                 className={cn(

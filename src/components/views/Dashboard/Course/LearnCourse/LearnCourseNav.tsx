@@ -15,9 +15,9 @@ import { IoChevronDown, IoChevronUp } from "react-icons/io5";
 import { LuCircle, LuCircleCheckBig, LuCircleChevronLeft, LuCircleChevronRight } from "react-icons/lu";
 import { RiMenuFold4Line, RiMenuUnfold4Line } from "react-icons/ri";
 
-type LessonPath = {
+type ItemPath = {
   sectionId: number;
-  lessonId: number;
+  id: number;
   slug: string;
   title: string;
 };
@@ -25,28 +25,28 @@ type LessonPath = {
 type Props = {
   children: ReactNode;
   activeCourseSlug: string;
-  activeLesson: string | null;
-  nextLesson: LessonPath | null;
-  previousLesson: LessonPath | null;
-  currentLesson: LessonPath | null;
+  activeItem: string | null;
+  nextItem: ItemPath | null;
+  previousItem: ItemPath | null;
+  currentItem: ItemPath | null;
   data: CourseCurriculum;
 };
 
 export default function LearnCourseNav({
   children,
   activeCourseSlug,
-  activeLesson,
+  activeItem,
   data,
-  nextLesson,
-  previousLesson,
-  currentLesson,
+  nextItem,
+  previousItem,
+  currentItem,
 }: Props) {
   const [open, setOpen] = useState<Record<number, boolean>>(() => {
     const initial: Record<number, boolean> = {};
     data.sections.forEach((s, idx) => (initial[s.id] = idx === 0));
     return initial;
   });
-  const [gsOpen, setGsOpen] = useState(!activeLesson);
+  const [gsOpen, setGsOpen] = useState(!activeItem);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const qc = useQueryClient();
   const { completeLesson, isLoading } = useLearnCourse({
@@ -81,7 +81,7 @@ export default function LearnCourseNav({
 
   const toggle = (id: number) => setOpen(prev => ({ ...prev, [id]: !prev[id] }));
   const handleNextLesson = () =>
-    currentLesson ? completeLesson({ slug: activeCourseSlug, lessonId: currentLesson.lessonId }) : null;
+    currentItem ? completeLesson({ slug: activeCourseSlug, itemId: currentItem.id }) : null;
   const sideBarToggle = () => setSidebarOpen(isSidebarOpen => !isSidebarOpen);
   useNProgress(hasTrue(isLoading));
   return (
@@ -183,7 +183,7 @@ export default function LearnCourseNav({
                     gsOpen ? "mb-3 max-h-96" : "max-h-0",
                   ])}>
                   <ModuleRow
-                    activeLesson={"/"}
+                    activeItem={"/"}
                     activeCourseSlug={activeCourseSlug}
                     key={"intro"}
                     item={{
@@ -215,12 +215,7 @@ export default function LearnCourseNav({
                       <div className="text-sm text-zinc-500 pb-3">(Belum ada item.)</div>
                     ) : (
                       section.items.map((item, i) => (
-                        <ModuleRow
-                          activeLesson={activeLesson}
-                          activeCourseSlug={activeCourseSlug}
-                          key={i}
-                          item={item}
-                        />
+                        <ModuleRow activeItem={activeItem} activeCourseSlug={activeCourseSlug} key={i} item={item} />
                       ))
                     )}
                   </div>
@@ -229,41 +224,41 @@ export default function LearnCourseNav({
             </section>
           </div>
         </aside>
-        {children}
+        <section className="@container flex w-full">{children}</section>
       </div>
       <div className="fixed bottom-0 left-0 w-full z-50 border-t border-gray-300 bg-white py-5">
         <div className="flex w-full items-center justify-between px-6">
           {/* Left */}
-          {!activeLesson ? (
+          {!activeItem ? (
             <div className="w-2/3 md:w-1/3"></div>
-          ) : previousLesson ? (
+          ) : previousItem ? (
             <Link
-              href={`/learn/${activeCourseSlug}/${previousLesson.slug}`}
+              href={`/learn/${activeCourseSlug}/${previousItem.slug}`}
               className="flex cursor-pointer md:w-1/3 disabled:text-prime/50 text-prime items-center gap-x-2 ">
               <LuCircleChevronLeft size={24} />
-              <p className="font-semibold text-nowrap w-2/3 truncate">{previousLesson.title}</p>
+              <p className="font-semibold text-nowrap md:block hidden w-2/3 truncate">{previousItem.title}</p>
             </Link>
           ) : (
             <Link
               href={`/learn/${activeCourseSlug}/`}
               className="flex cursor-pointer md:w-1/3 disabled:text-prime/50 text-prime items-center gap-x-2 ">
               <LuCircleChevronLeft size={24} />
-              <p className="font-semibold text-nowrap w-2/3 truncate">Introducing into course</p>
+              <p className="font-semibold md:block hidden text-nowrap w-2/3 truncate">Introducing into course</p>
             </Link>
           )}
 
           {/* Center */}
           <p className="font-semibold md:w-1/3 text-center text-nowrap truncate px-4 md:px-0">
-            {currentLesson ? currentLesson.title : "Introducing to course"}
+            {currentItem ? currentItem.title : "Introducing to course"}
           </p>
 
           {/* Right */}
-          {nextLesson ? (
+          {nextItem ? (
             <Link
               onClick={handleNextLesson}
-              href={`/learn/${activeCourseSlug}/${nextLesson.slug}`}
+              href={`/learn/${activeCourseSlug}/${nextItem.slug}`}
               className="flex cursor-pointer text-prime justify-end items-center gap-x-3 md:w-1/3 ">
-              <p className="font-semibold md:block text-nowrap hidden text-end w-2/3 truncate">{nextLesson.title}</p>
+              <p className="font-semibold md:block hidden text-nowrap text-end w-2/3 truncate">{nextItem.title}</p>
               <LuCircleChevronRight size={24} />
             </Link>
           ) : (
@@ -297,20 +292,20 @@ const SmallFreeTag: React.FC = () => <small className="text-zinc-500 ml-1">(Grat
 
 const ModuleRow: React.FC<{
   item: Pick<CourseSectionsItem, "slug" | "learnProgress" | "title" | "isPreview">;
-  activeLesson: string | null;
+  activeItem: string | null;
   activeCourseSlug: string;
   isCurrent?: boolean;
-}> = ({ item, activeLesson, activeCourseSlug }) => {
+}> = ({ item, activeItem, activeCourseSlug }) => {
   return (
     <div className="flex items-start gap-3 py-2 text-zinc-700">
       <div className="pt-0.5">
-        <StatusIcon status={item.learnProgress[0].status} isCurrent={item.slug == activeLesson} />
+        <StatusIcon status={item.learnProgress[0].status} isCurrent={item.slug == activeItem} />
       </div>
       <Link
         href={`/learn/${activeCourseSlug}/${item.slug}`}
         className={cn("text-sm hover:underline")}
         title={item.title}>
-        {item.slug == activeLesson ? <strong>{item.title}</strong> : item.title}
+        {item.slug == activeItem ? <strong>{item.title}</strong> : item.title}
         {item.isPreview ? <SmallFreeTag /> : null}
       </Link>
     </div>

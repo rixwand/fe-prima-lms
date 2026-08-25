@@ -1,8 +1,8 @@
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import TextField from "@/components/commons/TextField";
 import useCourse from "@/hooks/course/useCourse";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import cn from "@/libs/utils/cn";
+import { confirmDialog } from "@/libs/utils/confirm-dialog";
 import { applyDiscounts, convertLocal, toNumber } from "@/libs/utils/currency";
 import { hasDirty } from "@/libs/utils/rhf";
 import { Button, DatePicker, Select, SelectItem, Switch } from "@heroui/react";

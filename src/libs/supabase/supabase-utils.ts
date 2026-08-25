@@ -8,7 +8,7 @@ export const storageClient = new StorageClient(SUPABASE_URL, {
 export async function uploadStreamed(
   file: File,
   signedUrl: string,
-  onProgress?: (event: { progress: number }) => void
+  onProgress?: (event: { progress: number }) => void,
 ) {
   const total = file.size;
   let uploaded = 0;
@@ -35,3 +35,26 @@ export async function uploadStreamed(
     body: stream,
   });
 }
+// export async function uploadImage(file: File, fileName: string) {
+//   const path = `courses/${toSlug(fileName)}.avif`;
+
+//   const buffer = Buffer.from(await file.arrayBuffer());
+
+//   const avifBuffer = await sharp(buffer)
+//     .avif({
+//       quality: 80,
+//       effort: 4, // 0-9, higher = smaller file but slower
+//     })
+//     .toBuffer();
+
+//   const { data, error } = await storageClient.from(SUPABASE_BUCKET).upload(path, avifBuffer, {
+//     upsert: true,
+//     contentType: "image/avif",
+//   });
+
+//   if (error) {
+//     throw error;
+//   }
+
+//   return `${SUPABASE_URL}/object/public/${data.fullPath}`;
+// }

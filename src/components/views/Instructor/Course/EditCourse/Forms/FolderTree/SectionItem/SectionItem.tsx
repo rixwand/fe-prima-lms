@@ -1,4 +1,3 @@
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import useModalAddLessons from "@/components/commons/Forms/AddLessonsForm/useModalAddLesson";
 import NormalCkbox from "@/components/commons/NormalCkbox";
 import { OnSelect } from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree/FolderTree";
@@ -11,6 +10,7 @@ import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import { useFolderTreeContext } from "@/libs/context/FolderTreeContext";
 import { hasTrue } from "@/libs/utils/boolean";
 import cn from "@/libs/utils/cn";
+import { confirmDialog } from "@/libs/utils/confirm-dialog";
 import { diffList } from "@/libs/utils/data";
 import { StateType } from "@/types/Helper";
 import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";

@@ -1,4 +1,3 @@
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import NormalCkbox from "@/components/commons/NormalCkbox";
 import { OnSelect } from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree/FolderTree";
 import { CourseSectionForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
@@ -6,6 +5,7 @@ import { useEditLesson } from "@/hooks/course/useEditLesson";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import { useFolderTreeContext } from "@/libs/context/FolderTreeContext";
 import { cn } from "@/libs/tiptap/tiptap-utils";
+import { confirmDialog } from "@/libs/utils/confirm-dialog";
 import { toRoundedMinutes } from "@/libs/utils/string";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";

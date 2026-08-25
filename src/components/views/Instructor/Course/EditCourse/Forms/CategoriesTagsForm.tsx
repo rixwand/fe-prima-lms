@@ -196,7 +196,7 @@ export default function CategoriesTagsForm({
               value={tagInput}
               onChange={e => setTagInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTag())}
-              placeholder="add tag and press enter"
+              placeholder="Type tag and press enter"
             />
             <span className="flex flex-wrap gap-3">
               {tags.map(({ name, slug }) => (

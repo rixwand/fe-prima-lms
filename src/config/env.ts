@@ -1,3 +1,6 @@
+export const ROLE_MEMBER = process.env.NEXT_PUBLIC_ROLE_MEMBER || "member";
+export const ROLE_LECTURER = process.env.NEXT_PUBLIC_ROLE_LECTURER || "lecturer";
+export const ROLE_ADMIN = process.env.NEXT_PUBLIC_ROLE_ADMIN || "admin";
 export const API_URL: string = process.env.NEXT_PUBLIC_API_URL || "";
 export const AUTH_SECRET: string = process.env.NEXTAUTH_SECRET as string;
 export const NODE_ENV: string = process.env.NODE_ENV || "development";

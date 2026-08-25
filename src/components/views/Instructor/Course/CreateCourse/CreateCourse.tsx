@@ -1,8 +1,7 @@
 import UserCourseCard from "@/components/commons/Cards/UserCourseCard";
-import { SUPABASE_BUCKET, SUPABASE_URL } from "@/config/env";
 import useCourse from "@/hooks/course/useCourse";
+import useUploadFile from "@/hooks/use-uploadFile";
 import { getUnknownErrorMessage } from "@/libs/axios/error";
-import { storageClient } from "@/libs/supabase/client";
 import cn from "@/libs/utils/cn";
 import { toSlug } from "@/libs/utils/string";
 import { Spinner, addToast } from "@heroui/react";
@@ -31,25 +30,25 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
     createCourse,
     pending: { isCreateCoursePending },
   } = useCourse(0, { enabled: false, onCreateCourseSuccess: onFinish });
+  const { uploadImages } = useUploadFile();
   const onSubmit = async (value: CourseForm) => {
-    setLoading(true);
-    const fileImage = value.coverImage[0];
-    const ext = fileImage.name.split(".").pop();
-    const path = `courses/${toSlug(value.title)}.${ext}`;
-    const { error, data } = await storageClient.from(SUPABASE_BUCKET).upload(path, fileImage, { upsert: true });
-    if (error) {
-      addToast({ color: "danger", title: "Error uploading image", description: getUnknownErrorMessage(error) });
+    try {
+      setLoading(true);
+      const urlImg = await uploadImages({ files: value.coverImage?.[0], prefix: "course", fileName: value.title });
+      const categoryIds = value.categories.map(c => c.id);
+      const courseData = { ...value, coverImage: urlImg, categories: { ids: categoryIds, primaryId: categoryIds[0] } };
+      if (value.discount == undefined) Reflect.deleteProperty(courseData, "discount");
       setLoading(false);
-      console.log(error);
-      return;
+      console.log(courseData);
+      return createCourse(courseData);
+    } catch (error) {
+      addToast({
+        color: "danger",
+        title: "Error uploading image",
+        description: getUnknownErrorMessage(error),
+      });
+      console.error(error);
     }
-    const categoryIds = value.categories.map(c => c.id);
-    const urlImg = SUPABASE_URL + "/object/public/" + data.fullPath;
-    const courseData = { ...value, coverImage: urlImg, categories: { ids: categoryIds, primaryId: categoryIds[0] } };
-    if (value.discount == undefined) Reflect.deleteProperty(courseData, "discount");
-    setLoading(false);
-    console.log(courseData);
-    return createCourse(courseData);
   };
 
   const fileList = methods.watch("coverImage");

@@ -1,12 +1,12 @@
 import * as React from "react";
 import { IoChevronDown, IoChevronForward } from "react-icons/io5";
 
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import { ItemIcon } from "@/components/views/Instructor/Course/EditCourse/Forms/FolderTree/SectionItem/LessonItem/Lessonitem";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { getErrorMessage } from "@/libs/axios/error";
 import { useLessonEditorContext } from "@/libs/context/LessonEditorContext";
 import { cn } from "@/libs/tiptap/tiptap-utils";
+import { confirmDialog } from "@/libs/utils/confirm-dialog";
 import courseQueries from "@/queries/course-queries";
 import courseSectionService from "@/services/course-section.service";
 import { StateType } from "@/types/Helper";

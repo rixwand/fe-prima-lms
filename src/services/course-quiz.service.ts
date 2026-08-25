@@ -1,16 +1,16 @@
-import { IUpdateQuiz } from "@/components/views/Instructor/Course/EditCourse/QuizEditor/QuizEditor.types";
+import { IUpdateQuiz } from "@/components/views/Instructor/Course/EditCourse/ContentEditor/QuizEditor/QuizEditor.types";
 import { endpoint } from "@/config/endpoint";
 import api from "@/libs/axios/instance";
 
-const getURL = ({ courseId, sectionId }: Ids) => `${endpoint.MY_COURSE}/${courseId}/sections/${sectionId}/items/`;
+const getURL = ({ courseId, sectionId, itemId }: IdsWithItemId) =>
+  `${endpoint.MY_COURSE}/${courseId}/sections/${sectionId}/items/${itemId}/quiz`;
 export default {
-  get: ({ itemId, ...ids }: Ids & { itemId: number }) => api.get(getURL(ids) + `${itemId}/quiz`),
-  update: ({ itemId, quiz, ...ids }: Ids & { itemId: number; quiz: IUpdateQuiz }) =>
-    api.patch(getURL(ids) + `${itemId}/quiz`, quiz),
-  publish: ({ itemId, quiz, ...ids }: Ids & { itemId: number; quiz?: IUpdateQuiz }) =>
-    api.post(getURL(ids) + `${itemId}/quiz/publish`, quiz ?? undefined),
-  deleteQuestion: ({ itemId, questionId, ...ids }: Ids & { itemId: number; questionId: number }) =>
-    api.delete(getURL(ids) + `${itemId}/quiz/question/${questionId}`),
-  deleteManyQuestion: ({ itemId, questionIds, ...ids }: Ids & { itemId: number; questionIds: number[] }) =>
-    api.delete(getURL(ids) + `${itemId}/quiz/question/deleteMany`),
+  get: (ids: IdsWithItemId) => api.get(getURL(ids)),
+  update: ({ quiz, ...ids }: IdsWithItemId & { quiz: IUpdateQuiz }) => api.patch(getURL(ids) + ``, quiz),
+  publish: ({ quiz, ...ids }: IdsWithItemId & { quiz?: IUpdateQuiz }) =>
+    api.post(getURL(ids) + `/publish`, quiz ?? undefined),
+  deleteQuestion: ({ questionId, ...ids }: IdsWithItemId & { questionId: number }) =>
+    api.delete(getURL(ids) + `/question/${questionId}`),
+  deleteManyQuestion: ({ questionIds, ...ids }: IdsWithItemId & { questionIds: number[] }) =>
+    api.delete(getURL(ids) + `/question/deleteMany`, { data: { ids: questionIds } }),
 };

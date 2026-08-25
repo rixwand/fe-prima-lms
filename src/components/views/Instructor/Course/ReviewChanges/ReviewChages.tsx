@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import NotFound from "@/components/commons/NotFound";
 import useCourse from "@/hooks/course/useCourse";
 import cn from "@/libs/utils/cn";
+import { confirmDialog } from "@/libs/utils/confirm-dialog";
 import { getYouTubeEmbedUrl } from "@/libs/utils/string";
 import { Button, Code, Image, Skeleton } from "@heroui/react";
 import { Fragment, ReactNode } from "react";

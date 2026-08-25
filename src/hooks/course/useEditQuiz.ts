@@ -1,4 +1,4 @@
-import { IUpdateQuiz } from "@/components/views/Instructor/Course/EditCourse/QuizEditor/QuizEditor.types";
+import { IUpdateQuiz } from "@/components/views/Instructor/Course/EditCourse/ContentEditor/QuizEditor/QuizEditor.types";
 import { getErrorMessage } from "@/libs/axios/error";
 import { hasTrue } from "@/libs/utils/boolean";
 import courseQueries from "@/queries/course-queries";

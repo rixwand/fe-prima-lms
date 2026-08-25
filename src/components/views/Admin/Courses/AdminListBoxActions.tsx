@@ -1,8 +1,8 @@
 import FormWrapperDialog from "@/components/commons/Dialog/FormDialog";
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
-import { informationDialog } from "@/components/commons/Dialog/informationDialog";
 import RejectCourseForm, { NotesForm } from "@/components/commons/Forms/RejectCourseForm/RejectCourseForm";
 import usePublishCourses from "@/hooks/course/useListPublishRequest";
+import { confirmDialog } from "@/libs/utils/confirm-dialog";
+import { informationDialog } from "@/libs/utils/information-dialog";
 import { Listbox, ListboxItem, usePopoverContext } from "@heroui/react";
 import { Fragment } from "react";
 import { useForm } from "react-hook-form";

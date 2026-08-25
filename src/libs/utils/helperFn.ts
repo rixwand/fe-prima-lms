@@ -3,4 +3,5 @@ export function randomInRangeStep(min: number, max: number, step: number): numbe
   return min + step * Math.floor(Math.random() * count);
 }
 
-console.log(randomInRangeStep(50, 80, 10));
+export const numberOnChange = (onChange: (...event: any[]) => void) => (value: string) =>
+  onChange(value === "" ? undefined : Number(value));

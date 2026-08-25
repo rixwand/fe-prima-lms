@@ -1,11 +1,11 @@
 import FormWrapperDialog from "@/components/commons/Dialog/FormDialog";
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import RejectCourseForm, { NotesForm } from "@/components/commons/Forms/RejectCourseForm/RejectCourseForm";
 import NoResult from "@/components/commons/NoResult";
 import NotFound from "@/components/commons/NotFound";
 import useCourse from "@/hooks/course/useCourse";
 import usePublishCourses from "@/hooks/course/useListPublishRequest";
 import cn from "@/libs/utils/cn";
+import { confirmDialog } from "@/libs/utils/confirm-dialog";
 import { convertLocal, toNumber } from "@/libs/utils/currency";
 import { formatDate } from "@/libs/utils/string";
 import { Button, Chip, Skeleton, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@heroui/react";

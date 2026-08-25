@@ -3,7 +3,6 @@ import { SocketProvider } from "@/libs/context/SocketContext";
 import "@/styles/globals.css";
 import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import { DehydratedState, HydrationBoundary, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { Session } from "next-auth";
 import { SessionProvider, useSession } from "next-auth/react";
 import type { AppProps } from "next/app";
@@ -51,7 +50,7 @@ export default function App({ Component, pageProps }: AppProps<AppPageProps>) {
               <Component {...restPageProps} />
             </HydrationBoundary>
           </HeroUIProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </SocketProvider>
       </QueryClientProvider>
     </SessionProvider>

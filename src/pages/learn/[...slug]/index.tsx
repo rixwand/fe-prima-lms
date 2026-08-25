@@ -1,10 +1,13 @@
 import NotFound from "@/components/commons/NotFound";
 import LearnLayout from "@/components/layouts/LearnLayout";
-import LearnCourse from "@/components/views/Dashboard/Course/LearnCourse";
-import { LearnCourseIntro } from "@/components/views/Dashboard/Course/LearnCourse/LearnCourse";
+import ForumPage from "@/components/views/Dashboard/Course/LearnCourse/ForumPage";
 import LearnCourseNav from "@/components/views/Dashboard/Course/LearnCourse/LearnCourseNav";
+import LessonContent, { LearnCourseIntro } from "@/components/views/Dashboard/Course/LearnCourse/LessonContent";
+import QuizPage from "@/components/views/Dashboard/Course/LearnCourse/QuizPage";
+import useDump from "@/hooks/use-dump";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { useQueryError } from "@/hooks/use-query-error";
+import { LearningPathsContext } from "@/libs/context/LearningPathsContext";
 import learnQueries from "@/queries/learn-queries";
 import { DehydratedState, HydrationBoundary, QueryClient, dehydrate, useQuery } from "@tanstack/react-query";
 import { GetServerSideProps } from "next";
@@ -29,103 +32,107 @@ export const getServerSideProps = (async ctx => {
     props: {
       dehydratedState: dehydrate(queryClient),
       activeCourseSlug: slugs[0],
-      activeLesson: slugs[1] ?? null,
+      activeItem: slugs[1] ?? null,
     },
   };
 }) satisfies GetServerSideProps<{
   dehydratedState: DehydratedState;
   activeCourseSlug: string;
-  activeLesson: string | null;
+  activeItem: string | null;
 }>;
 
 export default function LearnCoursePage({
   dehydratedState,
   activeCourseSlug,
-  activeLesson,
+  activeItem,
 }: {
   dehydratedState: DehydratedState;
   activeCourseSlug: string;
-  activeLesson: string | null;
+  activeItem: string | null;
 }) {
   return (
     <HydrationBoundary state={dehydratedState}>
-      <LearnCoursePageContent activeCourseSlug={activeCourseSlug} activeLesson={activeLesson} />
+      <LearnCoursePageContent activeCourseSlug={activeCourseSlug} activeItem={activeItem} />
     </HydrationBoundary>
   );
 }
 
 function LearnCoursePageContent({
   activeCourseSlug,
-  activeLesson,
+  activeItem,
 }: {
   activeCourseSlug: string;
-  activeLesson: string | null;
+  activeItem: string | null;
 }) {
   const { data, isLoading, isError, error } = useQuery(learnQueries.options.getLearningCurriculum(activeCourseSlug));
-
+  useDump({ curriculum: data });
   useNProgress(isLoading);
   useQueryError({ isError, error });
   if (isLoading) return null;
   if (!data) return <NotFound error={error} />;
 
-  let sectionId: number | null = null;
-  let lessonId: number | null = null;
+  let currentItem: CourseSectionsItem | null = null;
 
-  let flatLessons: {
-    sectionId: number;
-    lessonId: number;
-    slug: string;
-    title: string;
-  }[] = [];
+  let flatItem: CourseSectionsItem[] = [];
 
   for (const section of data.sections) {
     for (const item of section.items) {
-      flatLessons.push({
-        sectionId: section.id,
-        lessonId: item.id,
-        slug: item.slug,
-        title: item.title,
-      });
+      flatItem.push(item);
     }
   }
 
   let currentIndex = -1;
 
-  if (activeLesson) {
-    currentIndex = flatLessons.findIndex(l => l.slug === activeLesson);
+  if (activeItem) {
+    currentIndex = flatItem.findIndex(l => l.slug === activeItem);
 
     if (currentIndex !== -1) {
-      sectionId = flatLessons[currentIndex].sectionId;
-      lessonId = flatLessons[currentIndex].lessonId;
+      currentItem = flatItem[currentIndex];
     }
   }
 
-  const previousLesson = currentIndex > 0 ? flatLessons[currentIndex - 1] : null;
+  const previousItem = currentIndex > 0 ? flatItem[currentIndex - 1] : null;
 
-  const nextLesson = !activeLesson
-    ? flatLessons[0]
-    : currentIndex !== -1 && currentIndex < flatLessons.length - 1
-      ? flatLessons[currentIndex + 1]
+  const nextItem = !activeItem
+    ? flatItem[0]
+    : currentIndex !== -1 && currentIndex < flatItem.length - 1
+      ? flatItem[currentIndex + 1]
       : null;
-  if (activeLesson && (!lessonId || !sectionId)) return <NotFound />;
+  if (activeItem && !currentItem) return <NotFound />;
 
   return (
     <LearnLayout title="Prima | Kursus">
-      <LearnCourseNav
-        {...{
-          activeLesson,
-          data,
-          activeCourseSlug,
-          previousLesson,
-          nextLesson,
-          currentLesson: flatLessons[currentIndex],
+      <LearningPathsContext.Provider
+        value={{
+          paths: {
+            slug: activeCourseSlug,
+            itemId: currentItem?.id ?? flatItem[0].id,
+            sectionId: currentItem?.sectionId ?? flatItem[0].sectionId,
+          },
         }}>
-        {activeLesson && lessonId && sectionId ? (
-          <LearnCourse {...{ slug: activeCourseSlug, lessonId, sectionId }} />
-        ) : (
-          <LearnCourseIntro />
-        )}
-      </LearnCourseNav>
+        <LearnCourseNav
+          {...{
+            activeItem,
+            data,
+            activeCourseSlug,
+            previousItem,
+            nextItem,
+            currentItem,
+          }}>
+          {activeItem && currentItem ? (
+            currentItem.type == "LESSON" ? (
+              <LessonContent {...{ ...currentItem, slug: activeCourseSlug }} />
+            ) : currentItem.type == "QUIZ" ? (
+              <QuizPage {...{ ...currentItem, slug: activeCourseSlug }} />
+            ) : (
+              <ForumPage {...{ ...currentItem, slug: activeCourseSlug }} />
+            )
+          ) : (
+            <LearnCourseIntro />
+          )}
+        </LearnCourseNav>
+      </LearningPathsContext.Provider>
+      {/* <Code className="whitespace-pre-wrap">{JSON.stringify(data, null, 2)}</Code> */}
     </LearnLayout>
   );
 }

@@ -1,5 +1,4 @@
 import UserCourseCard from "@/components/commons/Cards/UserCourseCard";
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import { SUPABASE_BUCKET, SUPABASE_URL } from "@/config/env";
 import useCourse from "@/hooks/course/useCourse";
 import { useNProgress } from "@/hooks/use-nProgress";
@@ -7,6 +6,7 @@ import { getUnknownErrorMessage } from "@/libs/axios/error";
 import { EditCourseContext } from "@/libs/context/EditCourseContext";
 import { storageClient } from "@/libs/supabase/client";
 import cn from "@/libs/utils/cn";
+import { confirmDialog } from "@/libs/utils/confirm-dialog";
 import { toNumber } from "@/libs/utils/currency";
 import { getDirtyData } from "@/libs/utils/rhf";
 import { toSlug } from "@/libs/utils/string";

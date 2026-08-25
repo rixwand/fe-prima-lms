@@ -1,3 +1,5 @@
+type Ids = { courseId: number; sectionId: number };
+type IdsWithItemId = Ids & { itemId: number };
 // =======================
 // Core unions / enums
 
@@ -246,8 +248,6 @@ interface QueryEnrollmentItem {
   completed: number;
 }
 
-type Ids = { courseId: number; sectionId: number };
-
 interface IQuizOption {
   id: number;
   questionId: number;
@@ -270,8 +270,12 @@ interface IQuizQuestion {
 interface IQuiz {
   id: number;
   description: string;
+  topics: string[];
+  passingScorePercent: number;
   sectionItemId: number;
   publishedData: {
+    passingScorePercent: number;
+    topics: string[];
     description: string;
     questions: PublishedQuestion[];
   } | null;

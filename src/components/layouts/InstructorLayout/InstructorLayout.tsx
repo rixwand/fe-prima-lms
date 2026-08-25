@@ -7,13 +7,22 @@ import useNotification from "@/hooks/dashboard/useNotification";
 import { inter } from "@/libs/fonts";
 import cn from "@/libs/utils/cn";
 import { Fragment, ReactNode, useState } from "react";
-import { LuBell, LuChartSpline, LuFileText, LuLayoutGrid, LuSettings2, LuWalletMinimal } from "react-icons/lu";
+import {
+  LuBell,
+  LuChartSpline,
+  LuFileText,
+  LuLayoutGrid,
+  LuMessagesSquare,
+  LuSettings2,
+  LuWalletMinimal,
+} from "react-icons/lu";
 
 const prefix = "/instructor/dashboard";
 
 const navLinks: NavStruct = [
   { label: "Overview", Icon: LuLayoutGrid, link: prefix },
   { label: "My Courses", Icon: LuFileText, link: prefix + "/course" },
+  { label: "Forums", Icon: LuMessagesSquare, link: prefix + "/forum" },
   { label: "Notifications", Icon: LuBell, link: "/notifications" },
   { label: "Analytics", Icon: LuChartSpline, link: prefix + "/report" },
   { label: "Payouts", Icon: LuWalletMinimal, link: prefix + "/payout" },

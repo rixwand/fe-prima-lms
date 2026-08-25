@@ -5,7 +5,7 @@ import { NextAuthOptions, User } from "next-auth";
 import NextAuth from "next-auth/next";
 import Credentials from "next-auth/providers/credentials";
 
-const config: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
@@ -69,4 +69,4 @@ const config: NextAuthOptions = {
   },
 };
 
-export default NextAuth(config);
+export default NextAuth(authOptions);

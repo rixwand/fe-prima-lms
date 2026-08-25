@@ -1,0 +1,170 @@
+{
+  "id": 35,
+  "quizId": 1,
+  "snapshotId": 1,
+  "attemptNumber": 4,
+  "status": "SUBMITTED",
+  "score": 12,
+  "totalPoints": 12,
+  "percentage": 100,
+  "passed": true,
+  "startedAt": "2026-07-01T07:38:28.344Z",
+  "submittedAt": "2026-07-01T07:38:37.214Z",
+  "timeSpentSecond": 8,
+  "quizSnapshot": {
+    "id": 1,
+    "quizId": 1,
+    "publishedVersion": 0,
+    "data": {
+      "id": 1,
+      "topics": ["Hello"],
+      "questions": [
+        {
+          "id": 9,
+          "points": 5,
+          "options": [
+            {
+              "id": 56,
+              "value": "Lorem",
+              "position": 1
+            },
+            {
+              "id": 57,
+              "value": "Ipsum",
+              "position": 2
+            }
+          ],
+          "position": 1,
+          "question": "Fusce non diam felis, curabitur tincidunt, felis ?",
+          "multipleAnswer": false,
+          "estimatedTimesSecond": 120
+        },
+        {
+          "id": 10,
+          "points": 7,
+          "options": [
+            {
+              "id": 58,
+              "value": "Dolor",
+              "position": 1
+            },
+            {
+              "id": 59,
+              "value": "Sit amet",
+              "position": 2
+            }
+          ],
+          "position": 2,
+          "question": "Nullam tempor velit id mi luctus, a. ?",
+          "multipleAnswer": false,
+          "estimatedTimesSecond": 120
+        },
+        {
+          "id": 10,
+          "points": 7,
+          "options": [
+            {
+              "id": 58,
+              "value": "Dolor",
+              "position": 1
+            },
+            {
+              "id": 59,
+              "value": "Sit amet",
+              "position": 2
+            }
+          ],
+          "position": 2,
+          "question": "Nullam tempor velit id mi luctus, a. ?",
+          "multipleAnswer": false,
+          "estimatedTimesSecond": 120
+        },
+        {
+          "id": 10,
+          "points": 7,
+          "options": [
+            {
+              "id": 58,
+              "value": "Dolor",
+              "position": 1
+            },
+            {
+              "id": 59,
+              "value": "Sit amet",
+              "position": 2
+            }
+          ],
+          "position": 2,
+          "question": "Nullam tempor velit id mi luctus, a. ?",
+          "multipleAnswer": false,
+          "estimatedTimesSecond": 120
+        },
+        {
+          "id": 10,
+          "points": 7,
+          "options": [
+            {
+              "id": 58,
+              "value": "Dolor",
+              "position": 1
+            },
+            {
+              "id": 59,
+              "value": "Sit amet",
+              "position": 2
+            }
+          ],
+          "position": 2,
+          "question": "Nullam tempor velit id mi luctus, a. ?",
+          "multipleAnswer": false,
+          "estimatedTimesSecond": 120
+        }
+      ],
+      "description": "Hello world in the quiz description",
+      "passingScorePercent": 80
+    },
+    "createdAt": "2026-06-27T11:54:43.826Z"
+  },
+  "userAnswers": [
+    {
+      "id": 7,
+      "attemptId": 35,
+      "snapshotQuestionId": 9,
+      "selectedOptionIds": [56],
+      "correctOptionIds": [56],
+      "earnedPoints": 5
+    },
+    {
+      "id": 8,
+      "attemptId": 35,
+      "snapshotQuestionId": 10,
+      "selectedOptionIds": [59],
+      "correctOptionIds": [59],
+      "earnedPoints": 7
+    },
+    {
+      "id": 8,
+      "attemptId": 35,
+      "snapshotQuestionId": 10,
+      "selectedOptionIds": [59],
+      "correctOptionIds": [59],
+      "earnedPoints": 7
+    },
+    {
+      "id": 8,
+      "attemptId": 35,
+      "snapshotQuestionId": 10,
+      "selectedOptionIds": [59],
+      "correctOptionIds": [59],
+      "earnedPoints": 7
+    },
+    {
+      "id": 8,
+      "attemptId": 35,
+      "snapshotQuestionId": 10,
+      "selectedOptionIds": [59],
+      "correctOptionIds": [59],
+      "earnedPoints": 7
+    }
+  ]
+}

@@ -1,11 +1,11 @@
 import * as React from "react";
 
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import { CourseSectionForm, EditCourseForm } from "@/components/views/Instructor/Course/EditCourse/Forms/form.type";
 import useEditSection from "@/hooks/course/useEditSection";
 import { useNProgress } from "@/hooks/use-nProgress";
 import { useEditCourseContext } from "@/libs/context/EditCourseContext";
 import { hasTrue } from "@/libs/utils/boolean";
+import { confirmDialog } from "@/libs/utils/confirm-dialog";
 import { StateType } from "@/types/Helper";
 import {
   DndContext,

@@ -2,8 +2,9 @@ import * as React from "react";
 
 import { cn } from "@/libs/tiptap/tiptap-utils";
 
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
 import { useLessonEditorContext } from "@/libs/context/LessonEditorContext";
+import { inter } from "@/libs/fonts";
+import { confirmDialog } from "@/libs/utils/confirm-dialog";
 import { findFirstSelectableLesson } from "@/libs/utils/course";
 import { StateType } from "@/types/Helper";
 import { SimpleEditorHeader } from "./simple-editor-layout-header";
@@ -192,6 +193,7 @@ export const SimpleEditorLayout: React.FC<SimpleEditorLayoutProps> = ({
       <div
         style={toolbarOffsetStyle}
         className={cn(
+          inter.className,
           "flex min-h-screen flex-col bg-[var(--tt-bg-color)] text-[var(--tt-theme-text)] lg:h-screen lg:flex-row",
           className,
         )}>

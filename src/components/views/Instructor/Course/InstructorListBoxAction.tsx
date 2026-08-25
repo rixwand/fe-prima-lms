@@ -1,7 +1,7 @@
 import FormWrapperDialog from "@/components/commons/Dialog/FormDialog";
-import { confirmDialog } from "@/components/commons/Dialog/confirmDialog";
-import { informationDialog } from "@/components/commons/Dialog/informationDialog";
 import useCourse from "@/hooks/course/useCourse";
+import { confirmDialog } from "@/libs/utils/confirm-dialog";
+import { informationDialog } from "@/libs/utils/information-dialog";
 import { Input, Listbox, ListboxItem, Textarea, usePopoverContext } from "@heroui/react";
 import { useRouter } from "next/router";
 import { Fragment } from "react";
