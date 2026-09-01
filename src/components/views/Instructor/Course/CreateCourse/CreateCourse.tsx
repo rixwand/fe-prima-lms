@@ -36,7 +36,11 @@ export default function CreateCourse({ onCancel, onFinish }: { onCancel: () => v
       setLoading(true);
       const urlImg = await uploadImages({ files: value.coverImage?.[0], prefix: "course", fileName: value.title });
       const categoryIds = value.categories.map(c => c.id);
-      const courseData = { ...value, coverImage: urlImg, categories: { ids: categoryIds, primaryId: categoryIds[0] } };
+      const courseData = {
+        ...value,
+        coverImage: urlImg[0],
+        categories: { ids: categoryIds, primaryId: categoryIds[0] },
+      };
       if (value.discount == undefined) Reflect.deleteProperty(courseData, "discount");
       setLoading(false);
       console.log(courseData);

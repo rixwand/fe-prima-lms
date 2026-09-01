@@ -74,7 +74,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({ urls });
   } catch (error) {
     console.error(error);
-
     return res.status(500).json({
       message: "Upload failed",
     });

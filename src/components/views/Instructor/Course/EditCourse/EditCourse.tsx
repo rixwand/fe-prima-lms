@@ -1,10 +1,9 @@
 import UserCourseCard from "@/components/commons/Cards/UserCourseCard";
-import { SUPABASE_BUCKET, SUPABASE_URL } from "@/config/env";
 import useCourse from "@/hooks/course/useCourse";
 import { useNProgress } from "@/hooks/use-nProgress";
+import useUploadFile from "@/hooks/use-uploadFile";
 import { getUnknownErrorMessage } from "@/libs/axios/error";
 import { EditCourseContext } from "@/libs/context/EditCourseContext";
-import { storageClient } from "@/libs/supabase/client";
 import cn from "@/libs/utils/cn";
 import { confirmDialog } from "@/libs/utils/confirm-dialog";
 import { toNumber } from "@/libs/utils/currency";
@@ -45,6 +44,7 @@ export default function EditCourse({
   tabsState: StateType<EditCourseTabsType>;
   showPublished: boolean;
 }) {
+  const { uploadImages } = useUploadFile();
   const {
     updateCourse,
     updateTags,
@@ -126,17 +126,12 @@ export default function EditCourse({
       if (dirtyData.fileImage) {
         setLoading(true);
         const fileImage = dirtyData.fileImage[0];
-        const ext = fileImage.name.split(".").pop();
-        const path = `courses/${toSlug(dirtyData.title || metaDraft.title)}.${ext}`;
-        const { error, data } = await storageClient.from(SUPABASE_BUCKET).upload(path, fileImage, { upsert: true });
-        if (error) {
-          addToast({ color: "danger", title: "Error uploading image", description: getUnknownErrorMessage(error) });
-          setLoading(false);
-          console.log(error);
-          return;
-        }
-        const urlImg = SUPABASE_URL + "/object/public/" + data.fullPath;
-        dirtyData.coverImage = urlImg;
+        const urlImg = await uploadImages({
+          files: fileImage,
+          prefix: "course",
+          fileName: toSlug(dirtyData.title || metaDraft.title),
+        });
+        dirtyData.coverImage = urlImg[0];
         setLoading(false);
       }
       if (dirtyData.discount && values.discount) {
@@ -145,6 +140,7 @@ export default function EditCourse({
       }
       return updateCourse({ id, data: dirtyData });
     } catch (error) {
+      console.log("Edit Course Error: ", error);
       setLoading(false);
       addToast({ title: "Error", description: getUnknownErrorMessage(error), color: "danger" });
     }
