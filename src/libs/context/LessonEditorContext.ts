@@ -10,6 +10,6 @@ export const LessonEditorContext = createContext<LessonEditorContextProps | unde
 
 export function useLessonEditorContext() {
   const ctx = useContext(LessonEditorContext);
-  if (!ctx) throw new Error("useLessonEditorContext ust be used inside LessonEditorProvider");
+  if (!ctx) throw new Error("useLessonEditorContext must be used inside LessonEditorProvider");
   return ctx;
 }
